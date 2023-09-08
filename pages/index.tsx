@@ -11,6 +11,7 @@ import {
   ComboBox,
   Container,
   Hero,
+  Input,
   Metadata,
   Section,
   toast,
@@ -231,9 +232,8 @@ const Home: Page = ({
             </At>
             <At
               className="btn px-3 py-1.5 text-sm"
-              href="https://developer.data.gov.my"
+              href="/api-docs"
               enableIcon
-              external
             >
               {t("common:nav.api_docs")}
             </At>
