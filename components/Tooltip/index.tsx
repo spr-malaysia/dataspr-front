@@ -7,10 +7,11 @@ import { body } from "@lib/configs/font";
 type TooltipProps = {
   children?: (open: () => void) => ReactNode;
   className?: string;
+  position?: string;
   tip: ReactNode;
 };
 
-const Tooltip: FunctionComponent<TooltipProps> = ({ children, className, tip }) => {
+const Tooltip: FunctionComponent<TooltipProps> = ({ children, className, position, tip }) => {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
@@ -32,7 +33,7 @@ const Tooltip: FunctionComponent<TooltipProps> = ({ children, className, tip }) 
           )}
         </>
       )}
-      <div className="invisible absolute bottom-7 left-1/2 z-10 hidden -translate-x-1/2 transform flex-col items-center group-hover:visible group-hover:flex lg:flex">
+      <div className={clx("invisible absolute bottom-6 left-1/2 z-10 hidden -translate-x-1/2 transform flex-col items-center group-hover:visible group-hover:flex lg:flex", position)}>
         <span
           className={clx(
             "shadow-floating absolute bottom-1 w-max max-w-[200px] rounded-lg bg-zinc-900 px-3 py-2 text-sm font-normal text-white dark:bg-white dark:text-zinc-900",
@@ -41,7 +42,7 @@ const Tooltip: FunctionComponent<TooltipProps> = ({ children, className, tip }) 
         >
           {tip}
         </span>
-        <div className=" h-2 w-2 rotate-45 bg-zinc-900 dark:bg-white"></div>
+        <div className="h-2 w-2 rotate-45 bg-zinc-900 dark:bg-white"></div>
       </div>
 
       <Transition.Root show={isOpen} as={Fragment}>

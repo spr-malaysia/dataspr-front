@@ -1,5 +1,4 @@
 import { clx } from "@lib/helpers";
-import ImageWithFallback from "../ImageWithFallback";
 import { OptionType } from "@lib/types";
 import { CheckCircleIcon } from "@heroicons/react/24/solid";
 import { ForwardedRef, forwardRef, ReactNode } from "react";
