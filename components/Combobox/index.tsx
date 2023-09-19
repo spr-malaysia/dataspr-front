@@ -61,14 +61,13 @@ const ComboBox = <T extends unknown>({
   const overflowPadding = 10;
 
   const [open, setOpen] = useState(false);
-  const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
 
   // The initial max-height is what `react-virtual` uses to know how many
   // items to render. This needs to be a smaller value so it doesn't try
   // to render every single item on mount.
   const [maxHeight, setMaxHeight] = useState(240);
-  const listRef = useRef<Array<HTMLElement | null>>([...Array(ITEMS_COUNT).fill(null)]);
+  const listRef = useRef<Array<HTMLElement | null>>([]);
 
   const { refs, floatingStyles, context } = useFloating<HTMLInputElement>({
     placement: "bottom-start",
@@ -92,7 +91,7 @@ const ComboBox = <T extends unknown>({
     count: ITEMS_COUNT,
     getScrollElement: () => refs.floating.current,
     estimateSize: () => ITEM_HEIGHT,
-    overscan: 5,
+    overscan: 15,
   });
 
   const role = useRole(context, { role: "listbox" });
@@ -100,28 +99,14 @@ const ComboBox = <T extends unknown>({
   const listNav = useListNavigation(context, {
     listRef,
     activeIndex,
-    selectedIndex,
     onNavigate: setActiveIndex,
     virtual: true,
     loop: true,
   });
 
-  const { getReferenceProps, getFloatingProps, getItemProps } = useInteractions([
-    role,
-    dismiss,
-    listNav,
-  ]);
-
-  const handleSelect = () => {
-    if (activeIndex !== null) {
-      onChange(filteredOptions[activeIndex]);
-      setQuery(filteredOptions[activeIndex].label);
-      setActiveIndex(null);
-      setOpen(false);
-    } else {
-      setSelectedIndex(0);
-    }
-  };
+  const { getReferenceProps, getFloatingProps, getItemProps } = useInteractions(
+    [role, dismiss, listNav]
+  );
 
   return (
     <div
@@ -142,11 +127,12 @@ const ComboBox = <T extends unknown>({
         )}
         spellCheck={false}
         {...getReferenceProps({
-          "onChange": (event: React.ChangeEvent<HTMLInputElement>) => {
+          onChange: (event: React.ChangeEvent<HTMLInputElement>) => {
             const value = event.target.value;
             setQuery(value);
             if (onSearch) onSearch(value);
-            if (rowVirtualizer.getVirtualItems().length !== 0) rowVirtualizer.scrollToIndex(0);
+            if (rowVirtualizer.getVirtualItems().length !== 0)
+              rowVirtualizer.scrollToIndex(0);
 
             if (value) {
               setOpen(true);
@@ -156,12 +142,19 @@ const ComboBox = <T extends unknown>({
               setOpen(false);
             }
           },
-          "value": query,
-          "placeholder": placeholder,
+          value: query,
+          placeholder: placeholder,
           "aria-autocomplete": "list",
-          "onKeyDown"(event) {
-            if (event.key === "Enter" && activeIndex != null && filteredOptions[activeIndex]) {
-              handleSelect();
+          onKeyDown(event) {
+            if (
+              event.key === "Enter" &&
+              activeIndex != null &&
+              filteredOptions[activeIndex]
+            ) {
+              onChange(filteredOptions[activeIndex]);
+              setQuery(filteredOptions[activeIndex].label);
+              setActiveIndex(null);
+              setOpen(false);
             }
           },
         })}
@@ -175,7 +168,6 @@ const ComboBox = <T extends unknown>({
             setOpen(true);
             onChange(undefined);
             setActiveIndex(null);
-            setSelectedIndex(null);
             (refs.reference.current as HTMLInputElement).focus();
           }}
         >
@@ -201,7 +193,8 @@ const ComboBox = <T extends unknown>({
                 <>
                   {loading ? (
                     <div className="text-zinc-500 flex cursor-default select-none items-center gap-2 px-4 py-2">
-                      <Spinner loading={loading} /> {t("common:placeholder.loading")}
+                      <Spinner loading={loading} />{" "}
+                      {t("common:placeholder.loading")}
                     </div>
                   ) : filteredOptions.length === 0 && query !== "" ? (
                     <p className="text-zinc-500 cursor-default select-none px-4 py-2">
@@ -217,7 +210,10 @@ const ComboBox = <T extends unknown>({
                               listRef.current[i] = node;
                             },
                             onClick() {
-                              handleSelect();
+                              onChange(option);
+                              setQuery(option.label);
+                              setActiveIndex(null);
+                              setOpen(false);
                               refs.domReference.current?.focus();
                             },
                           })}
@@ -244,8 +240,15 @@ const ComboBox = <T extends unknown>({
                   // virtualizer wrapper.
                   {...getFloatingProps({
                     onKeyDown(e) {
-                      if (e.key === "Enter" && activeIndex !== null) {
-                        handleSelect();
+                      if (
+                        e.key === "Enter" &&
+                        activeIndex != null &&
+                        filteredOptions[activeIndex]
+                      ) {
+                        onChange(filteredOptions[activeIndex]);
+                        setQuery(filteredOptions[activeIndex].label);
+                        setActiveIndex(null);
+                        setOpen(false);
                       }
                     },
                   })}
@@ -258,33 +261,40 @@ const ComboBox = <T extends unknown>({
                       top: 0,
                       left: 0,
                       width: "100%",
-                      transform: `translateY(${rowVirtualizer.getVirtualItems()[0].start}px)`,
+                      transform: `translateY(${
+                        rowVirtualizer.getVirtualItems()[0].start
+                      }px)`,
                     }}
                   >
-                    {rowVirtualizer.getVirtualItems().map((virtualItem: any) => {
-                      const option = filteredOptions[virtualItem.index];
-                      return (
-                        <ComboOption
-                          {...getItemProps({
-                            key: virtualItem.index,
-                            ref(node) {
-                              listRef.current[virtualItem.index] = node;
-                            },
-                            onClick() {
-                              handleSelect();
-                              refs.domReference.current?.focus();
-                            },
-                          })}
-                          total={ITEMS_COUNT}
-                          option={option}
-                          format={format}
-                          image={image}
-                          isSelected={selected?.value === option.value}
-                          active={virtualItem.index === activeIndex}
-                          index={virtualItem.index}
-                        />
-                      );
-                    })}
+                    {rowVirtualizer
+                      .getVirtualItems()
+                      .map((virtualItem: any) => {
+                        const option = filteredOptions[virtualItem.index];
+                        return (
+                          <ComboOption
+                            {...getItemProps({
+                              key: virtualItem.index,
+                              ref(node) {
+                                listRef.current[virtualItem.index] = node;
+                              },
+                              onClick() {
+                                onChange(option);
+                                setQuery(option.label);
+                                setActiveIndex(null);
+                                setOpen(false);
+                                refs.domReference.current?.focus();
+                              },
+                            })}
+                            total={ITEMS_COUNT}
+                            option={option}
+                            format={format}
+                            image={image}
+                            isSelected={selected?.value === option.value}
+                            active={virtualItem.index === activeIndex}
+                            index={virtualItem.index}
+                          />
+                        );
+                      })}
                   </div>
                 </div>
               )}
