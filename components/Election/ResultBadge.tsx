@@ -9,14 +9,14 @@ interface ResultBadgeProps {
 }
 
 const ResultBadge: FunctionComponent<ResultBadgeProps> = ({ value, hidden = false }) => {
-  const { t } = useTranslation(["dashboard-election-explorer", "common"]);
+  const { t } = useTranslation("candidates");
   switch (value) {
     case "won":
     case "won_uncontested":
-      return <Won desc={!hidden && t(`candidate.${value}`)} />;
+      return <Won desc={!hidden && t(`candidates:${value}`)} />;
     case "lost":
     case "lost_deposit":
-      return <Lost desc={!hidden && t(`candidate.${value}`)} />;
+      return <Lost desc={!hidden && t(`candidates:${value}`)} />;
     default:
       return <></>;
   }

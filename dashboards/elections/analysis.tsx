@@ -42,7 +42,7 @@ interface ElectionAnalysisProps {
 }
 
 const ElectionAnalysis: FunctionComponent<ElectionAnalysisProps> = ({ index, seats, state }) => {
-  const { t } = useTranslation(["dashboard-election-explorer", "common"]);
+  const { t } = useTranslation(["common", "elections"]);
 
   const config: TableConfig[] = [
     {
@@ -118,10 +118,10 @@ const ElectionAnalysis: FunctionComponent<ElectionAnalysisProps> = ({ index, sea
   return (
     <div className="grid grid-cols-12 py-8 lg:py-12">
       <div className="col-span-full col-start-1 xl:col-span-10 xl:col-start-2">
-        <h4 className="text-center">{t("header_3")}</h4>
+        <h4 className="text-center">{t("elections:header_3")}</h4>
         <div className="flex justify-end py-3 lg:py-6">
           <List
-            options={[t("table"), t("map")]}
+            options={[t("elections:table"), t("elections:map")]}
             icons={[
               <TableCellsIcon key="table_cell_icon" className="mr-1 h-5 w-5" />,
               <MapIcon key="map_icon" className="mr-1 h-5 w-5" />,
@@ -134,7 +134,7 @@ const ElectionAnalysis: FunctionComponent<ElectionAnalysisProps> = ({ index, sea
           <Panel name={t("table")} icon={<TableCellsIcon className="mr-1 h-5 w-5" />}>
             <Table
               className="table-sticky-header"
-              data={analysisData}
+              // data={analysisData}
               enablePagination={10}
               config={state !== "mys" ? config.filter(col => col.id !== "state") : config}
               freeze={["constituency"]}
@@ -148,13 +148,13 @@ const ElectionAnalysis: FunctionComponent<ElectionAnalysisProps> = ({ index, sea
               }}
             />
           </Panel>
-          <Panel name={t("map")} icon={<MapIcon className="mr-1 h-5 w-5" />}>
+          <Panel name={t("elections:map")} icon={<MapIcon className="mr-1 h-5 w-5" />}>
             <LeftRightCard
               left={
                 <div className="flex h-full w-full flex-col space-y-6 p-8">
                   <div className="flex flex-col gap-2">
                     <h4>
-                      {t("choro_header", {
+                      {t("elections:choro_header", {
                         stat: t(""),
                       })}
                     </h4>
@@ -164,7 +164,7 @@ const ElectionAnalysis: FunctionComponent<ElectionAnalysisProps> = ({ index, sea
                   </div>
                   <div className="flex grow flex-col justify-between space-y-6">
                     <div className="space-y-3 pt-6">
-                      <p className="font-bold">{t("choro_rank")}</p>
+                      <p className="font-bold">{t("elections:choro_rank")}</p>
                     </div>
                   </div>
                 </div>

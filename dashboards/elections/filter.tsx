@@ -15,7 +15,7 @@ interface ElectionFilterProps {
 }
 
 const ElectionFilter: FunctionComponent<ElectionFilterProps> = ({ onClick }) => {
-  const { t } = useTranslation(["dashboard-election-explorer", "common"]);
+  const { t } = useTranslation();
   const { scroll } = useContext(WindowContext);
   const show = useMemo(() => scroll.y > 500, [scroll.y]);
 

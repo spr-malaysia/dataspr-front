@@ -119,9 +119,9 @@ const Table: FunctionComponent<TableProps> = ({
   const { t } = useTranslation("common");
 
   const sortTooltip = (sortDir: SortDirection | false) => {
-    if (sortDir === false) return t("common:common.sort");
-    else if (sortDir === "desc") return t("common:common.desc_order");
-    else if (sortDir === "asc") return t("common:common.asc_order");
+    if (sortDir === false) return t("common:sort");
+    else if (sortDir === "desc") return t("common:desc_order");
+    else if (sortDir === "asc") return t("common:asc_order");
     return undefined;
   };
   const ReactTableProps: any = {
@@ -328,7 +328,7 @@ const Table: FunctionComponent<TableProps> = ({
             ) : (
               <tr>
                 <td colSpan={table.getAllColumns().length} className="border-r border-zinc-900">
-                  <div>{t("common:common.no_entries")}. </div>
+                  <div>{t("common:no_entries")}. </div>
                 </td>
               </tr>
             )}
@@ -343,11 +343,11 @@ const Table: FunctionComponent<TableProps> = ({
             disabled={!table.getCanPreviousPage()}
           >
             <ChevronLeftIcon className="h-4.5 w-4.5" />
-            {t("common:common.previous")}
+            {t("common:previous")}
           </Button>
 
           <span className="flex items-center gap-1 text-center">
-            {t("common:common.page_of", {
+            {t("common:page_of", {
               current: table.getState().pagination.pageIndex + 1,
               total: table.getPageCount(),
             })}
@@ -357,7 +357,7 @@ const Table: FunctionComponent<TableProps> = ({
             onClick={() => table.nextPage()}
             disabled={!table.getCanNextPage()}
           >
-            {t("common:common.next")}
+            {t("common:next")}
             <ChevronRightIcon className="h-4.5 w-4.5" />
           </Button>
         </div>

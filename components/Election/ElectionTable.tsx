@@ -45,7 +45,7 @@ const ElectionTable: FunctionComponent<ElectionTableProps> = ({
   highlightedRows = [-1],
   isLoading = false,
 }) => {
-  const { t, i18n } = useTranslation(["dashboard-election-explorer", "common"]);
+  const { t, i18n } = useTranslation(["common", "election", "party"]);
 
   const table = useReactTable({
     data,
@@ -85,7 +85,7 @@ const ElectionTable: FunctionComponent<ElectionTableProps> = ({
                 cell.row.original.date &&
                 toDate(cell.row.original.date, "dd MMM yyyy", i18n.language)
               }
-              className="max-xl:left-1/3"
+              className="max-xl:-left-3"
             >
               {(open) => (
                 <div
@@ -94,8 +94,8 @@ const ElectionTable: FunctionComponent<ElectionTableProps> = ({
                   onClick={open}
                 >
                   {value === "By-Election"
-                    ? t(value)
-                    : value.slice(0, -5) + t(value.slice(-5))}
+                    ? t(`election:${value}`)
+                    : value.slice(0, -5) + t(`election:${value.slice(-5)}`)}
                 </div>
               )}
             </Tooltip>
@@ -106,11 +106,11 @@ const ElectionTable: FunctionComponent<ElectionTableProps> = ({
           <div className="flex items-center gap-1.5">
             <div className="relative flex h-auto w-8 justify-center">
               <ImageWithFallback
-                className="border-slate-200 dark:border-zinc-800  rounded border"
+                className="border-slate-200 dark:border-zinc-800 rounded border"
                 src={`/static/images/parties/${value}.png`}
                 width={32}
                 height={18}
-                alt={t(value)}
+                alt={value}
                 style={{
                   width: "auto",
                   maxWidth: "32px",
@@ -119,12 +119,12 @@ const ElectionTable: FunctionComponent<ElectionTableProps> = ({
                 }}
               />
             </div>
-            <span className="">
+            <span>
               {!table
                 .getAllColumns()
                 .map((col) => col.id)
                 .includes("full_result")
-                ? t(value)
+                ? t(`party:${value}`)
                 : value}
             </span>
           </div>
@@ -191,7 +191,7 @@ const ElectionTable: FunctionComponent<ElectionTableProps> = ({
                 src={`/static/images/parties/${value}.png`}
                 width={32}
                 height={18}
-                alt={t(value)}
+                alt={value}
                 style={{
                   width: "auto",
                   maxWidth: "32px",
@@ -213,7 +213,7 @@ const ElectionTable: FunctionComponent<ElectionTableProps> = ({
                 </span>
               </span>
             ) : (
-              <span className="font-medium">{t(value)}</span>
+              <span className="font-medium">{t(`party:${value}`)}</span>
             )}
           </div>
         );
@@ -222,8 +222,8 @@ const ElectionTable: FunctionComponent<ElectionTableProps> = ({
           <div className="flex flex-wrap gap-x-3 text-sm">
             <p className="font-medium">
               {value === "By-Election"
-                ? t(value)
-                : value.slice(0, -5) + t(value.slice(-5))}
+                ? t(`election:${value}`)
+                : value.slice(0, -5) + t(`election:${value.slice(-5)}`)}
             </p>
             {cell.row.original.date && (
               <p className="text-zinc-500">
@@ -472,7 +472,11 @@ const dummyData = [
     party: "PN",
     votes: {
       abs: 24267,
-      perc: 53.583730789613135,
+      perc: 53.5,
+    },
+    majority: {
+      abs: 24267,
+      perc: 53.5,
     },
     result: "won",
   },
@@ -485,7 +489,11 @@ const dummyData = [
     party: "WARISAN",
     votes: {
       abs: 244,
-      perc: 0.5387740681858328,
+      perc: 0.5,
+    },
+    majority: {
+      abs: 244,
+      perc: 0.5,
     },
     result: "lost_deposit",
   },
@@ -498,7 +506,11 @@ const dummyData = [
     party: "BEBAS",
     votes: {
       abs: 1939,
-      perc: 4.281487369722664,
+      perc: 4.2,
+    },
+    majority: {
+      abs: 1939,
+      perc: 4.2,
     },
     result: "lost_deposit",
   },
@@ -511,7 +523,11 @@ const dummyData = [
     party: "BN",
     votes: {
       abs: 11753,
-      perc: 25.95168698109875,
+      perc: 25.9,
+    },
+    majority: {
+      abs: 11753,
+      perc: 25.9,
     },
     result: "lost",
   },
@@ -524,7 +540,11 @@ const dummyData = [
     party: "PH",
     votes: {
       abs: 7085,
-      perc: 15.644320791379615,
+      perc: 15.6,
+    },
+    majority: {
+      abs: 7085,
+      perc: 15.6,
     },
     result: "lost",
   },

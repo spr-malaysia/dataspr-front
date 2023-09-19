@@ -132,8 +132,8 @@ const Slider: FunctionComponent<SliderProps> = ({
       {enablePlayer && (
         <button
           type="button"
-          aria-label={play ? t("common:common.pause") : t("common:common.play")}
-          title={play ? t("common:common.pause") : t("common:common.play")}
+          aria-label={play ? t("common:pause") : t("common:play")}
+          title={play ? t("common:pause") : t("common:play")}
           className="w-fit"
           onClick={togglePlayPause}
         >

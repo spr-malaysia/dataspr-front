@@ -43,7 +43,7 @@ interface BallotSeatProps {
 }
 
 const BallotSeat: FunctionComponent<BallotSeatProps> = ({ seats, state, election }) => {
-  const { t, i18n } = useTranslation(["dashboard-election-explorer", "common"]);
+  const { t, i18n } = useTranslation(["common", "elections", "home"]);
   const { cache } = useCache();
   const listRef = useRef<List>(null);
   const gridRef = useRef<Grid>(null);
@@ -98,7 +98,7 @@ const BallotSeat: FunctionComponent<BallotSeatProps> = ({ seats, state, election
           setData("seat_loading", false);
         })
         .catch(e => {
-          toast.error(t("common:error.toast.request_failure"), t("common:error.toast.try_again"));
+          toast.error(t("common:toast.request_failure"), t("common:toast.try_again"));
           console.error(e);
         });
     }
@@ -259,7 +259,7 @@ const BallotSeat: FunctionComponent<BallotSeatProps> = ({ seats, state, election
       <div className="grid grid-cols-12">
         <div className="col-span-full col-start-1 space-y-12 xl:col-span-10 xl:col-start-2">
           <div className="space-y-6">
-            <h4 className="text-center">{t("header_2")}</h4>
+            <h4 className="text-center">{t("elections:header_2")}</h4>
 
             <LeftRightCard
               left={
@@ -269,7 +269,7 @@ const BallotSeat: FunctionComponent<BallotSeatProps> = ({ seats, state, election
                 >
                   <div className="bg-slate-50 dark:bg-zinc-800 dark:border-zinc-700 sticky top-0 z-10 border-b pb-3 pt-6">
                     <ComboBox
-                      placeholder={t("seat.search_seat")}
+                      placeholder={t("home:search_seat")}
                       options={SEAT_OPTIONS}
                       selected={data.seat ? SEAT_OPTIONS.find(e => e.value === data.seat) : null}
                       onChange={selected => {

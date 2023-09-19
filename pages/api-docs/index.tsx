@@ -10,7 +10,7 @@ import { GetServerSideProps, InferGetServerSidePropsType } from "next";
 const APIDocs: Page = ({
   meta,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) => {
-  const { t } = useTranslation(["dashboard-election-explorer", "common"]);
+  const { t } = useTranslation(["common"]);
 
   return (
     <AnalyticsProvider meta={meta}>
@@ -25,13 +25,13 @@ const APIDocs: Page = ({
 };
 
 export const getServerSideProps: GetServerSideProps = withi18n(
-  "dashboard-election-explorer",
+  "api-docs",
   async () => {
     return {
       props: {
         meta: {
-          id: "dashboard-election-explorer",
-          type: "dashboard",
+          id: "api-docs",
+          type: "misc",
         },
       },
     };

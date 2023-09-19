@@ -75,7 +75,7 @@ const CatalogueIndex: FunctionComponent<CatalogueIndexProps> = ({
       <Hero
         background="blue"
         category={[
-          t("common:home.category"),
+          t("common:category"),
           "text-primary dark:text-primary-dark",
         ]}
         header={[t("header")]}
@@ -139,7 +139,7 @@ const CatalogueIndex: FunctionComponent<CatalogueIndexProps> = ({
             })
           ) : (
             <p className="text-zinc-500 p-2 pt-16 lg:p-8">
-              {t("common:common.no_entries")}.
+              {t("common:no_entries")}.
             </p>
           )}
         </Sidebar>
@@ -207,7 +207,7 @@ const CatalogueFilter: ForwardRefExoticComponent<CatalogueFilterProps> =
                 onClick={reset}
               >
                 <XMarkIcon className="text-zinc-500 h-5 w-5 group-hover:text-zinc-900 dark:group-hover:text-white" />
-                {t("common:common.clear_all")}
+                {t("common:clear_all")}
               </Button>
             )}
         </div>

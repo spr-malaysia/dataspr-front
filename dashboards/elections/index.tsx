@@ -65,7 +65,7 @@ const ElectionExplorer: FunctionComponent<ElectionExplorerProps> = ({
   selection,
   table,
 }) => {
-  const { t } = useTranslation(["dashboard-election-explorer", "common"]);
+  const { t } = useTranslation(["common", "elections", "election"]);
   const { cache } = useCache();
 
   const divRef = useRef<HTMLDivElement>(null);
@@ -149,7 +149,7 @@ const ElectionExplorer: FunctionComponent<ElectionExplorerProps> = ({
     if (data.state !== null && NON_SE_STATE.includes(data.state) === false)
       _options = selection[data.state]
         .map((election: Record<string, any>) => ({
-          label: t(election.name) + ` (${election.year})`,
+          label: t(`election.${election.name}`) + ` (${election.year})`,
           value: election.name,
         }))
         .reverse();
@@ -216,8 +216,8 @@ const ElectionExplorer: FunctionComponent<ElectionExplorerProps> = ({
         )
         .catch((e) => {
           toast.error(
-            t("common:error.toast.request_failure"),
-            t("common:error.toast.try_again")
+            t("common:toast.request_failure"),
+            t("common:toast.try_again")
           );
           console.error(e);
         });
@@ -243,7 +243,7 @@ const ElectionExplorer: FunctionComponent<ElectionExplorerProps> = ({
     <>
       <Hero
         background="red"
-        category={[t("common:categories.democracy"), "text-danger"]}
+        category={[t("common:category"), "text-danger"]}
         header={[t("header")]}
         description={[t("description")]}
         last_updated={last_updated}
@@ -251,7 +251,7 @@ const ElectionExplorer: FunctionComponent<ElectionExplorerProps> = ({
       <Container>
         {/* Explore any election from Merdeka to the present! */}
         <Section className="pt-8 lg:pt-12">
-          <h4 className="text-center">{t("header_1")}</h4>
+          <h4 className="text-center">{t("elections:header_1")}</h4>
 
           {/* Mobile */}
           <Modal
@@ -297,7 +297,7 @@ const ElectionExplorer: FunctionComponent<ElectionExplorerProps> = ({
                     <Dropdown
                       width="w-full"
                       anchor="right-0 bottom-10"
-                      placeholder={t("select_election")}
+                      placeholder={t("elections:select_election")}
                       options={TOGGLE_IS_PARLIMEN ? GE_OPTIONS : SE_OPTIONS}
                       selected={
                         TOGGLE_IS_PARLIMEN
@@ -333,7 +333,7 @@ const ElectionExplorer: FunctionComponent<ElectionExplorerProps> = ({
                       className="btn w-full justify-center px-3 py-1.5"
                       onClick={close}
                     >
-                      {t("common:common.close")}
+                      {t("close")}
                     </Button>
                   </div>
                 </div>
@@ -373,7 +373,7 @@ const ElectionExplorer: FunctionComponent<ElectionExplorerProps> = ({
             />
             <Dropdown
               anchor="left"
-              placeholder={t("select_election")}
+              placeholder={t("elections:select_election")}
               options={TOGGLE_IS_PARLIMEN ? GE_OPTIONS : SE_OPTIONS}
               selected={
                 TOGGLE_IS_PARLIMEN
@@ -409,7 +409,7 @@ const ElectionExplorer: FunctionComponent<ElectionExplorerProps> = ({
                   <div className="flex flex-col gap-y-3 xl:col-span-10 xl:col-start-2">
                     <div className="flex flex-col items-baseline justify-between gap-y-3 sm:flex-row md:gap-y-0">
                       <h5 className="w-fit">
-                        {t("election_of", {
+                        {t("elections:election_of", {
                           context: (filter.election ?? "GE-15").startsWith("G")
                             ? "parlimen"
                             : "dun",
@@ -424,7 +424,7 @@ const ElectionExplorer: FunctionComponent<ElectionExplorerProps> = ({
                       </h5>
                       <div className="flex w-full justify-start sm:w-auto">
                         <List
-                          options={[t("table"), t("map"), t("summary")]}
+                          options={[t("elections:table"), t("elections:map"), t("elections:summary")]}
                           icons={[
                             <TableCellsIcon
                               key="table_cell_icon"
@@ -443,7 +443,7 @@ const ElectionExplorer: FunctionComponent<ElectionExplorerProps> = ({
                       onChange={(index) => setData("tab_index", index)}
                     >
                       <Panel
-                        name={t("table")}
+                        name={t("elections:table")}
                         icon={<TableCellsIcon className="mr-1 h-5 w-5" />}
                       >
                         <>
@@ -477,13 +477,13 @@ const ElectionExplorer: FunctionComponent<ElectionExplorerProps> = ({
                               className="btn-default mx-auto mt-6"
                               onClick={() => setData("showFullTable", true)}
                             >
-                              {t("show_more")}
+                              {t("elections:show_more")}
                             </Button>
                           )}
                         </>
                       </Panel>
                       <Panel
-                        name={t("map")}
+                        name={t("elections:map")}
                         icon={<MapIcon className="mr-1 h-5 w-5" />}
                       >
                         <div className="bg-slate-50 dark:bg-[#121212] border-slate-200 dark:border-zinc-800 rounded-xl border static xl:py-4">
@@ -497,10 +497,10 @@ const ElectionExplorer: FunctionComponent<ElectionExplorerProps> = ({
                           />
                         </div>
                       </Panel>
-                      <Panel name={t("summary")}>
+                      <Panel name={t("elections:summary")}>
                         <div className="space-y-6">
                           <p className="text-center text-sm font-medium">
-                            {t("simple_majority")}
+                            {t("elections:simple_majority")}
                           </p>
                           <div className="relative h-12 w-full">
                             <Waffle
@@ -552,7 +552,7 @@ const ElectionExplorer: FunctionComponent<ElectionExplorerProps> = ({
                             ))}
                           </div>
                           <p className="text-zinc-500 whitespace-pre-line text-center text-sm">
-                            {t("explore")}
+                            {t("elections:explore")}
                           </p>
                         </div>
                       </Panel>

@@ -47,7 +47,7 @@ const StateModal: FunctionComponent<StateModalProps> = ({ state, exclude, url, t
           />
         </button>
       )}
-      title={title ?? t("common:common.check_out")}
+      title={title ?? t("common:check_out")}
     >
       {close => (
         <ul className="max-h-96 overflow-y-auto">

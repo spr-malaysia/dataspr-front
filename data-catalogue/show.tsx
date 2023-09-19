@@ -524,7 +524,7 @@ const CatalogueShow: FunctionComponent<CatalogueShowProps> = ({
           <p className="text-zinc-500 flex justify-end gap-2 py-6 text-sm">
             <span>
               {`${numFormat(result?.all_time_view ?? 0, "compact")} ${t(
-                "common:common.views",
+                "common:views",
                 {
                   count: result?.all_time_view ?? 0,
                 }
@@ -540,7 +540,7 @@ const CatalogueShow: FunctionComponent<CatalogueShowProps> = ({
                   result?.download_svg,
                 ]) ?? 0,
                 "compact"
-              )} ${t("common:common.downloads", {
+              )} ${t("common:downloads", {
                 count:
                   sum([
                     result?.download_csv,
@@ -667,7 +667,7 @@ const CatalogueShow: FunctionComponent<CatalogueShowProps> = ({
               </div>
               {/* Last updated */}
               <div className="space-y-3">
-                <h5>{t("common:common.last_updated", { date: "" })}</h5>
+                <h5>{t("common:last_updated", { date: "" })}</h5>
                 <p
                   className="text-zinc-500 whitespace-pre-line"
                   data-testid="catalogue-last-updated"
@@ -681,7 +681,7 @@ const CatalogueShow: FunctionComponent<CatalogueShowProps> = ({
               </div>
               {/* Next update */}
               <div className="space-y-3">
-                <h5>{t("common:common.next_update", { date: "" })}</h5>
+                <h5>{t("next_update", { date: "" })}</h5>
                 <p className="text-zinc-500" data-testid="catalogue-next-update">
                   {toDate(
                     metadata.next_update,
@@ -736,7 +736,7 @@ const CatalogueShow: FunctionComponent<CatalogueShowProps> = ({
                     rel="noopener"
                     href="https://creativecommons.org/licenses/by/4.0/"
                   >
-                    {t("common:common.here")}.
+                    {t("here")}.
                   </a>
                 </p>
               </div>

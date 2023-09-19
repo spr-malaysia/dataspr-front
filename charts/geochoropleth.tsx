@@ -16,7 +16,7 @@ import { GeoJSON, MapContainer, TileLayer, Tooltip } from "react-leaflet";
 import { ChoroplethData } from "./choropleth";
 import ChartHeader, { ChartHeaderProps } from "./chart-header";
 import { Geotype } from "@lib/types";
-import { useTranslation } from "react-i18next";
+import { useTranslation } from "@hooks/useTranslation";
 
 export interface GeoChoroplethRef {
   print: (text: string) => void;
@@ -124,7 +124,7 @@ const GeoChoropleth: FunctionComponent<GeoChoroplethProps> = ({
                   {feature.properties![type]}:{" "}
                   {value !== null && value !== undefined
                     ? numFormat(value, "standard", precision).concat(unit ?? "")
-                    : t("common:common.no_data")}
+                    : t("common:no_data")}
                 </Tooltip>
               </GeoJSON>
             );

@@ -1,11 +1,16 @@
 const I18NextHttpBackend = require("i18next-http-backend/cjs");
 
 const namespaces = [
-  "common",
+  "candidates",
   "catalogue",
-  "catalogue-datagpt",
-  "dashboards",
-  "dashboard-election-explorer",
+  "common",
+  "election",
+  "elections",
+  "error",
+  "home",
+  "parties",
+  "party",
+  "trivia"
 ];
 
 /** @type {import('next-i18next').UserConfig} */
@@ -15,15 +20,12 @@ const defineConfig = (namespace, autoloadNs) => {
       defaultLocale: "en-GB",
       locales: ["en-GB", "ms-MY"],
       backend: {
-        loadPath: `${process.env.NEXT_PUBLIC_API_URL}/i18n/?lang={{lng}}&filename={{ns}}`,
-        customHeaders: {
-          Authorization: `Bearer ${process.env.NEXT_PUBLIC_AUTHORIZATION_TOKEN}`,
-        },
+        loadPath: `${process.env.NEXT_PUBLIC_I18N_URL}/${process.env.NEXT_PUBLIC_APP_ENV}/{{lng}}/{{ns}}.json`,
         crossDomain: true,
         allowMultiLoading: true,
       },
     },
-    // debug: true,
+    debug: process.env.NEXT_PUBLIC_APP_ENV === "staging",
     ns: namespace,
     autoloadNs: autoloadNs,
     load: "currentOnly",

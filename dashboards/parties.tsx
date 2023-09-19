@@ -42,7 +42,7 @@ const ElectionPartiesDashboard: FunctionComponent<ElectionPartiesProps> = ({
   params,
   selection,
 }) => {
-  const { t } = useTranslation(["dashboard-election-explorer", "common"]);
+  const { t } = useTranslation(["common", "parties"]);
   const { cache } = useCache();
 
   const PARTY_OPTIONS: Array<OptionType> = selection.map((option) => ({
@@ -169,8 +169,8 @@ const ElectionPartiesDashboard: FunctionComponent<ElectionPartiesProps> = ({
         )
         .catch((e) => {
           toast.error(
-            t("common:error.toast.request_failure"),
-            t("common:error.toast.try_again")
+            t("toast.request_failure"),
+            t("toast.try_again")
           );
           console.error(e);
         });
@@ -208,8 +208,8 @@ const ElectionPartiesDashboard: FunctionComponent<ElectionPartiesProps> = ({
         })
         .catch((e) => {
           toast.error(
-            t("common:error.toast.request_failure"),
-            t("common:error.toast.try_again")
+            t("toast.request_failure"),
+            t("toast.try_again")
           );
           console.error(e);
         });
@@ -220,7 +220,7 @@ const ElectionPartiesDashboard: FunctionComponent<ElectionPartiesProps> = ({
     <>
       <Hero
         background="red"
-        category={[t("common:categories.democracy"), "text-danger"]}
+        category={[t("category"), "text-danger"]}
         header={[t("header")]}
         description={[t("description")]}
         last_updated={last_updated}
@@ -230,10 +230,10 @@ const ElectionPartiesDashboard: FunctionComponent<ElectionPartiesProps> = ({
           <div className="xl:grid xl:grid-cols-12">
             <div className="xl:col-span-10 xl:col-start-2">
               {/* Explore any party's entire electoral history */}
-              <h4 className="text-center">{t("party.header")}</h4>
+              <h4 className="text-center">{t("parties:header")}</h4>
               <div className="mx-auto w-full py-6 sm:w-[500px]">
                 <ComboBox
-                  placeholder={t("party.search_party")}
+                  placeholder={t("parties:search_party")}
                   image={(value) => (
                     <div className="flex h-auto max-h-8 w-8 justify-center self-center">
                       <ImageWithFallback
@@ -286,8 +286,8 @@ const ElectionPartiesDashboard: FunctionComponent<ElectionPartiesProps> = ({
                       inline
                     />
                     <Trans>
-                      {t("party.title", {
-                        party: `$t(dashboard-election-explorer:${
+                      {t("parties:title", {
+                        party: `$t(party:${
                           filter.name ?? DEFAULT_PARTY
                         })`,
                       })}
@@ -318,8 +318,8 @@ const ElectionPartiesDashboard: FunctionComponent<ElectionPartiesProps> = ({
                     isLoading={data.loading}
                     empty={
                       <Trans>
-                        {t("party.no_data", {
-                          party: `$t(dashboard-election-explorer:${
+                        {t("parties:no_data", {
+                          party: `$t(party:${
                             filter.name ?? DEFAULT_PARTY
                           })`,
                           state: CountryAndStates[filter.state],
@@ -336,8 +336,8 @@ const ElectionPartiesDashboard: FunctionComponent<ElectionPartiesProps> = ({
                     isLoading={data.loading}
                     empty={
                       <Trans>
-                        {t("party.no_data", {
-                          party: `$t(dashboard-election-explorer:${
+                        {t("parties:no_data", {
+                          party: `$t(party:${
                             filter.name ?? DEFAULT_PARTY
                           })`,
                           state: CountryAndStates[filter.state],

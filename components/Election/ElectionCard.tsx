@@ -55,7 +55,7 @@ const ElectionCard = <T extends Candidate | Party | Seat>({
     result: [],
     loading: false,
   });
-  const { t, i18n } = useTranslation(["dashboard-election-explorer", "common"]);
+  const { t, i18n } = useTranslation(["common", "election"]);
 
   if (options.length <= 0) return <></>;
 
@@ -137,7 +137,7 @@ const ElectionCard = <T extends Candidate | Party | Seat>({
                     className="flex w-full items-start justify-between pr-8 text-lg uppercase"
                   >
                     <div className="flex flex-wrap gap-x-2">
-                      <h5>{isParty ? t(data.election_name) : data.area}</h5>
+                      <h5>{isParty ? t(`election.${data.election_name}`) : data.area}</h5>
                       <span className="text-zinc-500">{isParty ? data.date : data.state}</span>
                     </div>
                     {isCandidate && <ResultBadge value={data.badge} />}
@@ -147,7 +147,7 @@ const ElectionCard = <T extends Candidate | Party | Seat>({
                     <div className="space-x-3 pt-3">
                       {!isParty && (
                         <>
-                          <span className="uppercase">{t(data.election_name)}</span>
+                          <span className="uppercase">{t(`election.${data.election_name}`)}</span>
                           <span className="text-zinc-500">{data.date}</span>
                         </>
                       )}
@@ -246,7 +246,7 @@ const ElectionCard = <T extends Candidate | Party | Seat>({
                               disabled={data.index === 0}
                             >
                               <ChevronLeftIcon className="h-4.5 w-4.5" />
-                              {t("common:common.previous")}
+                              {t("common:previous")}
                             </Button>
                             {options.length > 10 && (
                               <span className="flex items-center gap-1 text-center text-sm">
@@ -265,7 +265,7 @@ const ElectionCard = <T extends Candidate | Party | Seat>({
                               }
                               disabled={data.index === options.length - 1}
                             >
-                              {t("common:common.next")}
+                              {t("common:next")}
                               <ChevronRightIcon className="h-4.5 w-4.5" />
                             </Button>
                           </div>

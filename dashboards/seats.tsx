@@ -44,7 +44,7 @@ const ElectionSeatsDashboard: FunctionComponent<ElectionSeatsProps> = ({
   params,
   selection,
 }) => {
-  const { t } = useTranslation(["dashboard-election-explorer", "common"]);
+  const { t } = useTranslation(["seats", "common"]);
   const { cache } = useCache();
 
   const SEAT_OPTIONS: Array<OptionType & SeatOptions & { seat_area: string }> =
@@ -105,8 +105,8 @@ const ElectionSeatsDashboard: FunctionComponent<ElectionSeatsProps> = ({
         })
         .catch((e) => {
           toast.error(
-            t("common:error.toast.request_failure"),
-            t("common:error.toast.try_again")
+            t("common:toast.request_failure"),
+            t("common:toast.try_again")
           );
           console.error(e);
         });
@@ -154,8 +154,8 @@ const ElectionSeatsDashboard: FunctionComponent<ElectionSeatsProps> = ({
         })
         .catch((e) => {
           toast.error(
-            t("common:error.toast.request_failure"),
-            t("common:error.toast.try_again")
+            t("common:toast.request_failure"),
+            t("common:toast.try_again")
           );
           console.error(e);
         });
@@ -245,7 +245,7 @@ const ElectionSeatsDashboard: FunctionComponent<ElectionSeatsProps> = ({
                       <span>{`${option.seat_name}, ${option.seat_area} `}</span>
                       <span className="text-zinc-500">
                         {"(" +
-                          t(`dashboard-election-explorer:${option.type}`) +
+                          t(`election:${option.type}`) +
                           ")"}
                       </span>
                     </>

@@ -68,7 +68,7 @@ const Sidebar: FunctionComponent<SidebarProps> = ({ children, categories, onSele
               ))
             ) : (
               <p className={[styles.base, "text-zinc-500 text-sm italic"].join(" ")}>
-                {t("common:common.no_entries")}
+                {t("common:no_entries")}
               </p>
             )}
           </ul>
@@ -147,7 +147,7 @@ const Sidebar: FunctionComponent<SidebarProps> = ({ children, categories, onSele
                   ))
                 ) : (
                   <p className={[styles.base, "text-zinc-500 text-sm italic"].join(" ")}>
-                    {t("common:common.no_entries")}
+                    {t("common:no_entries")}
                   </p>
                 )}
               </ul>

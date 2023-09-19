@@ -7,17 +7,17 @@ import { Page } from "@lib/types";
 import { GetStaticProps } from "next";
 
 const Error404: Page = () => {
-  const { t } = useTranslation("common");
+  const { t } = useTranslation("error");
   return (
     <>
-      <Metadata title={t("common:error.404.title") as string} keywords={""} />
+      <Metadata title={t("404.title") as string} keywords={""} />
 
       <Container className="min-h-[76vh] pt-7 text-zinc-900">
         <ErrorStatus
-          title={t("common:error.404.title") as string}
-          description={t("common:error.404.description")}
+          title={t("404.title") as string}
+          description={t("404.description")}
           code={404}
-          reason={t("common:error.404.reason")}
+          reason={t("404.reason")}
         />
       </Container>
     </>
@@ -26,7 +26,7 @@ const Error404: Page = () => {
 
 export default Error404;
 
-export const getStaticProps: GetStaticProps = withi18n(null, async () => {
+export const getStaticProps: GetStaticProps = withi18n("error", async () => {
   return {
     props: {
       meta: {

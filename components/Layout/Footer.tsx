@@ -20,38 +20,41 @@ const Footer = () => {
           </div>
           <div>
             <div className="mb-2 font-bold uppercase">
-              {t("common:nav.gov")}
+              {t("footer.spr")}
             </div>
             <p className="text-zinc-500 text-sm">
-              © {new Date().getFullYear()} {t("common:nav.public_open_data")}
+              © {new Date().getFullYear()} {t("footer.public_open_data")}
             </p>
           </div>
         </div>
         <div className="flex gap-6 text-sm">
           {/* OPEN SOURCE CODE */}
           <div className="flex w-full flex-col gap-2 md:w-[200px]">
-            <p className="font-bold">{t("common:nav.open_source")}</p>
+            <p className="font-bold">{t("footer.open_source")}</p>
 
             <At className="link-dim" scrollTop={false} href="#">
-              {t("common:nav.frontend")}
+              {t("footer.frontend")}
             </At>
             <At className="link-dim" scrollTop={false} href="#">
-              {t("common:nav.backend")}
+              {t("footer.backend")}
             </At>
             <At className="link-dim" scrollTop={false} href="#">
-              {t("common:nav.uiux")}
+              {t("footer.uiux")}
             </At>
+            {/* <At className="link-dim" scrollTop={false} href="#">
+              {t("common:footer.ai")}
+            </At> */}
           </div>
 
           {/* OPEN SOURCE DATA */}
           <div className="flex w-full flex-col gap-2 md:w-[200px]">
-            <p className="font-bold">{t("common:nav.open_data")}</p>
+            <p className="font-bold">{t("common:footer.open_data")}</p>
 
             <At className="link-dim" scrollTop={false} href="#">
-              {t("common:nav.guiding_principles")}
+              {t("common:footer.guiding_principles")}
             </At>
             <At className="link-dim" scrollTop={false} href="#">
-              {t("common:nav.terms_of_use")}
+              {t("common:footer.terms_of_use")}
             </At>
           </div>
         </div>

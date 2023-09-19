@@ -41,7 +41,7 @@ interface ElectionCandidatesProps extends ElectionResource<Candidate> {
 const ElectionCandidatesDashboard: FunctionComponent<
   ElectionCandidatesProps
 > = ({ elections, last_updated, params, selection }) => {
-  const { t } = useTranslation(["dashboard-election-explorer", "common"]);
+  const { t } = useTranslation(["common", "candidates"]);
   const { cache } = useCache();
   const candidate_schema = generateSchema<Candidate>([
     { key: "election_name", id: "election_name", header: t("election_name") },
@@ -152,8 +152,8 @@ const ElectionCandidatesDashboard: FunctionComponent<
         )
         .catch((e) => {
           toast.error(
-            t("common:error.toast.request_failure"),
-            t("common:error.toast.try_again")
+            t("toast.request_failure"),
+            t("toast.try_again")
           );
           console.error(e);
         });
@@ -201,8 +201,8 @@ const ElectionCandidatesDashboard: FunctionComponent<
         })
         .catch((e) => {
           toast.error(
-            t("common:error.toast.request_failure"),
-            t("common:error.toast.try_again")
+            t("toast.request_failure"),
+            t("toast.try_again")
           );
           console.error(e);
         });
@@ -213,7 +213,7 @@ const ElectionCandidatesDashboard: FunctionComponent<
     <>
       <Hero
         background="red"
-        category={[t("common:categories.democracy"), "text-danger"]}
+        category={[t("category"), "text-danger"]}
         header={[t("header")]}
         description={[t("description")]}
         last_updated={last_updated}
@@ -222,10 +222,10 @@ const ElectionCandidatesDashboard: FunctionComponent<
         <Section>
           <div className="xl:grid xl:grid-cols-12">
             <div className="xl:col-span-10 xl:col-start-2">
-              <h4 className="text-center">{t("candidate.header")}</h4>
+              <h4 className="text-center">{t("candidates:header")}</h4>
               <div className="mx-auto w-full py-6 sm:w-[500px]">
                 <ComboBox
-                  placeholder={t("candidate.search_candidate")}
+                  placeholder={t("candidates:search_candidate")}
                   options={CANDIDATE_OPTIONS}
                   selected={
                     data.candidate_option
@@ -248,7 +248,7 @@ const ElectionCandidatesDashboard: FunctionComponent<
               <Tabs
                 title={
                   <h5>
-                    {t("candidate.title")}
+                    {t("candidates:title")}
                     <span className="text-primary">{data.candidate_name}</span>
                   </h5>
                 }
@@ -261,7 +261,7 @@ const ElectionCandidatesDashboard: FunctionComponent<
                     data={data.parlimen}
                     columns={candidate_schema}
                     isLoading={data.loading}
-                    empty={t("candidate.no_data", {
+                    empty={t("candidates:no_data", {
                       name: data.candidate_name,
                       context: "parliament",
                     })}
@@ -272,7 +272,7 @@ const ElectionCandidatesDashboard: FunctionComponent<
                     data={data.dun}
                     columns={candidate_schema}
                     isLoading={data.loading}
-                    empty={t("candidate.no_data", {
+                    empty={t("candidates:no_data", {
                       name: data.candidate_name,
                       context: "dun",
                     })}

@@ -60,8 +60,8 @@ const CatalogueScatter: FunctionComponent<CatalogueScatterProps> = ({
               .then(() => track("svg"))
               .catch(e => {
                 toast.error(
-                  t("common:error.toast.image_download_failure"),
-                  t("common:error.toast.try_again")
+                  t("common:toast.image_download_failure"),
+                  t("common:toast.try_again")
                 );
                 console.error(e);
               });
