@@ -10,7 +10,7 @@ const namespaces = [
   "home",
   "parties",
   "party",
-  "trivia"
+  "trivia",
 ];
 
 /** @type {import('next-i18next').UserConfig} */
@@ -37,4 +37,3 @@ const defineConfig = (namespace, autoloadNs) => {
 };
 
 module.exports = defineConfig(namespaces, ["common"]);
-
