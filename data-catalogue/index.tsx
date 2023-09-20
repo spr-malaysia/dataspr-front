@@ -182,7 +182,7 @@ const CatalogueFilter: ForwardRefExoticComponent<CatalogueFilterProps> =
         <div className="flex-1">
           <Search
             className="border-none py-1.5"
-            placeholder={t("placeholder.search")}
+            placeholder={t("common:placeholder.search")}
             query={filter.search}
             onChange={(e) => setFilter("search", e)}
           />
