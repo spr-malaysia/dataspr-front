@@ -4,15 +4,22 @@ import {
 } from "@heroicons/react/24/outline";
 import { Chips, Slider, Tooltip } from "@components/index";
 import { BREAKPOINTS, SHORT_PERIOD } from "@lib/constants";
-import { WindowContext, WindowProvider } from "@lib/contexts/window"
-import { clx, toDate } from "@lib/helpers";
+import { WindowContext, WindowProvider } from "@lib/contexts/window";
+import { toDate } from "@lib/helpers";
 import { useFilter } from "@hooks/useFilter";
 import { useTranslation } from "@hooks/useTranslation";
 import { UNIVERSAL_TABLE_SCHEMA } from "@lib/schema/data-catalogue";
 import { DCChartKeys, DCConfig, OptionType } from "@lib/types";
 import dynamic from "next/dynamic";
 import Image from "next/image";
-import { FunctionComponent, ReactNode, useContext, useEffect, useMemo, useState } from "react";
+import {
+  FunctionComponent,
+  ReactNode,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 
 /**
  * Catalogue Show
@@ -20,15 +27,24 @@ import { FunctionComponent, ReactNode, useContext, useEffect, useMemo, useState 
  */
 
 const Table = dynamic(() => import("@charts/table"), { ssr: false });
-const CatalogueTimeseries = dynamic(() => import("@charts/partials/timeseries"), {
-  ssr: false,
-});
-const CatalogueChoropleth = dynamic(() => import("@charts/partials/choropleth"), {
-  ssr: false,
-});
-const CatalogueGeoChoropleth = dynamic(() => import("@charts/partials/geochoropleth"), {
-  ssr: false,
-});
+const CatalogueTimeseries = dynamic(
+  () => import("@charts/partials/timeseries"),
+  {
+    ssr: false,
+  }
+);
+const CatalogueChoropleth = dynamic(
+  () => import("@charts/partials/choropleth"),
+  {
+    ssr: false,
+  }
+);
+const CatalogueGeoChoropleth = dynamic(
+  () => import("@charts/partials/geochoropleth"),
+  {
+    ssr: false,
+  }
+);
 const CatalogueScatter = dynamic(() => import("@charts/partials/scatter"), {
   ssr: false,
 });
@@ -95,11 +111,13 @@ const CatalogueShow: FunctionComponent<CatalogueWidgetProps> = ({
   config,
   dataset,
   metadata,
-  urls,
   translations,
 }) => {
   const { t, i18n } = useTranslation(["catalogue", "common"]);
-  const { filter, setFilter } = useFilter(config.context, { id: params.id, theme: params.theme });
+  const { filter, setFilter } = useFilter(config.context, {
+    id: params.id,
+    theme: params.theme,
+  });
   const { size } = useContext(WindowContext);
   const chips = useMemo<OptionType[]>(
     () =>
@@ -117,7 +135,8 @@ const CatalogueShow: FunctionComponent<CatalogueWidgetProps> = ({
     () =>
       setRows(
         Math.floor(
-          (size.height - (size.width > BREAKPOINTS.MD ? ROW_HEIGHT * 4 : ROW_HEIGHT * 6)) /
+          (size.height -
+            (size.width > BREAKPOINTS.MD ? ROW_HEIGHT * 4 : ROW_HEIGHT * 6)) /
             ROW_HEIGHT
         )
       ),
@@ -131,49 +150,11 @@ const CatalogueShow: FunctionComponent<CatalogueWidgetProps> = ({
       case "INTRADAY":
         return (
           <CatalogueTimeseries
-            className={clx(chips.length ? "h-[70vh]" : "h-[75vh]", "w-full")}
+            translations={translations}
             config={{
               precision: config.precision,
-              range: filter?.range?.value ?? "INTRADAY",
+              range: filter?.range?.value || "INTRADAY",
             }}
-            dataset={dataset}
-            urls={urls}
-            translations={translations}
-          />
-        );
-      case "CHOROPLETH":
-        return (
-          <CatalogueChoropleth
-            className={clx(chips.length ? "h-[70vh]" : "h-[75vh]", "w-full")}
-            dataset={dataset}
-            urls={urls}
-            config={config}
-          />
-        );
-      case "GEOCHOROPLETH":
-        return (
-          <CatalogueGeoChoropleth
-            className={clx(chips.length ? "h-[70vh]" : "h-[75vh]", "w-full")}
-            dataset={dataset}
-            urls={urls}
-            config={config}
-          />
-        );
-      case "GEOPOINT":
-        return (
-          <CatalogueMapPlot
-            className={clx(chips.length ? "h-[80vh]" : "h-[85vh]", "w-full")}
-            dataset={dataset}
-            urls={urls}
-          />
-        );
-      case "GEOJSON":
-        return (
-          <CatalogueGeojson
-            className={clx(chips.length ? "h-[80vh]" : "h-[85vh]", "w-full")}
-            config={config}
-            dataset={dataset}
-            urls={urls}
           />
         );
       case "BAR":
@@ -181,54 +162,30 @@ const CatalogueShow: FunctionComponent<CatalogueWidgetProps> = ({
       case "STACKED_BAR":
         return (
           <WindowProvider>
-            <CatalogueBar
-              className={clx(chips.length ? "h-[70vh]" : "h-[75vh]", "w-full")}
-              config={config}
-              dataset={dataset}
-              urls={urls}
-              translations={translations}
-            />
+            <CatalogueBar config={config} translations={translations} />
           </WindowProvider>
         );
+      case "CHOROPLETH":
+        return <CatalogueChoropleth config={config} />;
+      case "GEOCHOROPLETH":
+        return <CatalogueGeoChoropleth config={config} />;
+      case "GEOPOINT":
+        return <CatalogueMapPlot />;
+      case "GEOJSON":
+        return <CatalogueGeojson config={config} />;
       case "PYRAMID":
-        return (
-          <CataloguePyramid
-            className={clx(chips.length ? "h-[70vh]" : "h-[75vh]", "w-full")}
-            config={config}
-            dataset={dataset}
-            urls={urls}
-            translations={translations}
-          />
-        );
+        return <CataloguePyramid config={config} translations={translations} />;
       case "HEATTABLE":
-        return (
-          <CatalogueHeatmap
-            className={clx(chips.length ? "h-[70vh]" : "h-[75vh]", "w-full")}
-            config={config}
-            dataset={dataset}
-            urls={urls}
-            translations={translations}
-          />
-        );
+        return <CatalogueHeatmap config={config} translations={translations} />;
       case "SCATTER":
         return (
           <CatalogueScatter
-            className={clx(chips.length ? "h-[70vh]" : "h-[75vh]", "mx-auto aspect-square")}
-            dataset={dataset}
-            urls={urls}
+            className="mx-auto aspect-square w-full lg:h-[512px] lg:w-1/2"
             translations={translations}
           />
         );
       case "LINE":
-        return (
-          <CatalogueLine
-            className={clx(chips.length ? "h-[75vh]" : "h-[80vh]", "w-full")}
-            config={config}
-            dataset={dataset}
-            urls={urls}
-            translations={translations}
-          />
-        );
+        return <CatalogueLine config={config} translations={translations} />;
       case "TABLE":
         return (
           <div className="flex h-full w-full flex-col">
@@ -247,6 +204,8 @@ const CatalogueShow: FunctionComponent<CatalogueWidgetProps> = ({
             />
           </div>
         );
+      default:
+        break;
     }
     return;
   };
@@ -265,7 +224,7 @@ const CatalogueShow: FunctionComponent<CatalogueWidgetProps> = ({
                 date: toDate(metadata.data_as_of, "dd MMM yyyy", i18n.language),
               })}
             >
-              {open => (
+              {(open) => (
                 <>
                   <InformationCircleIcon
                     className="text-slate-400 mb-1 inline-block h-4 w-4 md:hidden"
@@ -276,12 +235,21 @@ const CatalogueShow: FunctionComponent<CatalogueWidgetProps> = ({
             </Tooltip>
             <span className="text-zinc-500 hidden text-right text-sm md:block">
               {t("common:data_of", {
-                date: toDate(metadata.data_as_of, "dd MMM yyyy, HH:mm", i18n.language),
+                date: toDate(
+                  metadata.data_as_of,
+                  "dd MMM yyyy, HH:mm",
+                  i18n.language
+                ),
               })}
             </span>
           </div>
         </div>
-        <Chips className="text-sm" data={chips} onRemove={null} onClearAll={null} />
+        <Chips
+          className="text-sm"
+          data={chips}
+          onRemove={null}
+          onClearAll={null}
+        />
       </div>
 
       {/* Chart */}
@@ -296,18 +264,26 @@ const CatalogueShow: FunctionComponent<CatalogueWidgetProps> = ({
             )}
             data={config.dates.options}
             period={SHORT_PERIOD[config.dates.interval]}
-            onChange={e =>
-              config.dates !== null && setFilter(config.dates.key, config.dates.options[e])
+            onChange={(e) =>
+              config.dates !== null &&
+              setFilter(config.dates.key, config.dates.options[e])
             }
           />
         )}
       </div>
 
       <div className="bg-slate-100 fixed bottom-0 left-0 flex w-full gap-2 px-3 py-1">
-        <Image src="/static/images/logo.png" width={16} height={14} alt="datagovmy logo" />
+        <Image
+          src="/static/images/jata_logo.png"
+          width={16}
+          height={14}
+          alt="Jata Negara"
+        />
         <small className="text-zinc-500 space-x-2 ">
           <a
-            href={`https://data.gov.my/data-catalogue/${dataset.meta.unique_id}`}
+            href={`https://data.spr.gov.my${
+              i18n.language === "ms-MY" ? "/ms-MY" : ""
+            }/data-catalogue/${dataset.meta.unique_id}`}
             target="_blank"
             className="space-x-1 hover:underline"
           >
@@ -317,8 +293,8 @@ const CatalogueShow: FunctionComponent<CatalogueWidgetProps> = ({
 
           <span>|</span>
 
-          <a href="https://data.gov.my" className="text-primary">
-            data.gov.my
+          <a href="https://data.spr.gov.my" className="text-primary">
+            data.spr.gov.my
           </a>
         </small>
       </div>
