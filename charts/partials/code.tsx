@@ -100,17 +100,15 @@ read_parquet("${url}")`;
   );
 };
 
-interface SampelCodeProps {
+interface SampleCodeProps {
   url: string;
   catalogueId?: string;
 }
-const SampleCode: FunctionComponent<SampelCodeProps> = ({
+const SampleCode: FunctionComponent<SampleCodeProps> = ({
   catalogueId = "<catalogue_id>",
   url,
 }) => {
-  const { t } = useTranslation(["catalogue", "common"]);
-
-  const sampleUrl = `https://api.data.gov.my/data-catalogue?id=${catalogueId}&limit=3`;
+  const _url = `https://api.data.gov.my/data-catalogue?id=${catalogueId}&limit=3`;
 
   const children: Partial<Record<Language, string>> = {
     javascript: `var requestOptions = {
@@ -119,7 +117,7 @@ const SampleCode: FunctionComponent<SampelCodeProps> = ({
 };
 
 fetch(
-  "${sampleUrl}",
+  "${_url}",
   requestOptions
 )
   .then((response) => response.json())
@@ -130,14 +128,14 @@ fetch(
     python: `import requests
 import pprint
 
-url = "${sampleUrl}" 
+url = "${_url}" 
 
 response_json = requests.get(url=url).json()
 pprint.pprint(response_json)`,
     dart: `import 'package:http/http.dart' as http;
 
 void main() async {
-  var request = http.Request('GET', Uri.parse('${sampleUrl}'));
+  var request = http.Request('GET', Uri.parse('${_url}'));
   
   request.followRedirects = false;
   
@@ -157,7 +155,7 @@ void main() async {
 import FoundationNetworking
 #endif
 
-var request = URLRequest(url: URL(string: "${sampleUrl}")!,timeoutInterval: Double.infinity)
+var request = URLRequest(url: URL(string: "${_url}")!,timeoutInterval: Double.infinity)
 request.httpMethod = "GET"
 
 let task = URLSession.shared.dataTask(with: request) { data, response, error in 
@@ -184,7 +182,7 @@ import java.util.concurrent.TimeUnit
 
 val client = OkHttpClient()
 val request = Request.Builder()
-  .url("${sampleUrl}")
+  .url("${_url}")
   .build()
 val response = client.newCall(request).execute()
 
@@ -200,7 +198,7 @@ public class Main {
     MediaType mediaType = MediaType.parse("text/plain");
     RequestBody body = RequestBody.create(mediaType, "");
     Request request = new Request.Builder()
-      .url("${sampleUrl}")
+      .url("${_url}")
       .method("GET", body)
       .build();
     Response response = client.newCall(request).execute();

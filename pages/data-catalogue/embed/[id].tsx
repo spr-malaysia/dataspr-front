@@ -3,12 +3,11 @@ import { get } from "@lib/api";
 import Metadata from "@components/Metadata";
 import { SHORT_LANG } from "@lib/constants";
 import { AnalyticsProvider } from "@lib/contexts/analytics";
+import { CatalogueProvider } from "@lib/contexts/catalogue";
 import { WindowProvider } from "@lib/contexts/window";
 import { withi18n } from "@lib/decorators";
-import { useTranslation } from "@hooks/useTranslation";
-import { DCConfig, DCFilter, FilterDate, OptionType, Page } from "@lib/types";
+import { DCConfig, DCFilter, FilterDate, Page } from "@lib/types";
 import { GetServerSideProps, InferGetServerSidePropsType } from "next";
-import { useMemo } from "react";
 
 const CatalogueEmbed: Page = ({
   meta,
@@ -27,14 +26,16 @@ const CatalogueEmbed: Page = ({
         keywords={""}
       />
       <WindowProvider>
-        <DataCatalogueWidget
-          params={params}
-          config={config}
-          dataset={dataset}
-          metadata={metadata}
-          urls={urls}
-          translations={translations}
-        />
+        <CatalogueProvider dataset={dataset} urls={urls}>
+          <DataCatalogueWidget
+            params={params}
+            config={config}
+            dataset={dataset}
+            metadata={metadata}
+            urls={urls}
+            translations={translations}
+          />
+        </CatalogueProvider>
       </WindowProvider>
     </AnalyticsProvider>
   );
@@ -62,6 +63,7 @@ export const getServerSideProps: GetServerSideProps = withi18n(
         color: data.API.colour ?? "blues",
         geojson: data.API.file_json ?? null,
         line_variables: data.API.line_variables ?? null,
+        exclude_openapi: data.exclude_openapi,
       };
 
       const hasTranslations =
