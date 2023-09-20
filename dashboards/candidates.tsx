@@ -30,9 +30,12 @@ import { FunctionComponent } from "react";
  * @overview Status: Live
  */
 
-const ElectionTable = dynamic(() => import("@components/Election/ElectionTable"), {
-  ssr: false,
-});
+const ElectionTable = dynamic(
+  () => import("@components/Election/ElectionTable"),
+  {
+    ssr: false,
+  }
+);
 
 interface ElectionCandidatesProps extends ElectionResource<Candidate> {
   selection: string[];
@@ -151,10 +154,7 @@ const ElectionCandidatesDashboard: FunctionComponent<
           }
         )
         .catch((e) => {
-          toast.error(
-            t("toast.request_failure"),
-            t("toast.try_again")
-          );
+          toast.error(t("toast.request_failure"), t("toast.try_again"));
           console.error(e);
         });
     });
@@ -200,10 +200,7 @@ const ElectionCandidatesDashboard: FunctionComponent<
           resolve(result);
         })
         .catch((e) => {
-          toast.error(
-            t("toast.request_failure"),
-            t("toast.try_again")
-          );
+          toast.error(t("toast.request_failure"), t("toast.try_again"));
           console.error(e);
         });
     });
@@ -222,10 +219,12 @@ const ElectionCandidatesDashboard: FunctionComponent<
         <Section>
           <div className="xl:grid xl:grid-cols-12">
             <div className="xl:col-span-10 xl:col-start-2">
-              <h4 className="text-center">{t("candidates:header")}</h4>
+              <h4 className="text-center">
+                {t("header", { ns: "candidates" })}
+              </h4>
               <div className="mx-auto w-full py-6 sm:w-[500px]">
                 <ComboBox
-                  placeholder={t("candidates:search_candidate")}
+                  placeholder={t("search_candidate", { ns: "candidates" })}
                   options={CANDIDATE_OPTIONS}
                   selected={
                     data.candidate_option
@@ -248,7 +247,7 @@ const ElectionCandidatesDashboard: FunctionComponent<
               <Tabs
                 title={
                   <h5>
-                    {t("candidates:title")}
+                    {t("title", { ns: "candidates" })}
                     <span className="text-primary">{data.candidate_name}</span>
                   </h5>
                 }
@@ -261,7 +260,8 @@ const ElectionCandidatesDashboard: FunctionComponent<
                     data={data.parlimen}
                     columns={candidate_schema}
                     isLoading={data.loading}
-                    empty={t("candidates:no_data", {
+                    empty={t("no_data", {
+                      ns: "candidates",
                       name: data.candidate_name,
                       context: "parliament",
                     })}
@@ -272,7 +272,8 @@ const ElectionCandidatesDashboard: FunctionComponent<
                     data={data.dun}
                     columns={candidate_schema}
                     isLoading={data.loading}
-                    empty={t("candidates:no_data", {
+                    empty={t("no_data", {
+                      ns: "candidates",
                       name: data.candidate_name,
                       context: "dun",
                     })}

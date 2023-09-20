@@ -9,7 +9,14 @@ import {
 import ElectionCard, { Result } from "@components/Election/ElectionCard";
 import { generateSchema } from "@lib/schema/election-explorer";
 import { get } from "@lib/api";
-import { ComboBox, Container, Hero, Section, toast } from "@components/index";
+import {
+  At,
+  ComboBox,
+  Container,
+  Hero,
+  Section,
+  toast,
+} from "@components/index";
 import { slugify } from "@lib/helpers";
 import { useCache } from "@hooks/useCache";
 import { useData } from "@hooks/useData";
@@ -24,9 +31,12 @@ import { FunctionComponent } from "react";
  * @overview Status: Live
  */
 
-const ElectionTable = dynamic(() => import("@components/Election/ElectionTable"), {
-  ssr: false,
-});
+const ElectionTable = dynamic(
+  () => import("@components/Election/ElectionTable"),
+  {
+    ssr: false,
+  }
+);
 
 interface ElectionSeatsProps extends ElectionResource<Seat> {
   selection: Array<SeatOptions>;
@@ -44,11 +54,11 @@ const ElectionSeatsDashboard: FunctionComponent<ElectionSeatsProps> = ({
   params,
   selection,
 }) => {
-  const { t } = useTranslation(["seats", "common"]);
+  const { t } = useTranslation(["common", "home"]);
   const { cache } = useCache();
 
   const SEAT_OPTIONS: Array<OptionType & SeatOptions & { seat_area: string }> =
-    selection.map((key) => ({
+    selection.map((key: SeatOptions) => ({
       label: key.seat_name.concat(` (${t(key.type)})`),
       value: key.type + "_" + slugify(key.seat_name),
       seat_area: key.seat_name.split(", ")[1],
@@ -104,10 +114,7 @@ const ElectionSeatsDashboard: FunctionComponent<ElectionSeatsProps> = ({
           setData("loading", false);
         })
         .catch((e) => {
-          toast.error(
-            t("common:toast.request_failure"),
-            t("common:toast.try_again")
-          );
+          toast.error(t("toast.request_failure"), t("toast.try_again"));
           console.error(e);
         });
     });
@@ -153,10 +160,7 @@ const ElectionSeatsDashboard: FunctionComponent<ElectionSeatsProps> = ({
           resolve(result);
         })
         .catch((e) => {
-          toast.error(
-            t("common:toast.request_failure"),
-            t("common:toast.try_again")
-          );
+          toast.error(t("toast.request_failure"), t("toast.try_again"));
           console.error(e);
         });
     });
@@ -209,24 +213,37 @@ const ElectionSeatsDashboard: FunctionComponent<ElectionSeatsProps> = ({
       },
     },
   ]);
-
   return (
     <>
       <Hero
         background="red"
-        category={[t("common:categories.democracy"), "text-danger"]}
+        category={[t("category"), "text-danger"]}
         header={[t("header")]}
         description={[t("description")]}
-        last_updated={last_updated}
+        action={
+          <div className="flex flex-wrap gap-3">
+            <At
+              className="btn btn-border active:bg-slate-100 shadow-button bg-white px-3 py-1.5 text-sm text-zinc-900"
+              href="/data-catalogue"
+              enableIcon
+            >
+              {t("nav.catalogue")}
+            </At>
+            <At className="btn px-3 py-1.5 text-sm" href="/api-docs" enableIcon>
+              {t("nav.api_docs")}
+            </At>
+          </div>
+        }
       />
+
       <Container>
         <Section>
           <div className="xl:grid xl:grid-cols-12">
             <div className="xl:col-span-10 xl:col-start-2">
-              <h4 className="text-center">{t("seat.header")}</h4>
+              <h4 className="text-center">{t("header", { ns: "home" })}</h4>
               <div className="mx-auto w-full py-6 sm:w-[500px]">
                 <ComboBox<SeatOption>
-                  placeholder={t("seat.search_seat")}
+                  placeholder={t("search_seat", { ns: "home" })}
                   options={SEAT_OPTIONS}
                   config={{
                     baseSort: (a, b) => {
@@ -244,9 +261,7 @@ const ElectionSeatsDashboard: FunctionComponent<ElectionSeatsProps> = ({
                     <>
                       <span>{`${option.seat_name}, ${option.seat_area} `}</span>
                       <span className="text-zinc-500">
-                        {"(" +
-                          t(`election:${option.type}`) +
-                          ")"}
+                        {"(" + t(`election:${option.type}`) + ")"}
                       </span>
                     </>
                   )}
@@ -270,11 +285,11 @@ const ElectionSeatsDashboard: FunctionComponent<ElectionSeatsProps> = ({
               <ElectionTable
                 title={
                   <h5 className="py-6">
-                    {t("seat.title")}
+                    {t("title", { ns: "home" })}
                     <span className="text-primary">{data.seat_name}</span>
                   </h5>
                 }
-                data={data.elections}
+                // data={data.elections}
                 columns={seat_schema}
                 isLoading={data.loading}
               />
