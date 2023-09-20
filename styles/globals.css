@@ -132,3 +132,18 @@ path:focus {
 :focus-visible {
   outline: unset;
 }
+
+.leaflet-pane,
+.leaflet-top,
+.leaflet-bottom {
+  @apply z-0;
+}
+
+/* MapPlot Popup Marker */
+.leaflet-popup-content {
+  width: fit-content !important;
+}
+
+.leaflet-popup-content-wrapper .leaflet-popup-content {
+  @apply whitespace-pre font-mono text-xs;
+}
