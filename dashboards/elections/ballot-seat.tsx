@@ -30,11 +30,14 @@ import {
 } from "react";
 import AutoSizer from "react-virtualized-auto-sizer";
 import { FixedSizeList as List, FixedSizeGrid as Grid } from "react-window";
+import dynamic from "next/dynamic";
 
 /**
  * Election Explorer - Ballot Seat
  * @overview Status: In-development
  */
+
+const Toast = dynamic(() => import("@components/Toast"), { ssr: false });
 
 interface BallotSeatProps {
   seats: OverallSeat[];
@@ -69,8 +72,7 @@ const BallotSeat: FunctionComponent<BallotSeatProps> = ({
       return setData("seat_result", cache.get(identifier));
     else {
       setData("seat_loading", true);
-      get("/explorer", {
-        explorer: "ELECTIONS",
+      get("/spr-dashboard", {
         chart: "full_result",
         type: "candidates",
         election,
@@ -287,13 +289,13 @@ const BallotSeat: FunctionComponent<BallotSeatProps> = ({
 
   return (
     <Section>
+      <Toast />
       <div className="grid grid-cols-12">
         <div className="col-span-full col-start-1 space-y-12 xl:col-span-10 xl:col-start-2">
           <div className="space-y-6">
             <h4 className="text-center">
               {t("header_2", { ns: "elections" })}
             </h4>
-
             <LeftRightCard
               left={
                 <div

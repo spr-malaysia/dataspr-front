@@ -33,6 +33,7 @@ const ElectionTable = dynamic(
     ssr: false,
   }
 );
+const Toast = dynamic(() => import("@components/Toast"), { ssr: false });
 
 interface ElectionTriviaProps {
   dun_bar: any;
@@ -72,8 +73,7 @@ const ElectionTriviaDashboard: FunctionComponent<ElectionTriviaProps> = ({
     const identifier = `${election}_${seat}`;
     return new Promise((resolve) => {
       if (cache.has(identifier)) return resolve(cache.get(identifier));
-      get("/explorer", {
-        explorer: "ELECTIONS",
+      get("/spr-dashboard", {
         chart: "full_result",
         type: "candidates",
         election,
@@ -177,6 +177,7 @@ const ElectionTriviaDashboard: FunctionComponent<ElectionTriviaProps> = ({
 
   return (
     <>
+      <Toast />
       <Hero
         background="red"
         category={[t("category"), "text-danger"]}
@@ -210,6 +211,7 @@ const ElectionTriviaDashboard: FunctionComponent<ElectionTriviaProps> = ({
                   <h5 className="text-center">
                     {t("majority", {
                       ns: "trivia",
+                      context: data.filter,
                       country: CountryAndStates[params.state],
                     })}
                   </h5>

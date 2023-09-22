@@ -2,7 +2,6 @@ import Nexti18NextConfig from "../next-i18next.config";
 import "../styles/globals.css";
 import Layout from "@components/Layout";
 import Progress from "@components/Progress";
-import Toast from "@components/Toast";
 import { header, body } from "@lib/configs/font";
 import mixpanelConfig from "@lib/configs/mixpanel";
 import { clx } from "@lib/helpers";
@@ -17,7 +16,9 @@ import { useEffect, ReactNode } from "react";
 function App({ Component, pageProps }: AppPropsLayout) {
   const layout =
     Component.layout ||
-    ((page: ReactNode) => <Layout className={clx(body.variable, "font-sans")}>{page}</Layout>);
+    ((page: ReactNode) => (
+      <Layout className={clx(body.variable, "font-sans")}>{page}</Layout>
+    ));
   // const router = useRouter();
 
   // Mixpanel initialisation
@@ -47,11 +48,20 @@ function App({ Component, pageProps }: AppPropsLayout) {
   // }, [router.events, pageProps?.meta]);
 
   return (
-    <div className={clx(body.variable, header.variable, "font-sans dark:bg-zinc-900")}>
-      <ThemeProvider attribute="class" enableSystem={false} forcedTheme={Component.theme}>
+    <div
+      className={clx(
+        body.variable,
+        header.variable,
+        "font-sans dark:bg-zinc-900"
+      )}
+    >
+      <ThemeProvider
+        attribute="class"
+        enableSystem={false}
+        forcedTheme={Component.theme}
+      >
         {layout(<Component {...pageProps} />, pageProps)}
         <Progress />
-        <Toast />
       </ThemeProvider>
     </div>
   );

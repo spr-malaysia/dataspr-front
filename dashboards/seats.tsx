@@ -37,6 +37,7 @@ const ElectionTable = dynamic(
     ssr: false,
   }
 );
+const Toast = dynamic(() => import("@components/Toast"), { ssr: false });
 
 interface ElectionSeatsProps extends ElectionResource<Seat> {
   selection: Array<SeatOptions>;
@@ -98,8 +99,7 @@ const ElectionSeatsDashboard: FunctionComponent<ElectionSeatsProps> = ({
         return resolve(cache.get(identifier));
       }
 
-      get("/explorer", {
-        explorer: "ELECTIONS",
+      get("/spr-dashboard", {
         chart: "seats",
         seat_name,
         type,
@@ -127,8 +127,7 @@ const ElectionSeatsDashboard: FunctionComponent<ElectionSeatsProps> = ({
     const identifier = `${election}_${seat}`;
     return new Promise((resolve) => {
       if (cache.has(identifier)) return resolve(cache.get(identifier));
-      get("/explorer", {
-        explorer: "ELECTIONS",
+      get("/spr-dashboard", {
         chart: "full_result",
         type: "candidates",
         election,
@@ -215,6 +214,7 @@ const ElectionSeatsDashboard: FunctionComponent<ElectionSeatsProps> = ({
   ]);
   return (
     <>
+      <Toast />
       <Hero
         background="red"
         category={[t("category"), "text-danger"]}
