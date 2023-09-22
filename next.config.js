@@ -29,6 +29,13 @@ const nextConfig = {
     META_URL: process.env.NEXT_PUBLIC_APP_URL,
     META_IMAGE: `${process.env.NEXT_PUBLIC_APP_URL}/static/images/og_{{lang}}.png`,
   },
+  webpack: (config) => {
+    config.module.rules.push({
+      test: /components|hooks\/index.ts/i,
+      sideEffects: false,
+    });
+    return config;
+  },
   async rewrites() {
     return [
       {
