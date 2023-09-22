@@ -43,24 +43,22 @@ export const getServerSideProps: GetServerSideProps = withi18n(
           ? [null, null]
           : [query.name, query.state];
 
-      // const [{ data: dropdown }, { data: party }] = await Promise.all([
-      //   get("/explorer", {
-      //     explorer: "ELECTIONS",
-      //     dropdown: "party_list",
-      //   }),
-      //   get("/explorer", {
-      //     explorer: "ELECTIONS",
-      //     chart: "party",
-      //     party_name: party_name ?? "PERIKATAN",
-      //     state: state ?? "mys",
-      //   }),
-      // ]).catch((e) => {
-      //   throw new Error("Invalid party. Message: " + e);
-      // });
+      const [{ data: dropdown }, { data: party }] = await Promise.all([
+        get("/spr-dashboard", {
+          dropdown: "party_list",
+        }),
+        get("/spr-dashboard", {
+          chart: "party",
+          party_name: party_name ?? "PERIKATAN",
+          state: state ?? "mys",
+        }),
+      ]).catch((e) => {
+        throw new Error("Invalid party. Message: " + e);
+      });
 
       return {
         props: {
-          last_updated: "",//party.data_last_updated,
+          last_updated: party.data_last_updated,
           meta: {
             id: "parties",
             type: "dashboard",
@@ -69,16 +67,16 @@ export const getServerSideProps: GetServerSideProps = withi18n(
             party_name: party_name,
             state: state,
           },
-          selection: [],//dropdown,
+          selection: dropdown,
           elections: {
-            parlimen:[],//
-              // party.data.parlimen.sort(
-              //   (a: Party, b: Party) => Date.parse(b.date) - Date.parse(a.date)
-              // ) ?? [],
-            dun:[],//
-              // party.data.dun.sort(
-              //   (a: Party, b: Party) => Date.parse(b.date) - Date.parse(a.date)
-              // ) ?? [],
+            parlimen:
+              party.data.parlimen.sort(
+                (a: Party, b: Party) => Date.parse(b.date) - Date.parse(a.date)
+              ) ?? [],
+            dun:
+              party.data.dun.sort(
+                (a: Party, b: Party) => Date.parse(b.date) - Date.parse(a.date)
+              ) ?? [],
           },
         },
       };
