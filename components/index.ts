@@ -8,6 +8,7 @@ export { default as CodeBlock } from "./CodeBlock";
 export { default as ComboBox } from "./Combobox";
 export { default as Container } from "./Container";
 export { default as Dropdown } from "./Dropdown";
+export { default as Daterange } from "./Daterange";
 export { default as ErrorStatus } from "./ErrorStatus";
 export { default as Footer } from "./Layout/Footer";
 export { default as Header } from "./Layout/Header";
@@ -38,7 +39,6 @@ export { default as Tooltip } from "./Tooltip";
 export { default as ThemeToggle } from "./Nav/theme";
 
 /** Derivatives */
-export { default as Daterange } from "./Dropdown/Daterange";
 export { default as StateDropdown } from "./Dropdown/StateDropdown";
 export { default as StateModal } from "./Modal/StateModal";
 export type { Language } from "./CodeBlock";
