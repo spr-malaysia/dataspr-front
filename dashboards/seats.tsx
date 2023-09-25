@@ -263,7 +263,7 @@ const ElectionSeatsDashboard: FunctionComponent<ElectionSeatsProps> = ({
                     <>
                       <span>{`${option.seat_name}, ${option.seat_area} `}</span>
                       <span className="text-zinc-500">
-                        {"(" + t(`election:${option.type}`) + ")"}
+                        {"(" + t(option.type) + ")"}
                       </span>
                     </>
                   )}
