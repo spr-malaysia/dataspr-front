@@ -4,9 +4,10 @@ import { languages } from "@lib/options";
 import At from "../At";
 import Dropdown from "../Dropdown";
 import ThemeToggle from "./theme";
-import { Bars3BottomRightIcon, XMarkIcon } from "@heroicons/react/20/solid";
 import { useRouter } from "next/router";
 import { FunctionComponent, ReactNode, useState } from "react";
+import { MenuIcon } from "@icons/index";
+import { Button } from "..";
 
 type NavRootProps = {
   children: (close: () => void) => ReactNode;
@@ -42,7 +43,9 @@ const Item: FunctionComponent<NavItemProps> = ({
       onClick={onClick}
       className={clx(
         "hover:bg-slate-100 dark:hover:bg-zinc-800 flex items-center gap-2 rounded-none px-2 py-2 text-sm font-medium transition hover:cursor-pointer md:rounded-md md:py-[6px]",
-        pathname.startsWith(link) && link !== "/" ? "bg-slate-100 dark:bg-zinc-800" : "",
+        pathname.startsWith(link) && link !== "/"
+          ? "bg-slate-100 dark:bg-zinc-800"
+          : "",
         className
       )}
       external={external}
@@ -61,7 +64,7 @@ const Nav: NavFunctionComponent = ({ children, stateSelector }) => {
   const open = () => setShowMobile(true);
 
   return (
-    <div className="flex w-full items-center justify-end lg:justify-between">
+    <div className="flex w-screen items-center justify-end lg:justify-between">
       {/* Desktop */}
       <div className="hidden w-fit gap-1 lg:flex">{children(close)}</div>
       <div className="hidden w-fit gap-4 lg:flex">
@@ -69,7 +72,7 @@ const Nav: NavFunctionComponent = ({ children, stateSelector }) => {
         <ThemeToggle />
         <Dropdown
           width="w-fit"
-          selected={languages.find(lang => lang.value === language)}
+          selected={languages.find((lang) => lang.value === language)}
           onChange={onLanguageChange}
           options={languages}
         />
@@ -78,33 +81,33 @@ const Nav: NavFunctionComponent = ({ children, stateSelector }) => {
       {/* Mobile - Header*/}
       <div className="flex w-full items-center justify-end gap-3 lg:hidden">
         {stateSelector}
-        <ThemeToggle />
-        <Dropdown
-          width="w-fit"
-          selected={languages.find(lang => lang.value === language)}
-          onChange={onLanguageChange}
-          options={languages}
-        />
-        {showMobile ? (
-          <XMarkIcon
-            className="box-content block h-5 w-5 text-zinc-900 dark:text-white lg:hidden"
-            onClick={close}
-          />
-        ) : (
-          <Bars3BottomRightIcon
-            className="box-content block h-5 w-5 text-zinc-900 dark:text-white lg:hidden"
-            onClick={open}
-          />
-        )}
+        <Button
+          type="button"
+          variant="reset"
+          aria-label="Menu"
+          className="hamburger -mr-2 rounded p-[5px] active:bg-zinc-800 lg:hidden"
+          onClick={() => setShowMobile(!showMobile)}
+        >
+          <MenuIcon className={clx(showMobile && "open")} />
+        </Button>
       </div>
       {/* Mobile - Menu */}
       <div
         className={clx(
-          "dark:divide-slate-800  shadow-floating fixed left-0 top-[57px] flex w-full flex-col gap-0 divide-y bg-white px-4 py-2 backdrop-blur-md dark:bg-zinc-900/80 lg:hidden lg:gap-1 lg:divide-y-0 lg:p-1",
+          "dark:divide-slate-800 shadow-floating fixed left-0 top-[50px] flex w-screen flex-col gap-0 divide-y bg-white px-3 py-1.5 backdrop-blur-md dark:bg-zinc-900 lg:hidden",
           showMobile ? "flex" : "hidden"
         )}
       >
         {children(close)}
+        <div className="flex justify-between py-1.5 gap-x-3">
+          <ThemeToggle />
+          <Dropdown
+            width="w-fit"
+            selected={languages.find((lang) => lang.value === language)}
+            onChange={onLanguageChange}
+            options={languages}
+          />
+        </div>
       </div>
     </div>
   );
