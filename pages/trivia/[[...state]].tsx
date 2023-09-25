@@ -77,23 +77,23 @@ export const getStaticProps: GetStaticProps = withi18n(
   ["trivia", "parties"],
   async ({ params }) => {
     const state = params?.state ? params.state[0] : "mys";
-    // const { data } = await get("/dashboard", {
-    //   dashboard: "election_trivia",
-    //   state,
-    // });
+    const { data } = await get("/dashboard", {
+      dashboard: "election_trivia",
+      state,
+    });
 
     return {
       notFound: false,
       props: {
-        last_updated: "", //data.data_last_updated,
+        last_updated: data.data_last_updated,
         meta: {
           id: "trivia",
           type: "dashboard",
         },
-        dun_bar: {}, //data.dun_bar ?? {},
+        dun_bar: data.dun_bar ?? {},
         params: { state },
-        parlimen_bar: { won: [] }, //data.parlimen_bar.data,
-        table_top: { parlimen: { slim: [] }, dun: { slim: [] } }, //data.table_top.data,
+        parlimen_bar: data.parlimen_bar.data,
+        table_top: data.table_top.data,
       },
     };
   }

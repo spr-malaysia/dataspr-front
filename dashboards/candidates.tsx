@@ -128,7 +128,8 @@ const ElectionCandidatesDashboard: FunctionComponent<
         return resolve(cache.get(identifier));
       }
 
-      get("/spr-dashboard", {
+      get("/explorer", {
+        explorer: "ELECTIONS",
         chart: "candidates",
         name: candidate.value,
       })
@@ -167,7 +168,8 @@ const ElectionCandidatesDashboard: FunctionComponent<
     const identifier = `${election}_${seat}`;
     return new Promise((resolve) => {
       if (cache.has(identifier)) return resolve(cache.get(identifier));
-      get("/spr-dashboard", {
+      get("/explorer", {
+        explorer: "ELECTIONS",
         chart: "full_result",
         type: "candidates",
         election,

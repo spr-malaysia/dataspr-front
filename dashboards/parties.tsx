@@ -50,7 +50,7 @@ const ElectionPartiesDashboard: FunctionComponent<ElectionPartiesProps> = ({
   const { cache } = useCache();
 
   const PARTY_OPTIONS: Array<OptionType> = selection.map((option) => ({
-    label: t(option),
+    label: t(option, { ns: "party" }),
     value: option,
   }));
 
@@ -144,7 +144,8 @@ const ElectionPartiesDashboard: FunctionComponent<ElectionPartiesProps> = ({
         return resolve(cache.get(identifier));
       }
 
-      get("/spr-dashboard", {
+      get("/explorer", {
+        explorer: "ELECTIONS",
         chart: "party",
         party_name: party_name.value,
         state,
@@ -184,7 +185,8 @@ const ElectionPartiesDashboard: FunctionComponent<ElectionPartiesProps> = ({
     const identifier = `${election}_${state}`;
     return new Promise((resolve) => {
       if (cache.has(identifier)) return resolve(cache.get(identifier));
-      get("/spr-dashboard", {
+      get("/explorer", {
+        explorer: "ELECTIONS",
         chart: "full_result",
         type: "party",
         election,

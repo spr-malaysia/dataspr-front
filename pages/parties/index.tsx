@@ -35,7 +35,7 @@ const ElectionParties: Page = ({
 };
 
 export const getServerSideProps: GetServerSideProps = withi18n(
-  "parties",
+  ["election", "parties", "party"],
   async ({ query }) => {
     try {
       const [party_name, state] =
@@ -44,10 +44,12 @@ export const getServerSideProps: GetServerSideProps = withi18n(
           : [query.name, query.state];
 
       const [{ data: dropdown }, { data: party }] = await Promise.all([
-        get("/spr-dashboard", {
+        get("/explorer", {
+        explorer: "ELECTIONS",
           dropdown: "party_list",
         }),
-        get("/spr-dashboard", {
+        get("/explorer", {
+        explorer: "ELECTIONS",
           chart: "party",
           party_name: party_name ?? "PERIKATAN",
           state: state ?? "mys",

@@ -40,10 +40,12 @@ export const getServerSideProps: GetServerSideProps = withi18n(
           : [query.name, query.type];
 
       const [{ data: dropdown }, { data: seat }] = await Promise.all([
-        get("/spr-dashboard", {
+        get("/explorer", {
+        explorer: "ELECTIONS",
           dropdown: "seats_list",
         }),
-        get("/spr-dashboard", {
+        get("/explorer", {
+        explorer: "ELECTIONS",
           chart: "seats",
           seat_name: name ?? "padang-besar-perlis",
           type: type ?? "parlimen",
