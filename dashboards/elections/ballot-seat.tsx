@@ -72,7 +72,8 @@ const BallotSeat: FunctionComponent<BallotSeatProps> = ({
       return setData("seat_result", cache.get(identifier));
     else {
       setData("seat_loading", true);
-      get("/spr-dashboard", {
+      get("/explorer", {
+        explorer: "ELECTIONS",
         chart: "full_result",
         type: "candidates",
         election,
