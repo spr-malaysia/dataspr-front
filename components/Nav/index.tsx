@@ -85,7 +85,7 @@ const Nav: NavFunctionComponent = ({ children, stateSelector }) => {
           type="button"
           variant="reset"
           aria-label="Menu"
-          className="hamburger -mr-2 rounded p-[5px] active:bg-zinc-800 lg:hidden"
+          className="hamburger -mr-1 rounded p-[5px] active:bg-zinc-800 lg:hidden"
           onClick={() => setShowMobile(!showMobile)}
         >
           <MenuIcon className={clx(showMobile && "open")} />
@@ -94,12 +94,12 @@ const Nav: NavFunctionComponent = ({ children, stateSelector }) => {
       {/* Mobile - Menu */}
       <div
         className={clx(
-          "dark:divide-slate-800 shadow-floating fixed left-0 top-[50px] flex w-screen flex-col gap-0 divide-y bg-white px-3 py-1.5 backdrop-blur-md dark:bg-zinc-900 lg:hidden",
+          "dark:divide-slate-800 shadow-floating fixed left-0 top-[56px] flex w-screen flex-col gap-0 divide-y bg-white px-4 py-2 backdrop-blur-md dark:bg-zinc-900 lg:hidden",
           showMobile ? "flex" : "hidden"
         )}
       >
         {children(close)}
-        <div className="flex justify-between py-1.5 gap-x-3">
+        <div className="flex justify-between py-3 gap-x-3">
           <ThemeToggle />
           <Dropdown
             width="w-fit"
