@@ -70,7 +70,7 @@ const Modal: ForwardRefExoticComponent<ModalProps> = forwardRef(
                   )}
                 >
                   <div onClick={close} className="min-h-[15vh] grow lg:hidden"></div>
-                  <div className="dark:border-zinc-800 relative flex w-full items-center justify-between rounded-t-xl border bg-white p-3 dark:bg-zinc-900">
+                  <div className="dark:border-zinc-800 relative flex w-full items-center justify-between rounded-t-xl border-b bg-white p-3 dark:bg-zinc-900">
                     <Dialog.Title as="div" className="mr-9 flex grow">
                       {title}
                     </Dialog.Title>

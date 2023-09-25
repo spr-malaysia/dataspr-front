@@ -3,7 +3,7 @@ import { FunctionComponent, ReactNode, useCallback, useMemo } from "react";
 import { Chart as ChartJS, LinearScale, PointElement, LineElement, Tooltip } from "chart.js";
 import { Bubble } from "react-chartjs-2";
 import { default as ChartHeader, ChartHeaderProps } from "./chart-header";
-import { AKSARA_COLOR, CountryAndStates } from "@lib/constants";
+import { COLOR, CountryAndStates } from "@lib/constants";
 import { ChartCrosshairOption } from "@lib/types";
 import { useTheme } from "next-themes";
 
@@ -138,7 +138,7 @@ const Jitterplot: FunctionComponent<JitterplotProps> = ({
     ({ raw }: ScriptableContext<"bubble">) => {
       if (active.toLowerCase().includes((raw as JitterDatum)?.area.toLowerCase()))
         return {
-          backgroundColor: theme === "light" ? AKSARA_COLOR.BLACK : AKSARA_COLOR.GREEN,
+          backgroundColor: theme === "light" ? COLOR.BLACK : COLOR.GREEN,
           radius: 6,
           hoverRadius: 1,
         };

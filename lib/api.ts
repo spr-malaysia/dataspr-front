@@ -4,7 +4,7 @@ import { parseCookies } from "./helpers";
 type BaseURL = "api" | "app" | string;
 
 /**
- * Base URL builder for AKSARA.
+ * Base URL builder.
  * @param base "api" | "app"
  * @param {Record<string, string>} headers Additional headers
  * @returns Base of URL

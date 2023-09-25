@@ -1,5 +1,5 @@
 import { default as ChartHeader, ChartHeaderProps } from "./chart-header";
-import { AKSARA_COLOR, BREAKPOINTS } from "@lib/constants";
+import { COLOR, BREAKPOINTS } from "@lib/constants";
 import { WindowContext } from "@lib/contexts/window";
 import { numFormat } from "@lib/helpers";
 import { ChartCrosshairOption } from "@lib/types";
@@ -148,7 +148,7 @@ const Bar: FunctionComponent<BarProps> = ({
           display: enableGridX,
           borderWidth: 1,
           borderDash: [5, 10],
-          color: theme === "light" ? AKSARA_COLOR.OUTLINE : AKSARA_COLOR.WASHED_DARK,
+          color: theme === "light" ? COLOR.OUTLINE : COLOR.WASHED_DARK,
           drawTicks: true,
           drawBorder: true,
         },
@@ -188,7 +188,7 @@ const Bar: FunctionComponent<BarProps> = ({
           drawTicks: false,
           drawBorder: false,
           offset: false,
-          color: theme === "light" ? AKSARA_COLOR.OUTLINE : AKSARA_COLOR.WASHED_DARK,
+          color: theme === "light" ? COLOR.OUTLINE : COLOR.WASHED_DARK,
           borderDash(ctx) {
             if (ctx.tick.value === 0) return [0, 0];
             return [5, 5];

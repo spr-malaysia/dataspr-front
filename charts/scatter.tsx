@@ -14,7 +14,7 @@ import { Scatter as ScatterCanvas } from "react-chartjs-2";
 import { maxBy, minBy, numFormat, standardDeviation } from "@lib/helpers";
 // import RegressionPlugin from "./regression-line";
 import { ChartCrosshairOption } from "@lib/types";
-import { AKSARA_COLOR } from "@lib/constants";
+import { COLOR } from "@lib/constants";
 import { useTheme } from "next-themes";
 import { ChartJSOrUndefined } from "react-chartjs-2/dist/types";
 import AnnotationPlugin from "chartjs-plugin-annotation";
@@ -85,7 +85,7 @@ const Scatter: FunctionComponent<ScatterProps> = ({
   const titleConfig = (axis: string | undefined) => ({
     display: Boolean(axis),
     text: axis,
-    color: theme === "light" ? AKSARA_COLOR.BLACK : AKSARA_COLOR.DIM,
+    color: theme === "light" ? COLOR.BLACK : COLOR.DIM,
     font: {
       size: 14,
       family: "Inter",
