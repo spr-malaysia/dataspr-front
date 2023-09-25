@@ -2,7 +2,7 @@
  * Browser only.
  */
 export class IndexedDB {
-  private static DATABASE = "datagovmy-db";
+  private static DATABASE = "db";
   private static VERSION = 1;
   private static MODELS = ["chat-directory", "chat-history"];
   model: string;
