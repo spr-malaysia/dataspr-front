@@ -2,30 +2,21 @@ import ElectionAnalysis from "./analysis";
 import BallotSeat from "./ballot-seat";
 import ElectionFilter from "./filter";
 import { ElectionEnum, OverallSeat, Party, PartyResult } from "../types";
-import {
-  BuildingLibraryIcon,
-  FlagIcon,
-  MapIcon,
-  TableCellsIcon,
-} from "@heroicons/react/24/solid";
-import { generateSchema } from "@lib/schema/election-explorer";
+import { BuildingLibraryIcon, FlagIcon } from "@heroicons/react/24/solid";
 import { get } from "@lib/api";
 import {
   Button,
   Container,
   Dropdown,
   Hero,
-  ImageWithFallback,
   Label,
   List,
   Modal,
-  Panel,
   Section,
   StateDropdown,
-  Tabs,
   toast,
 } from "@components/index";
-import { CountryAndStates, PoliticalPartyColours } from "@lib/constants";
+import { CountryAndStates } from "@lib/constants";
 import { WindowProvider } from "@lib/contexts/window";
 import { useCache } from "@hooks/useCache";
 import { useData } from "@hooks/useData";
@@ -42,17 +33,10 @@ import Overview from "./overview";
  * @overview Status: In-development
  */
 
-const ElectionTable = dynamic(
-  () => import("@components/Election/ElectionTable"),
-  {
-    ssr: false,
-  }
-);
-const Choropleth = dynamic(() => import("@charts/choropleth"), { ssr: false });
 const Toast = dynamic(() => import("@components/Toast"), { ssr: false });
-const Waffle = dynamic(() => import("@charts/waffle"), { ssr: false });
 
 interface ElectionExplorerProps {
+  choropleth: any;
   last_updated: string;
   params: {
     state: string;
@@ -64,6 +48,7 @@ interface ElectionExplorerProps {
 }
 
 const ElectionExplorer: FunctionComponent<ElectionExplorerProps> = ({
+  choropleth,
   last_updated,
   params,
   seats,
@@ -115,7 +100,7 @@ const ElectionExplorer: FunctionComponent<ElectionExplorerProps> = ({
 
   const GE_OPTIONS: Array<OptionType> = selection["mys"]
     .map((election: Record<string, any>) => ({
-      label: t(election.name) + ` (${election.year})`,
+      label: t(election.name, { ns: "election" }) + ` (${election.year})`,
       value: election.name,
     }))
     .reverse();
@@ -125,7 +110,7 @@ const ElectionExplorer: FunctionComponent<ElectionExplorerProps> = ({
     if (data.state !== null && NON_SE_STATE.includes(data.state) === false)
       _options = selection[data.state]
         .map((election: Record<string, any>) => ({
-          label: t(`election.${election.name}`) + ` (${election.year})`,
+          label: t(election.name, { ns: "election" }) + ` (${election.year})`,
           value: election.name,
         }))
         .reverse();
@@ -156,12 +141,14 @@ const ElectionExplorer: FunctionComponent<ElectionExplorerProps> = ({
       }
 
       Promise.all([
-        get("/spr-dashboard", {
+        get("/explorer", {
+          explorer: "ELECTIONS",
           chart: "overall_seat",
           election,
           state,
         }),
-        get("/spr-dashboard", {
+        get("/explorer", {
+          explorer: "ELECTIONS",
           chart: "full_result",
           type: "party",
           election,
@@ -196,12 +183,13 @@ const ElectionExplorer: FunctionComponent<ElectionExplorerProps> = ({
   };
 
   const handleElectionTab = (index: number) => {
+    //  When toggling to DUN, if state is Malaysia / W.P, set as null, else set as current state
     if (index === ElectionEnum.Dun) {
       setData(
         "state",
-        !NON_SE_STATE.includes(filter.state ?? "mys")
-          ? data.state || CURRENT_STATE
-          : null
+        NON_SE_STATE.includes(filter.state ?? "mys")
+          ? null
+          : data.state || CURRENT_STATE
       );
       setData("election", null);
     } else {
@@ -238,58 +226,60 @@ const ElectionExplorer: FunctionComponent<ElectionExplorerProps> = ({
           >
             {(close) => (
               <div className="flex flex-col">
-                <div className="space-y-4 bg-white p-3 dark:bg-zinc-900">
-                  <div className="space-y-2">
-                    <Label
-                      label={t("election", { ns: "elections" }) + ":"}
-                      className="text-sm"
-                    />
-                    <div className="border-slate-200 dark:border-zinc-800 max-w-fit rounded-full border bg-white p-1 dark:bg-zinc-900">
-                      <List
-                        options={PANELS.map((item) => item.name)}
-                        icons={PANELS.map((item) => item.icon)}
-                        current={data.toggle_index}
-                        onChange={handleElectionTab}
+                <div className="bg-white dark:bg-zinc-900">
+                  <div className="dark:divide-washed-dark divide-y px-3 pb-3">
+                    <div className="space-y-2 py-3">
+                      <Label
+                        label={t("election", { ns: "elections" }) + ":"}
+                        className="text-sm"
+                      />
+                      <div className="border-slate-200 dark:border-zinc-800 max-w-fit rounded-full border bg-white p-1 dark:bg-zinc-900">
+                        <List
+                          options={PANELS.map((item) => item.name)}
+                          icons={PANELS.map((item) => item.icon)}
+                          current={data.toggle_index}
+                          onChange={handleElectionTab}
+                        />
+                      </div>
+                    </div>
+                    <div className="dark:border-zinc-700 grid grid-cols-2 gap-2 border-y py-3">
+                      <Label label={t("state") + ":"} className="text-sm" />
+                      <Label
+                        label={t("election_year", { ns: "elections" }) + ":"}
+                        className="text-sm"
+                      />
+                      <StateDropdown
+                        currentState={data.state}
+                        onChange={(selected) => {
+                          setData("state", selected.value);
+                          TOGGLE_IS_DUN && setData("election_acronym", null);
+                        }}
+                        exclude={TOGGLE_IS_DUN ? NON_SE_STATE : []}
+                        width="w-full"
+                        anchor="bottom-10"
+                      />
+                      <Dropdown
+                        width="w-full"
+                        anchor="right-0 bottom-10"
+                        placeholder={t("select_election", { ns: "elections" })}
+                        options={TOGGLE_IS_PARLIMEN ? GE_OPTIONS : SE_OPTIONS}
+                        selected={
+                          TOGGLE_IS_PARLIMEN
+                            ? GE_OPTIONS.find(
+                                (e) => e.value === data.election_acronym
+                              )
+                            : SE_OPTIONS.find(
+                                (e) => e.value === data.election_acronym
+                              )
+                        }
+                        disabled={!data.state}
+                        onChange={(selected) =>
+                          setData("election_acronym", selected.value)
+                        }
                       />
                     </div>
                   </div>
-                  <div className="dark:border-zinc-700 grid grid-cols-2 gap-2 border-y py-4">
-                    <Label label={t("state") + ":"} className="text-sm" />
-                    <Label
-                      label={t("election_year", { ns: "elections" }) + ":"}
-                      className="text-sm"
-                    />
-                    <StateDropdown
-                      currentState={data.state}
-                      onChange={(selected) => {
-                        setData("state", selected.value);
-                        TOGGLE_IS_DUN && setData("election_acronym", null);
-                      }}
-                      exclude={TOGGLE_IS_DUN ? NON_SE_STATE : []}
-                      width="w-full"
-                      anchor="bottom-10"
-                    />
-                    <Dropdown
-                      width="w-full"
-                      anchor="right-0 bottom-10"
-                      placeholder={t("select_election", { ns: "elections" })}
-                      options={TOGGLE_IS_PARLIMEN ? GE_OPTIONS : SE_OPTIONS}
-                      selected={
-                        TOGGLE_IS_PARLIMEN
-                          ? GE_OPTIONS.find(
-                              (e) => e.value === data.election_acronym
-                            )
-                          : SE_OPTIONS.find(
-                              (e) => e.value === data.election_acronym
-                            )
-                      }
-                      disabled={!data.state}
-                      onChange={(selected) =>
-                        setData("election_acronym", selected.value)
-                      }
-                    />
-                  </div>
-                  <div className="space-y-2">
+                  <div className="dark:border-washed-dark flex w-full flex-col gap-2 border-t bg-white p-3 dark:bg-black">
                     <Button
                       className="btn-primary w-full justify-center"
                       onClick={() => {
@@ -319,7 +309,7 @@ const ElectionExplorer: FunctionComponent<ElectionExplorerProps> = ({
           {/* Desktop */}
           <div
             ref={divRef}
-            className="sticky top-16 z-20 mt-6 hidden items-center justify-center gap-2 transition-all duration-200 ease-in lg:flex lg:pl-2"
+            className="sticky top-16 z-20 mt-6 hidden items-center gap-2 lg:flex mx-auto w-fit"
           >
             <div className="border-slate-200 dark:border-zinc-800 max-w-fit rounded-full border bg-white p-1 dark:bg-zinc-900">
               <List
@@ -332,7 +322,7 @@ const ElectionExplorer: FunctionComponent<ElectionExplorerProps> = ({
             <StateDropdown
               currentState={data.state}
               onChange={(selected) => {
-                TOGGLE_IS_PARLIMEN
+                TOGGLE_IS_PARLIMEN && data.election_acronym
                   ? fetchResult(data.election_acronym, selected.value).then(
                       ({ seats, table }) => {
                         setData("seats", seats);
@@ -368,22 +358,27 @@ const ElectionExplorer: FunctionComponent<ElectionExplorerProps> = ({
             />
           </div>
 
-          <Overview filter={filter} seats={seats} table={table} />
+          <Overview
+            choropleth={choropleth}
+            filter={filter}
+            table={data.table}
+          />
           <hr className="dark:border-zinc-800 border-slate-200 pt-8 h-px lg:pt-12"></hr>
 
           {/* View the full ballot for a specific seat */}
           <BallotSeat
+            election={data.election_fullname}
             seats={data.seats}
             state={filter.state ?? "mys"}
-            election={data.election_fullname}
           />
           <hr className="dark:border-zinc-800 border-slate-200 h-px"></hr>
 
           {/* Election analysis */}
           <ElectionAnalysis
-            state={filter.state ?? "mys"}
-            index={data.toggle_index}
+            choropleth={choropleth}
             seats={data.seats}
+            state={filter.state ?? "mys"}
+            toggle={data.toggle_index}
           />
         </Section>
       </Container>
