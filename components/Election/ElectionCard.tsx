@@ -60,7 +60,10 @@ const ElectionCard = <T extends Candidate | Party | Seat>({
   if (options.length <= 0) return <></>;
 
   const isCandidate = typeof options[0] === "object" && "result" in options[0];
-  const isParty = typeof options[0] === "object" && "seats" in options[0] && "state" in options[0];
+  const isParty =
+    typeof options[0] === "object" &&
+    "seats" in options[0] &&
+    "state" in options[0];
 
   const getData = (obj: Candidate | Party | Seat) => {
     setData("date", toDate(obj.date, "dd MMM yyyy", i18n.language));
@@ -83,7 +86,7 @@ const ElectionCard = <T extends Candidate | Party | Seat>({
           setData("loading", true);
           setShow(true);
           getData(options[data.index]);
-          onChange(defaultParams).then(item => {
+          onChange(defaultParams).then((item) => {
             if (!item) return;
             setData("result", item);
             setData("loading", false);
@@ -95,7 +98,11 @@ const ElectionCard = <T extends Candidate | Party | Seat>({
       </Button>
 
       <Transition show={show} as={Fragment}>
-        <Dialog as="div" className="relative z-30" onClose={() => setShow(false)}>
+        <Dialog
+          as="div"
+          className="relative z-30"
+          onClose={() => setShow(false)}
+        >
           <Transition.Child
             as={Fragment}
             enter="ease-out duration-300"
@@ -137,8 +144,14 @@ const ElectionCard = <T extends Candidate | Party | Seat>({
                     className="flex w-full items-start justify-between pr-8 text-lg uppercase"
                   >
                     <div className="flex flex-wrap gap-x-2">
-                      <h5>{isParty ? t(`election.${data.election_name}`) : data.area}</h5>
-                      <span className="text-zinc-500">{isParty ? data.date : data.state}</span>
+                      <h5>
+                        {isParty
+                          ? t(data.election_name, { ns: "elections" })
+                          : data.area}
+                      </h5>
+                      <span className="text-zinc-500">
+                        {isParty ? data.date : data.state}
+                      </span>
                     </div>
                     {isCandidate && <ResultBadge value={data.badge} />}
                   </Dialog.Title>
@@ -147,7 +160,9 @@ const ElectionCard = <T extends Candidate | Party | Seat>({
                     <div className="space-x-3 pt-3">
                       {!isParty && (
                         <>
-                          <span className="uppercase">{t(`election.${data.election_name}`)}</span>
+                          <span className="uppercase">
+                            {t(data.election_name, { ns: "elections" })}
+                          </span>
                           <span className="text-zinc-500">{data.date}</span>
                         </>
                       )}
@@ -165,7 +180,8 @@ const ElectionCard = <T extends Candidate | Party | Seat>({
                             ? "name" in data.result.data[0]
                               ? [
                                   data.result.data.findIndex(
-                                    (e: BaseResult) => slugify(e.name) === highlighted
+                                    (e: BaseResult) =>
+                                      slugify(e.name) === highlighted
                                   ),
                                 ]
                               : "party" in data.result.data[0]
@@ -177,25 +193,48 @@ const ElectionCard = <T extends Candidate | Party | Seat>({
                               : [-1]
                             : [0]
                         }
-                        result={"result" in defaultParams ? defaultParams.result : undefined}
+                        result={
+                          "result" in defaultParams
+                            ? defaultParams.result
+                            : undefined
+                        }
                       />
                     </div>
 
                     {data.result.votes && (
                       <div className="space-y-3">
-                        <div className="font-bold">{t("voting_statistics")}</div>
+                        <div className="font-bold">
+                          {t("voting_statistics")}
+                        </div>
                         <div className="flex flex-col gap-3 text-sm lg:flex-row lg:gap-x-6">
                           {data.result.votes.map(
-                            (item: { x: string; abs: number; perc: number }) => (
-                              <div className="flex flex-wrap gap-3 whitespace-nowrap" key={item.x}>
+                            (item: {
+                              x: string;
+                              abs: number;
+                              perc: number;
+                            }) => (
+                              <div
+                                className="flex flex-wrap gap-3 whitespace-nowrap"
+                                key={item.x}
+                              >
                                 <p className="w-28 md:w-fit">{t(item.x)}:</p>
                                 <div className="flex flex-wrap items-center gap-3">
-                                  <BarPerc hidden value={item.perc} size={"h-[5px] w-[50px]"} />
+                                  <BarPerc
+                                    hidden
+                                    value={item.perc}
+                                    size={"h-[5px] w-[50px]"}
+                                  />
                                   <p>{`${
-                                    item.abs !== null ? numFormat(item.abs, "standard") : "—"
+                                    item.abs !== null
+                                      ? numFormat(item.abs, "standard")
+                                      : "—"
                                   } ${
                                     item.perc !== null
-                                      ? `(${numFormat(item.perc, "compact", [1, 1])}%)`
+                                      ? `(${numFormat(
+                                          item.perc,
+                                          "compact",
+                                          [1, 1]
+                                        )}%)`
                                       : "(—)"
                                   }`}</p>
                                 </div>
@@ -213,7 +252,7 @@ const ElectionCard = <T extends Candidate | Party | Seat>({
                               <button
                                 key={index}
                                 onClick={() =>
-                                  onChange(option).then(item => {
+                                  onChange(option).then((item) => {
                                     if (!item) return;
                                     setData("index", index);
                                     setData("result", item);
@@ -236,12 +275,14 @@ const ElectionCard = <T extends Candidate | Party | Seat>({
                             <Button
                               className="btn-default btn-disabled"
                               onClick={() =>
-                                onChange(options[data.index - 1]).then(item => {
-                                  if (!item) return;
-                                  setData("index", data.index - 1);
-                                  getData(options[data.index - 1]);
-                                  setData("result", item);
-                                })
+                                onChange(options[data.index - 1]).then(
+                                  (item) => {
+                                    if (!item) return;
+                                    setData("index", data.index - 1);
+                                    getData(options[data.index - 1]);
+                                    setData("result", item);
+                                  }
+                                )
                               }
                               disabled={data.index === 0}
                             >
@@ -256,12 +297,14 @@ const ElectionCard = <T extends Candidate | Party | Seat>({
                             <Button
                               className="btn-default btn-disabled"
                               onClick={() =>
-                                onChange(options[data.index + 1]).then(item => {
-                                  if (!item) return;
-                                  setData("index", data.index + 1);
-                                  setData("result", item);
-                                  getData(options[data.index + 1]);
-                                })
+                                onChange(options[data.index + 1]).then(
+                                  (item) => {
+                                    if (!item) return;
+                                    setData("index", data.index + 1);
+                                    setData("result", item);
+                                    getData(options[data.index + 1]);
+                                  }
+                                )
                               }
                               disabled={data.index === options.length - 1}
                             >
