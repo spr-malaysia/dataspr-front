@@ -219,9 +219,9 @@ const ElectionSeatsDashboard: FunctionComponent<ElectionSeatsProps> = ({
       <Toast />
       <Hero
         background="red"
-        category={[t("category"), "text-danger"]}
-        header={[t("header")]}
-        description={[t("description")]}
+        category={[t("hero.category", { ns: "home" }), "text-danger"]}
+        header={[t("hero.header", { ns: "home" })]}
+        description={[t("hero.description", { ns: "home" })]}
         action={
           <div className="flex flex-wrap gap-3">
             <At

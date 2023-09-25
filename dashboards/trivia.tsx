@@ -181,9 +181,9 @@ const ElectionTriviaDashboard: FunctionComponent<ElectionTriviaProps> = ({
       <Toast />
       <Hero
         background="red"
-        category={[t("category"), "text-danger"]}
-        header={[t("header")]}
-        description={[t("description")]}
+        category={[t("hero.category", { ns: "trivia" }), "text-danger"]}
+        header={[t("hero.header", { ns: "trivia" })]}
+        description={[t("hero.description", { ns: "trivia" })]}
         last_updated={last_updated}
       />
       <Container>

@@ -212,9 +212,9 @@ const ElectionCandidatesDashboard: FunctionComponent<
       <Toast />
       <Hero
         background="red"
-        category={[t("category"), "text-danger"]}
-        header={[t("header")]}
-        description={[t("description")]}
+        category={[t("hero.category", { ns: "candidates" }), "text-danger"]}
+        header={[t("hero.header", { ns: "candidates" })]}
+        description={[t("hero.description", { ns: "candidates" })]}
         last_updated={last_updated}
       />
       <Container>
