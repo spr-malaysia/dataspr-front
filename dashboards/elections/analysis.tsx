@@ -1,5 +1,6 @@
 import { TableConfig } from "@charts/table";
 import LeftRightCard from "@components/LeftRightCard";
+import Skeleton from "@components/Skeleton";
 import { List, Panel, default as Tabs } from "@components/Tabs";
 import { OverallSeat } from "@dashboards/types";
 import { MapIcon, TableCellsIcon } from "@heroicons/react/24/solid";
@@ -16,7 +17,10 @@ import { FunctionComponent } from "react";
 const Table = dynamic(() => import("@charts/table"), {
   ssr: false,
 });
-const Choropleth = dynamic(() => import("@charts/choropleth"), { ssr: false });
+const Choropleth = dynamic(() => import("@charts/choropleth"), {
+  loading: () => <Skeleton height="h-[400px] lg:h-[500px]" width="w-auto" />,
+  ssr: false,
+});
 
 type Analysis = {
   seat: string;
@@ -37,15 +41,17 @@ type Analysis = {
 };
 
 interface ElectionAnalysisProps {
-  index: number;
+  choropleth: any;
   seats: OverallSeat[];
   state: string;
+  toggle: number;
 }
 
 const ElectionAnalysis: FunctionComponent<ElectionAnalysisProps> = ({
-  index,
+  choropleth,
   seats,
   state,
+  toggle,
 }) => {
   const { t } = useTranslation(["common", "elections"]);
 
@@ -193,7 +199,7 @@ const ElectionAnalysis: FunctionComponent<ElectionAnalysisProps> = ({
               right={
                 <Choropleth
                   className="h-[400px] w-auto lg:h-[500px]"
-                  type={index === 1 ? "dun" : "parlimen"}
+                  type={toggle === 1 ? "dun" : "parlimen"}
                 />
               }
             />
