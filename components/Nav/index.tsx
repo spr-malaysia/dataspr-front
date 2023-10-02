@@ -85,7 +85,7 @@ const Nav: NavFunctionComponent = ({ children, stateSelector }) => {
           type="button"
           variant="reset"
           aria-label="Menu"
-          className="hamburger -mr-1 rounded p-[5px] active:bg-zinc-800 lg:hidden"
+          className="hamburger -mr-1 rounded p-[5px] active:bg-slate-200 active:dark:bg-zinc-800 lg:hidden"
           onClick={() => setShowMobile(!showMobile)}
         >
           <MenuIcon className={clx(showMobile && "open")} />
