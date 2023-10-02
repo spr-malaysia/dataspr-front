@@ -338,8 +338,9 @@ const CatalogueShow: FunctionComponent<CatalogueShowProps> = ({
             >
               <Table
                 className={clx(
-                  "table-stripe table-default table-sticky-header"
+                  "table-default table-sticky-header"
                 )}
+                stripe={true}
                 responsive={dataset.type === "TABLE"}
                 data={dataset.table}
                 freeze={config.freeze}

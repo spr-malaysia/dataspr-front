@@ -190,7 +190,8 @@ const CatalogueShow: FunctionComponent<CatalogueWidgetProps> = ({
         return (
           <div className="flex h-full w-full flex-col">
             <Table
-              className="table-stripe table-default table-sticky-header grow"
+              className="table-default table-sticky-header grow"
+              stripe={true}
               responsive={true}
               data={dataset.table}
               freeze={config.freeze}
