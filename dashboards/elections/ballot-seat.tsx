@@ -390,7 +390,7 @@ const BallotSeat: FunctionComponent<BallotSeatProps> = ({
                                 style: CSSProperties;
                               }) => {
                                 const seat = seats[columnIndex * 3 + rowIndex];
-                                return (
+                                return seat ? (
                                   <div
                                     style={style}
                                     key={seat.seat}
@@ -398,6 +398,8 @@ const BallotSeat: FunctionComponent<BallotSeatProps> = ({
                                   >
                                     <OverallResultCard seat={seat} />
                                   </div>
+                                ) : (
+                                  <></>
                                 );
                               }}
                             </Grid>
