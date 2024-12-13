@@ -13,19 +13,19 @@
 
 @layer base {
   h1 {
-    @apply font-header text-4xl font-bold leading-[54px] dark:text-white;
+    @apply font-poppins text-4xl font-bold leading-[54px] dark:text-white;
   }
 
   h2 {
-    @apply font-header text-3xl font-bold leading-[38px] text-zinc-900 dark:text-white;
+    @apply font-poppins text-3xl font-bold leading-[38px] text-zinc-900 dark:text-white;
   }
 
   h3 {
-    @apply font-header text-2xl font-bold text-zinc-900 dark:text-white;
+    @apply font-poppins text-2xl font-bold text-zinc-900 dark:text-white;
   }
 
   h4 {
-    @apply font-header text-xl font-bold text-zinc-900 dark:text-white;
+    @apply font-poppins text-xl font-bold text-zinc-900 dark:text-white;
   }
 
   h5 {

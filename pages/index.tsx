@@ -1,6 +1,5 @@
 import Metadata from "@components/Metadata";
 import ElectionSeatsDashboard from "@dashboards/seats";
-import { Seat } from "@dashboards/types";
 import { get } from "@lib/api";
 import { withi18n } from "@lib/decorators";
 import { Page } from "@lib/types";
@@ -34,24 +33,23 @@ export const getServerSideProps: GetServerSideProps = withi18n(
   ["home", "election"],
   async ({ query }) => {
     try {
-      const [name, type] =
+      const [slug, type] =
         Object.keys(query).length === 0
           ? [null, null]
           : [query.name, query.type];
 
-      const [{ data: dropdown }, { data: seat }] = await Promise.all([
-        get("/explorer", {
-        explorer: "ELECTIONS",
-          dropdown: "seats_list",
-        }),
-        get("/explorer", {
-        explorer: "ELECTIONS",
-          chart: "seats",
-          seat_name: name ?? "padang-besar-perlis",
-          type: type ?? "parlimen",
+      const results = await Promise.allSettled([
+        get("/dropdown_seats.json"),
+        get("/query_area.json", {
+          slug: slug ?? "padang-besar-perlis",
         }),
       ]).catch((e) => {
-        throw new Error("Invalid seat name. Message: " + e);
+        throw new Error("Invalid candidate name. Message: " + e);
+      });
+
+      const [{ data: dropdown }, { data: seat }] = results.map((e) => {
+        if (e.status === "rejected") return {};
+        else return e.value.data;
       });
 
       return {
@@ -62,13 +60,9 @@ export const getServerSideProps: GetServerSideProps = withi18n(
             id: "home",
             type: "misc",
           },
-          params: { seat_name: name, type: type },
+          params: { seat_name: slug, type: type },
           selection: dropdown,
-          elections: 
-          seat.data.sort(
-            (a: Seat, b: Seat) =>
-              Number(new Date(b.date)) - Number(new Date(a.date))
-          ) ?? [],
+          elections: seat ?? [],
         },
       };
     } catch (error: any) {

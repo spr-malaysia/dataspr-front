@@ -4,9 +4,8 @@ import {
   ElectionType,
   Seat,
   SeatOptions,
-  SeatResult,
 } from "./types";
-import ElectionCard, { Result } from "@components/Election/ElectionCard";
+import FullResults, { Result } from "@components/Election/FullResults";
 import { generateSchema } from "@lib/schema/election-explorer";
 import { get } from "@lib/api";
 import {
@@ -17,14 +16,14 @@ import {
   Section,
   toast,
 } from "@components/index";
-import { slugify } from "@lib/helpers";
 import { useCache } from "@hooks/useCache";
 import { useData } from "@hooks/useData";
 import { useFilter } from "@hooks/useFilter";
 import { useTranslation } from "@hooks/useTranslation";
 import { OptionType } from "@lib/types";
 import dynamic from "next/dynamic";
-import { FunctionComponent } from "react";
+import { FunctionComponent, useEffect } from "react";
+import { useRouter } from "next/router";
 
 /**
  * Seats
@@ -40,7 +39,7 @@ const ElectionTable = dynamic(
 const Toast = dynamic(() => import("@components/Toast"), { ssr: false });
 
 interface ElectionSeatsProps extends ElectionResource<Seat> {
-  selection: Array<SeatOptions>;
+  selection: Array<SeatOptions & { slug: string }>;
 }
 
 type SeatOption = {
@@ -59,17 +58,19 @@ const ElectionSeatsDashboard: FunctionComponent<ElectionSeatsProps> = ({
   const { cache } = useCache();
 
   const SEAT_OPTIONS: Array<OptionType & SeatOptions & { seat_area: string }> =
-    selection.map((key: SeatOptions) => ({
-      label: key.seat_name.concat(` (${t(key.type)})`),
-      value: key.type + "_" + slugify(key.seat_name),
-      seat_area: key.seat_name.split(", ")[1],
-      seat_name: key.seat_name.split(", ")[0],
-      type: key.type,
+    selection.map(({ seat_name, slug, type }) => ({
+      label: seat_name.concat(` (${t(type)})`),
+      value: type + "_" + slug,
+      seat_area: seat_name.split(", ")[1],
+      seat_name: seat_name.split(", ")[0],
+      type: type,
     }));
 
-  const DEFAULT_SEAT = `${params.type ?? "parlimen"}_${
-    params.seat_name ?? "padang-besar-perlis"
-  }`;
+  const DEFAULT_SEAT =
+    params.type && params.seat_name
+      ? `${params.type}_${params.seat_name}`
+      : "parlimen_padang-besar-perlis";
+
   const SEAT_OPTION = SEAT_OPTIONS.find((e) => e.value === DEFAULT_SEAT);
 
   const { data, setData } = useData({
@@ -84,86 +85,49 @@ const ElectionSeatsDashboard: FunctionComponent<ElectionSeatsProps> = ({
     type: params.type,
   });
 
-  const fetchResult = async (seat: OptionType): Promise<Seat[]> => {
-    setData("loading", true);
-    setData("seat_name", seat.label);
-
-    const [type, seat_name] = seat.value.split("_");
-    setFilter("name", seat_name);
-    setFilter("type", type);
-
-    const identifier = seat.value;
-    return new Promise((resolve) => {
-      if (cache.has(identifier)) {
-        setData("loading", false);
-        return resolve(cache.get(identifier));
-      }
-
-      get("/explorer", {
-        explorer: "ELECTIONS",
-        chart: "seats",
-        seat_name,
-        type,
-      })
-        .then(({ data }: { data: { data: Seat[] } }) => {
-          const elections =
-            data.data.sort(
-              (a, b) => Number(new Date(b.date)) - Number(new Date(a.date))
-            ) ?? [];
-          cache.set(identifier, elections);
-          resolve(elections);
-          setData("loading", false);
-        })
-        .catch((e) => {
-          toast.error(t("toast.request_failure"), t("toast.try_again"));
-          console.error(e);
-        });
-    });
-  };
-
   const fetchFullResult = async (
     election: string,
     seat: string
   ): Promise<Result<BaseResult[]>> => {
     const identifier = `${election}_${seat}`;
-    return new Promise((resolve) => {
+    return new Promise(async (resolve) => {
       if (cache.has(identifier)) return resolve(cache.get(identifier));
-      get("/explorer", {
-        explorer: "ELECTIONS",
-        chart: "full_result",
-        type: "candidates",
-        election,
-        seat,
-      })
-        .then(({ data }: { data: { data: SeatResult } }) => {
-          const data2 = data.data;
-          const result: Result<BaseResult[]> = {
-            data: data2.data.sort((a, b) => b.votes.abs - a.votes.abs),
-            votes: [
-              {
-                x: "majority",
-                abs: data2.votes.majority,
-                perc: data2.votes.majority_perc,
-              },
-              {
-                x: "voter_turnout",
-                abs: data2.votes.voter_turnout,
-                perc: data2.votes.voter_turnout_perc,
-              },
-              {
-                x: "rejected_votes",
-                abs: data2.votes.votes_rejected,
-                perc: data2.votes.votes_rejected_perc,
-              },
-            ],
-          };
-          cache.set(identifier, result);
-          resolve(result);
-        })
-        .catch((e) => {
-          toast.error(t("toast.request_failure"), t("toast.try_again"));
-          console.error(e);
-        });
+      const results = await Promise.allSettled([
+        get("/result_ballot.json", { election, seat }),
+        get("/result_ballot_summary.json", { election, seat }),
+      ]).catch((e) => {
+        toast.error(t("toast.request_failure"), t("toast.try_again"));
+        throw new Error("Invalid seat. Message: " + e);
+      });
+
+      const [{ data: ballot }, { data: ballot_summary }] = results.map((e) => {
+        if (e.status === "rejected") return {};
+        else return e.value.data;
+      });
+      const summary = ballot_summary[0];
+
+      const result: Result<BaseResult[]> = {
+        data: ballot,
+        votes: [
+          {
+            x: "majority",
+            abs: summary.majority,
+            perc: summary.majority_perc,
+          },
+          {
+            x: "voter_turnout",
+            abs: summary.voter_turnout,
+            perc: summary.voter_turnout_perc,
+          },
+          {
+            x: "rejected_votes",
+            abs: summary.votes_rejected,
+            perc: summary.votes_rejected_perc,
+          },
+        ],
+      };
+      cache.set(identifier, result);
+      resolve(result);
     });
   };
 
@@ -189,8 +153,9 @@ const ElectionSeatsDashboard: FunctionComponent<ElectionSeatsProps> = ({
         const item = getValue() as Seat;
 
         return (
-          <ElectionCard
-            defaultParams={item}
+          <FullResults
+            options={data.elections}
+            currentIndex={row.index}
             onChange={(option: Seat) =>
               fetchFullResult(option.election_name, option.seat)
             }
@@ -207,13 +172,19 @@ const ElectionSeatsDashboard: FunctionComponent<ElectionSeatsProps> = ({
                 header: t("votes_won"),
               },
             ])}
-            options={data.elections}
-            page={row.index}
           />
         );
       },
     },
   ]);
+
+  const { events } = useRouter();
+  useEffect(() => {
+    const finishLoading = () => setData("loading", false);
+    events.on("routeChangeComplete", finishLoading);
+    return () => events.off("routeChangeComplete", finishLoading);
+  }, []);
+
   return (
     <>
       <Toast />
@@ -246,7 +217,7 @@ const ElectionSeatsDashboard: FunctionComponent<ElectionSeatsProps> = ({
               <div className="mx-auto w-full py-6 sm:w-[500px]">
                 <ComboBox<SeatOption>
                   placeholder={t("search_seat", { ns: "home" })}
-                  options={SEAT_OPTIONS}
+                  options={SEAT_OPTIONS} // TODO: reduce search options length
                   config={{
                     baseSort: (a, b) => {
                       if (a.item.seat_name === b.item.seat_name) {
@@ -267,18 +238,17 @@ const ElectionSeatsDashboard: FunctionComponent<ElectionSeatsProps> = ({
                       </span>
                     </>
                   )}
-                  selected={
-                    data.seat_option
-                      ? SEAT_OPTIONS.find(
-                          (e) => e.value === data.seat_option.value
-                        )
-                      : null
-                  }
+                  selected={SEAT_OPTIONS.find(
+                    (e) => e.value === (data.seat_option ?? DEFAULT_SEAT)
+                  )}
                   onChange={(selected) => {
                     if (selected) {
-                      fetchResult(selected).then((elections) => {
-                        setData("elections", elections);
-                      });
+                      setData("loading", true);
+                      setData("seat_name", selected.label);
+
+                      const [type, seat_name] = selected.value.split("_");
+                      setFilter("name", seat_name);
+                      setFilter("type", type);
                     }
                     setData("seat_option", selected);
                   }}
@@ -288,10 +258,10 @@ const ElectionSeatsDashboard: FunctionComponent<ElectionSeatsProps> = ({
                 title={
                   <h5 className="py-6">
                     {t("title", { ns: "home" })}
-                    <span className="text-primary">{data.seat_name}</span>
+                    <span className="text-primary">{SEAT_OPTION?.label}</span>
                   </h5>
                 }
-                data={data.elections}
+                data={elections}
                 columns={seat_schema}
                 isLoading={data.loading}
               />

@@ -1,6 +1,6 @@
 import { TableConfig } from "@charts/table";
 import LeftRightCard from "@components/LeftRightCard";
-import Skeleton from "@components/Skeleton";
+import { SpinnerBox } from "@components/Spinner";
 import { List, Panel, default as Tabs } from "@components/Tabs";
 import { OverallSeat } from "@dashboards/types";
 import { MapIcon, TableCellsIcon } from "@heroicons/react/24/solid";
@@ -18,7 +18,7 @@ const Table = dynamic(() => import("@charts/table"), {
   ssr: false,
 });
 const Choropleth = dynamic(() => import("@charts/choropleth"), {
-  loading: () => <Skeleton height="h-[400px] lg:h-[500px]" width="w-auto" />,
+  loading: () => <SpinnerBox height="h-[400px] lg:h-[500px]" width="w-auto" />,
   ssr: false,
 });
 
@@ -26,18 +26,12 @@ type Analysis = {
   seat: string;
   state?: string;
   party: string;
-  majority: {
-    abs: number;
-    perc: number;
-  };
-  voter_turnout: {
-    abs: number;
-    perc: number;
-  };
-  votes_rejected: {
-    abs: number;
-    perc: number;
-  };
+  majority: number;
+  majority_perc: number;
+  voter_turnout: number;
+  voter_turnout_perc: number;
+  votes_rejected: number;
+  votes_rejected_perc: number;
 };
 
 interface ElectionAnalysisProps {
@@ -69,33 +63,33 @@ const ElectionAnalysis: FunctionComponent<ElectionAnalysisProps> = ({
       className: "w-[150px]",
     },
     {
-      accessorKey: "majority.abs",
-      id: "majority.abs",
+      accessorKey: "majority",
+      id: "majority",
       header: t("majority"),
     },
     {
-      accessorKey: "majority.perc",
-      id: "majority.perc",
+      accessorKey: "majority_perc",
+      id: "majority_perc",
       header: t("majority_%"),
     },
     {
-      accessorKey: "voter_turnout.abs",
-      id: "voter_turnout.abs",
+      accessorKey: "voter_turnout",
+      id: "voter_turnout",
       header: t("voter_turnout"),
     },
     {
-      accessorKey: "voter_turnout.perc",
-      id: "voter_turnout.perc",
+      accessorKey: "voter_turnout_perc",
+      id: "voter_turnout_perc",
       header: t("voter_turnout_%"),
     },
     {
-      accessorKey: "votes_rejected.abs",
-      id: "votes_rejected.abs",
+      accessorKey: "votes_rejected",
+      id: "votes_rejected",
       header: t("rejected_votes"),
     },
     {
-      accessorKey: "votes_rejected.perc",
-      id: "votes_rejected.perc",
+      accessorKey: "votes_rejected_perc",
+      id: "votes_rejected_perc",
       header: t("rejected_votes_%"),
     },
   ];
@@ -106,18 +100,12 @@ const ElectionAnalysis: FunctionComponent<ElectionAnalysisProps> = ({
       seat: matches[0],
       state: matches[1],
       party: seat.party,
-      majority: {
-        abs: seat.majority.abs,
-        perc: seat.majority.perc,
-      },
-      voter_turnout: {
-        abs: seat.voter_turnout.abs,
-        perc: seat.voter_turnout.perc,
-      },
-      votes_rejected: {
-        abs: seat.votes_rejected.abs,
-        perc: seat.votes_rejected.perc,
-      },
+      majority: seat.majority,
+      majority_perc: seat.majority_perc,
+      voter_turnout: seat.voter_turnout,
+      voter_turnout_perc: seat.voter_turnout_perc,
+      votes_rejected: seat.votes_rejected,
+      votes_rejected_perc: seat.votes_rejected_perc,
     };
   });
 
@@ -162,9 +150,9 @@ const ElectionAnalysis: FunctionComponent<ElectionAnalysisProps> = ({
               precision={{
                 default: 0,
                 columns: {
-                  "majority.perc": 1,
-                  "voter_turnout.perc": 1,
-                  "votes_rejected.perc": 1,
+                  majority_perc: 1,
+                  voter_turnout_perc: 1,
+                  votes_rejected_perc: 1,
                 },
               }}
             />

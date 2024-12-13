@@ -52,9 +52,9 @@ export const AnalyticsContext = createContext<
 export const AnalyticsProvider: FunctionComponent<ContextChildren> = ({ meta, children }) => {
   const [data, setData] = useState<AnalyticsResult<"dashboard" | "data-catalogue"> | undefined>();
   // auto-increment view count for id
-  useEffect(() => {
-    track(meta.id, meta.type, "view_count");
-  }, []);
+  // useEffect(() => {
+  //   track(meta.id, meta.type, "view_count");
+  // }, []);
 
   // increment activity count
   const track = (id: string, type: Meta["type"], metric: MetricType) => {

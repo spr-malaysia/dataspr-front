@@ -17,11 +17,11 @@ const instance = (base: BaseURL, headers: Record<string, string> = {}) => {
     api: process.env.NEXT_PUBLIC_API_URL,
     app: process.env.NEXT_PUBLIC_APP_URL,
   };
-  const BROWSER_RUNTIME = typeof window === "object";
 
-  const authorization = !BROWSER_RUNTIME
-    ? process.env.NEXT_PUBLIC_AUTHORIZATION_TOKEN
-    : parseCookies(document.cookie).rolling_token;
+  const authorization =
+    base === "api"
+      ? process.env.NEXT_PUBLIC_API_TOKEN
+      : process.env.NEXT_PUBLIC_AUTHORIZATION_TOKEN;
 
   const config: AxiosRequestConfig = {
     baseURL: urls[base] || base,
@@ -49,7 +49,7 @@ export const get = (
     instance(base)
       .get(route, { params })
       .then((response: AxiosResponse) => resolve(response))
-      .catch(err => reject(err));
+      .catch((err) => reject(err));
   });
 };
 
@@ -71,7 +71,7 @@ export const post = (
     instance(base, headers)
       .post(route, payload)
       .then((response: AxiosResponse) => resolve(response))
-      .catch(err => reject(err));
+      .catch((err) => reject(err));
   });
 };
 
@@ -87,9 +87,9 @@ export const stream = (route: string, payload?: any): Promise<Response> => {
   return fetch(process.env.NEXT_PUBLIC_AI_URL + route, {
     method: "POST",
     headers: {
-      "Accept": "text/event-stream",
+      Accept: "text/event-stream",
       "Content-Type": "application/json",
-      "Authorization": `Bearer ${parseCookies(document.cookie).rolling_token}`,
+      Authorization: `Bearer ${parseCookies(document.cookie).rolling_token}`,
     },
     body: JSON.stringify(payload),
   });

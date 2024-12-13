@@ -360,7 +360,7 @@ const Table: FunctionComponent<TableProps> = ({
           </tbody>
         </table>
       </div>
-      {enablePagination && (
+      {enablePagination && data.length > 10 && (
         <div
           className={`mt-5 flex items-center justify-center gap-4 text-sm font-medium`}
         >

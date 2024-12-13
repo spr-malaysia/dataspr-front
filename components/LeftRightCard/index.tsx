@@ -27,7 +27,7 @@ const LeftRightCard: FunctionComponent<CardProps> = ({
       <div className="border-slate-200 dark:border-zinc-800 flex flex-col items-stretch overflow-visible rounded-xl border lg:flex-row">
         <div
           className={clx(
-            "border-slate-200 dark:border-zinc-800 w-full overflow-visible lg:w-1/3 lg:border-r",
+            "border-slate-200 dark:border-zinc-800 w-full overflow-visible lg:w-1/3 lg:border-r lg:rounded-l-xl",
             leftBg
           )}
         >
