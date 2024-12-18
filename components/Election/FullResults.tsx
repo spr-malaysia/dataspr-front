@@ -100,11 +100,12 @@ const FullResults = <T extends Candidate | Party | Seat>({
         setData("loading", true);
         setOpen(true);
         getData(options[data.index]);
-        onChange(selected).then((results) => {
-          if (!results) return;
-          setData("result", results);
-          setData("loading", false);
-        });
+        onChange(selected)
+          .then((results) => {
+            if (!results) return;
+            setData("result", results);
+          })
+          .finally(() => setData("loading", false));
       }}
     >
       <ArrowsPointingOutIcon className="h-4.5 w-4.5" />
@@ -246,11 +247,11 @@ const FullResults = <T extends Candidate | Party | Seat>({
                     setData("result", result);
                     getData(options[data.index + 1]);
                   })
+
                   .finally(() => setData("loading", false));
               }}
               disabled={data.index === options.length - 1}
-            >
-              {t("common:next")}
+            >              {t("common:next")}
               <ChevronRightIcon className="h-4.5 w-4.5" />
             </Button>
           </div>
