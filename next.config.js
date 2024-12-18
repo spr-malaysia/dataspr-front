@@ -24,7 +24,7 @@ const nextConfig = {
     APP_NAME: "data.spr.gov.my",
     META_AUTHOR: "Electoral Commission of Malaysia",
     META_THEME: "#13293D",
-    META_KEYWORDS: "open data statistics election malaysia",
+    META_KEYWORDS: "open data statistics election malaysia ",
     META_DOMAIN: "data.spr.gov.my",
     META_URL: process.env.NEXT_PUBLIC_APP_URL,
     META_IMAGE: `${process.env.NEXT_PUBLIC_APP_URL}/static/images/og_{{lang}}.png`,
