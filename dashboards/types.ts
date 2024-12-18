@@ -100,7 +100,7 @@ export type SeatOptions = {
 };
 
 type ElectionParams<T> = T extends Candidate
-  ? { candidate_name: string }
+  ? { candidate: string }
   : T extends Party
   ? {
       party: string;
