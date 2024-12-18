@@ -1,9 +1,3 @@
-# dataspr-front
-
-_WIP_
-
----
-
 ## Table of Contents
 
 - [Installation](#installation)
