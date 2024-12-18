@@ -18,7 +18,6 @@ import {
 } from "@components/index";
 import { useCache } from "@hooks/useCache";
 import { useData } from "@hooks/useData";
-import { useFilter } from "@hooks/useFilter";
 import { useTranslation } from "@hooks/useTranslation";
 import { OptionType } from "@lib/types";
 import dynamic from "next/dynamic";
@@ -43,8 +42,8 @@ interface ElectionSeatsProps extends ElectionResource<Seat> {
 }
 
 type SeatOption = {
-  seat_area: string;
-  seat_name: string;
+  state: string;
+  seat: string;
   type: ElectionType;
 };
 
@@ -57,14 +56,15 @@ const ElectionSeatsDashboard: FunctionComponent<ElectionSeatsProps> = ({
   const { t } = useTranslation(["common", "home"]);
   const { cache } = useCache();
 
-  const SEAT_OPTIONS: Array<OptionType & SeatOptions & { seat_area: string }> =
-    selection.map(({ seat_name, slug, type }) => ({
+  const SEAT_OPTIONS: Array<OptionType & SeatOption> = selection.map(
+    ({ seat_name, slug, type }) => ({
       label: seat_name.concat(` (${t(type)})`),
       value: type + "_" + slug,
-      seat_area: seat_name.split(", ")[1],
-      seat_name: seat_name.split(", ")[0],
+      state: seat_name.split(", ")[1],
+      seat: seat_name.split(", ")[0],
       type: type,
-    }));
+    })
+  );
 
   const DEFAULT_SEAT =
     params.type && params.seat_name
@@ -74,15 +74,9 @@ const ElectionSeatsDashboard: FunctionComponent<ElectionSeatsProps> = ({
   const SEAT_OPTION = SEAT_OPTIONS.find((e) => e.value === DEFAULT_SEAT);
 
   const { data, setData } = useData({
-    seat_option: SEAT_OPTION,
-    seat_name: SEAT_OPTION?.label,
+    seat_value: null,
     loading: false,
     elections: elections,
-  });
-
-  const { setFilter } = useFilter({
-    name: params.seat_name,
-    type: params.type,
   });
 
   const fetchFullResult = async (
@@ -149,41 +143,41 @@ const ElectionSeatsDashboard: FunctionComponent<ElectionSeatsProps> = ({
       key: (item) => item,
       id: "full_result",
       header: "",
-      cell: ({ row, getValue }) => {
-        const item = getValue() as Seat;
-
-        return (
-          <FullResults
-            options={data.elections}
-            currentIndex={row.index}
-            onChange={(option: Seat) =>
-              fetchFullResult(option.election_name, option.seat)
-            }
-            columns={generateSchema<BaseResult>([
-              { key: "name", id: "name", header: t("candidate_name") },
-              {
-                key: "party",
-                id: "party",
-                header: t("party_name"),
-              },
-              {
-                key: "votes",
-                id: "votes",
-                header: t("votes_won"),
-              },
-            ])}
-          />
-        );
-      },
+      cell: ({ row }) => (
+        <FullResults
+          options={data.elections}
+          currentIndex={row.index}
+          onChange={(option: Seat) =>
+            fetchFullResult(option.election_name, option.seat)
+          }
+          columns={generateSchema<BaseResult>([
+            { key: "name", id: "name", header: t("candidate_name") },
+            {
+              key: "party",
+              id: "party",
+              header: t("party_name"),
+            },
+            {
+              key: "votes",
+              id: "votes",
+              header: t("votes_won"),
+            },
+          ])}
+        />
+      ),
     },
   ]);
 
-  const { events } = useRouter();
+  const { events, push } = useRouter();
   useEffect(() => {
-    const finishLoading = () => setData("loading", false);
+    const finishLoading = () => {
+      setData("loading", false);
+      setData("seat_value", `${params.type}_${params.seat_name}`);
+      console.log(`${params.type}_${params.seat_name}`)
+    };
     events.on("routeChangeComplete", finishLoading);
     return () => events.off("routeChangeComplete", finishLoading);
-  }, []);
+  }, [params]);
 
   return (
     <>
@@ -220,37 +214,36 @@ const ElectionSeatsDashboard: FunctionComponent<ElectionSeatsProps> = ({
                   options={SEAT_OPTIONS} // TODO: reduce search options length
                   config={{
                     baseSort: (a, b) => {
-                      if (a.item.seat_name === b.item.seat_name) {
+                      if (a.item.seat === b.item.seat) {
                         return a.item.type === "parlimen" ? -1 : 1;
                       } else {
-                        return String(a.item.seat_name).localeCompare(
-                          String(b.item.seat_name)
+                        return String(a.item.seat).localeCompare(
+                          String(b.item.seat)
                         );
                       }
                     },
-                    keys: ["seat_name", "seat_area", "type"],
+                    keys: ["seat", "state", "type"],
                   }}
                   format={(option) => (
                     <>
-                      <span>{`${option.seat_name}, ${option.seat_area} `}</span>
+                      <span>{`${option.seat}, ${option.state} `}</span>
                       <span className="text-zinc-500">
                         {"(" + t(option.type) + ")"}
                       </span>
                     </>
                   )}
-                  selected={SEAT_OPTIONS.find(
-                    (e) => e.value === (data.seat_option ?? DEFAULT_SEAT)
-                  )}
+                  selected={
+                    data.seat_value
+                      ? SEAT_OPTIONS.find((e) => e.value === data.seat_value)
+                      : null
+                  }
                   onChange={(selected) => {
                     if (selected) {
                       setData("loading", true);
-                      setData("seat_name", selected.label);
-
-                      const [type, seat_name] = selected.value.split("_");
-                      setFilter("name", seat_name);
-                      setFilter("type", type);
-                    }
-                    setData("seat_option", selected);
+                      setData("seat_value", selected.value);
+                      const [type, seat] = selected.value.split("_");
+                      push(`/${type}/${seat}`);
+                    } else setData("seat_value", selected);
                   }}
                 />
               </div>

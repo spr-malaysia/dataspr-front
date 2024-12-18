@@ -1,8 +1,4 @@
-import {
-  BaseResult,
-  Candidate,
-  ElectionResource,
-} from "./types";
+import { BaseResult, Candidate, ElectionResource } from "./types";
 import FullResults, { Result } from "@components/Election/FullResults";
 import { generateSchema } from "@lib/schema/election-explorer";
 import { get } from "@lib/api";
@@ -17,12 +13,12 @@ import {
 } from "@components/index";
 import { useCache } from "@hooks/useCache";
 import { useData } from "@hooks/useData";
-import { useFilter } from "@hooks/useFilter";
 import { useTranslation } from "@hooks/useTranslation";
 import { OptionType } from "@lib/types";
 import dynamic from "next/dynamic";
 import { FunctionComponent, useEffect } from "react";
 import { useRouter } from "next/router";
+import { routes } from "@lib/routes";
 
 /**
  * Candidates Dashboard
@@ -54,20 +50,16 @@ const ElectionCandidatesDashboard: FunctionComponent<
 
   const DEFAULT_CANDIDATE = "tunku-abdul-rahman-putra-alhaj";
   const CANDIDATE_OPTION = CANDIDATE_OPTIONS.find(
-    (e) => e.value === (params.candidate_name ?? DEFAULT_CANDIDATE)
+    (e) => e.value === (params.candidate ?? DEFAULT_CANDIDATE)
   );
 
   const { cache } = useCache();
   const { data, setData } = useData({
     tab_index: 0, // parlimen = 0; dun = 1
-    candidate_option: CANDIDATE_OPTION,
-    candidate_name: CANDIDATE_OPTION?.label,
+    candidate_value: null,
     loading: false,
     parlimen: elections.parlimen,
     dun: elections.dun,
-  });
-  const { setFilter } = useFilter({
-    name: params.candidate_name,
   });
 
   const candidate_schema = generateSchema<Candidate>([
@@ -80,7 +72,7 @@ const ElectionCandidatesDashboard: FunctionComponent<
       key: (item) => item,
       id: "full_result",
       header: "",
-      cell: ({ row, getValue }) => {
+      cell: ({ row }) => {
         const selection =
           data.tab_index === 0 ? elections.parlimen : elections.dun;
 
@@ -108,7 +100,7 @@ const ElectionCandidatesDashboard: FunctionComponent<
                 header: t("votes_won"),
               },
             ])}
-            highlighted={data.candidate_option ? data.candidate_option.label : DEFAULT_CANDIDATE}
+            highlighted={CANDIDATE_OPTION?.label}
           />
         );
       },
@@ -167,12 +159,15 @@ const ElectionCandidatesDashboard: FunctionComponent<
     });
   };
 
-  const { events } = useRouter();
+  const { events, push } = useRouter();
   useEffect(() => {
-    const finishLoading = () => setData("loading", false);
+    const finishLoading = () => {
+      setData("loading", false);
+      setData("candidate_value", params.candidate);
+    };
     events.on("routeChangeComplete", finishLoading);
     return () => events.off("routeChangeComplete", finishLoading);
-  }, []);
+  }, [params]);
 
   return (
     <>
@@ -196,19 +191,18 @@ const ElectionCandidatesDashboard: FunctionComponent<
                   placeholder={t("search_candidate", { ns: "candidates" })}
                   options={CANDIDATE_OPTIONS}
                   selected={
-                    data.candidate_option
+                    data.candidate_value
                       ? CANDIDATE_OPTIONS.find(
-                          (e) => e.value === (params.candidate_name ?? DEFAULT_CANDIDATE)
+                          (e) => e.value === data.candidate_value
                         )
                       : null
                   }
                   onChange={(selected) => {
                     if (selected) {
                       setData("loading", true);
-                      setData("candidate_name", selected.label);
-                      setFilter("name", selected.value);
-                    }
-                    setData("candidate_option", selected);
+                      setData("candidate_value", selected.value);
+                      push(routes.CANDIDATES + "/" + selected.value);
+                    } else setData("candidate_value", selected);
                   }}
                 />
               </div>
@@ -216,7 +210,9 @@ const ElectionCandidatesDashboard: FunctionComponent<
                 title={
                   <h5>
                     {t("title", { ns: "candidates" })}
-                    <span className="text-primary">{CANDIDATE_OPTION?.label}</span>
+                    <span className="text-primary">
+                      {CANDIDATE_OPTION?.label}
+                    </span>
                   </h5>
                 }
                 current={data.tab_index}
@@ -230,7 +226,7 @@ const ElectionCandidatesDashboard: FunctionComponent<
                     isLoading={data.loading}
                     empty={t("no_data", {
                       ns: "candidates",
-                      name: data.candidate_name,
+                      name: CANDIDATE_OPTION?.label,
                       context: "parliament",
                     })}
                   />
@@ -242,7 +238,7 @@ const ElectionCandidatesDashboard: FunctionComponent<
                     isLoading={data.loading}
                     empty={t("no_data", {
                       ns: "candidates",
-                      name: data.candidate_name,
+                      name: CANDIDATE_OPTION?.label,
                       context: "dun",
                     })}
                   />

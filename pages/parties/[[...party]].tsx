@@ -2,11 +2,11 @@ import Metadata from "@components/Metadata";
 import ElectionPartiesDashboard from "@dashboards/parties";
 import { useTranslation } from "@hooks/useTranslation";
 import { get } from "@lib/api";
-import { withi18n } from "@lib/decorators";
-import { AnalyticsProvider } from "@lib/contexts/analytics";
-import { Page } from "@lib/types";
-import { GetServerSideProps, InferGetServerSidePropsType } from "next";
 import { CountryAndStates } from "@lib/constants";
+import { AnalyticsProvider } from "@lib/contexts/analytics";
+import { withi18n } from "@lib/decorators";
+import { Page } from "@lib/types";
+import { GetStaticPaths, GetStaticProps, InferGetStaticPropsType } from "next";
 
 const ElectionParties: Page = ({
   last_updated,
@@ -14,7 +14,7 @@ const ElectionParties: Page = ({
   params,
   selection,
   elections,
-}: InferGetServerSidePropsType<typeof getServerSideProps>) => {
+}: InferGetStaticPropsType<typeof getStaticProps>) => {
   const { t } = useTranslation("common");
 
   return (
@@ -22,7 +22,7 @@ const ElectionParties: Page = ({
       <Metadata
         title={t("header")}
         description={t("description")}
-        keywords={""}
+        keywords=""
       />
       <ElectionPartiesDashboard
         elections={elections}
@@ -34,24 +34,35 @@ const ElectionParties: Page = ({
   );
 };
 
-export const getServerSideProps: GetServerSideProps = withi18n(
-  ["election", "parties", "party"],
-  async ({ query }) => {
-    try {
-      const [party, state_code] =
-        Object.keys(query).length === 0
-          ? [null, null]
-          : [query.name?.toString(), query.state?.toString()];
+export const getStaticPaths: GetStaticPaths = () => {
+  return {
+    paths: [],
+    fallback: "blocking",
+  };
+};
 
+export const getStaticProps: GetStaticProps = withi18n(
+  ["election", "parties", "party"],
+  async ({ params }) => {
+    try {
+      const [party, state_code] = params?.party
+      ? (params.party as string[])
+      : [null, null];
       const state = state_code ? CountryAndStates[state_code] : "Malaysia";
-      const results = await Promise.allSettled([
-        get("/dropdown_parties.json"),
+
+      const { data: dropdown } = await get("/dropdown_parties.json");
+      const selection: Array<{ party: string }> = dropdown.data;
+      const partyExists = selection.some((e) => e.party === party);
+
+      if (party && !partyExists) return { notFound: true };
+
+      const responses = await Promise.allSettled([
         get("/query_party.json", {
           party: party ?? "PERIKATAN",
           state,
           election_type: "parlimen",
         }),
-        ...(state_code === "mys"
+        ...(state_code !== "mys"
           ? [
               get("/query_party.json", {
                 party: party ?? "PERIKATAN",
@@ -64,8 +75,8 @@ export const getServerSideProps: GetServerSideProps = withi18n(
         throw new Error("Invalid party name. Message: " + e);
       });
 
-      const [{ data: dropdown }, { data: parlimen }, dun] = results.map((e) => {
-        if (e.status === "rejected") return {};
+      const [parlimen, dun] = responses.map((e) => {
+        if (e.status === "rejected") return null;
         else return e.value.data;
       });
 
@@ -80,10 +91,10 @@ export const getServerSideProps: GetServerSideProps = withi18n(
             party,
             state: state_code,
           },
-          selection: dropdown,
+          selection,
           elections: {
-            parlimen: parlimen ?? [],
-            dun: state_code === "mys" ? dun.data : [],
+            parlimen: parlimen.data ?? [],
+            dun: state_code !== "mys" ? dun.data : [],
           },
         },
       };

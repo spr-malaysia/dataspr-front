@@ -9,21 +9,20 @@ import {
   ImageWithFallback,
   Panel,
   Section,
-  Skeleton,
   StateDropdown,
   Tabs,
   toast,
 } from "@components/index";
-import { CountryAndStates, MALAYSIA, STATES } from "@lib/constants";
+import { CountryAndStates } from "@lib/constants";
 import { useCache } from "@hooks/useCache";
 import { useData } from "@hooks/useData";
-import { useFilter } from "@hooks/useFilter";
 import { useTranslation } from "@hooks/useTranslation";
 import { OptionType } from "@lib/types";
 import { Trans } from "next-i18next";
 import dynamic from "next/dynamic";
 import { FunctionComponent, useEffect } from "react";
 import { useRouter } from "next/router";
+import { routes } from "@lib/routes";
 
 /**
  * Parties
@@ -51,11 +50,6 @@ const ElectionPartiesDashboard: FunctionComponent<ElectionPartiesProps> = ({
   const { t } = useTranslation(["common", "parties"]);
   const { cache } = useCache();
 
-  const { filter, setFilter } = useFilter({
-    name: params.party,
-    state: params.state,
-  });
-
   const PARTY_OPTIONS: Array<OptionType> = selection.map((option) => ({
     label: t(option.party, { ns: "party" }),
     value: option.party,
@@ -65,12 +59,11 @@ const ElectionPartiesDashboard: FunctionComponent<ElectionPartiesProps> = ({
   const PARTY_OPTION = PARTY_OPTIONS.find(
     (e) => e.value === (params.party ?? DEFAULT_PARTY)
   );
-  const CURRENT_STATE = filter.state ?? "mys";
+  const CURRENT_STATE = params.state ?? "mys";
 
   const { data, setData } = useData({
     tab_index: 0, // parlimen = 0; dun = 1
-    party_option: PARTY_OPTION,
-    // party: PARTY_OPTION?.label,
+    party_value: null,
     loading: false,
     state: CURRENT_STATE,
     parlimen: elections.parlimen,
@@ -97,12 +90,11 @@ const ElectionPartiesDashboard: FunctionComponent<ElectionPartiesProps> = ({
       key: (item) => item,
       id: "full_result",
       header: "",
-      cell: ({ row, getValue }) => {
+      cell: ({ row }) => {
         const selection =
           data.tab_index === 0 ? elections.parlimen : elections.dun;
-        return data.loading ? (
-          <Skeleton />
-        ) : (
+
+        return (
           <FullResults
             options={selection}
             currentIndex={row.index}
@@ -126,9 +118,7 @@ const ElectionPartiesDashboard: FunctionComponent<ElectionPartiesProps> = ({
                 header: t("votes_won"),
               },
             ])}
-            highlighted={
-              data.parti_option ? data.parti_option.value : DEFAULT_PARTY
-            }
+            highlighted={data.party_value ?? DEFAULT_PARTY}
           />
         );
       },
@@ -194,12 +184,16 @@ const ElectionPartiesDashboard: FunctionComponent<ElectionPartiesProps> = ({
     });
   };
 
-  const { events } = useRouter();
+  const { events, push } = useRouter();
   useEffect(() => {
-    const finishLoading = () => setData("loading", false);
+    const finishLoading = () => {
+      setData("loading", false);
+      setData("state", params.state);
+      setData("party_value", params.party);
+    };
     events.on("routeChangeComplete", finishLoading);
     return () => events.off("routeChangeComplete", finishLoading);
-  }, []);
+  }, [params]);
 
   return (
     <>
@@ -239,20 +233,20 @@ const ElectionPartiesDashboard: FunctionComponent<ElectionPartiesProps> = ({
                   )}
                   options={PARTY_OPTIONS}
                   selected={
-                    data.party_option
-                      ? PARTY_OPTIONS.find(
-                          (e) => e.value === (params.party ?? DEFAULT_PARTY)
-                        )
+                    data.party_value
+                      ? PARTY_OPTIONS.find((e) => e.value === data.party_value)
                       : null
                   }
                   onChange={(selected) => {
                     if (selected) {
                       setData("loading", true);
-                      setData("party", selected.label);
-                      setFilter("name", selected.value);
-                      setFilter("state", data.state);
-                    }
-                    setData("party_option", selected);
+                      setData("party_value", selected.value);
+                      push(
+                        `${routes.PARTIES}/${selected.value}/${data.state}`,
+                        undefined,
+                        { scroll: false }
+                      );
+                    } else setData("party_value", selected);
                   }}
                 />
               </div>
@@ -262,26 +256,35 @@ const ElectionPartiesDashboard: FunctionComponent<ElectionPartiesProps> = ({
                     <ImageWithFallback
                       className="border-slate-200 dark:border-zinc-800 mr-2 inline-block rounded border"
                       src={`/static/images/parties/${
-                        params.party ?? DEFAULT_PARTY
+                        PARTY_OPTION?.value ?? DEFAULT_PARTY
                       }.png`}
                       width={32}
                       height={18}
-                      alt={t(params.party ?? DEFAULT_PARTY)}
+                      alt={t(PARTY_OPTION?.value ?? DEFAULT_PARTY)}
                       inline
                     />
                     <Trans>
                       {t("title", {
                         ns: "parties",
-                        party: `$t(party:${params.party ?? DEFAULT_PARTY})`,
+                        party: `$t(party:${
+                          PARTY_OPTION?.value ?? DEFAULT_PARTY
+                        })`,
                       })}
                     </Trans>
                     <StateDropdown
-                      currentState={params.state ?? "mys"}
+                      currentState={data.state ?? "mys"}
                       onChange={(selected) => {
                         setData("loading", true);
                         setData("state", selected.value);
-                        setFilter("name", data.party_option.value);
-                        setFilter("state", selected.value);
+                        push(
+                          `${routes.PARTIES}/${
+                            data.party_value
+                              ? data.party_value.value
+                              : DEFAULT_PARTY
+                          }/${selected.value}`,
+                          undefined,
+                          { scroll: false }
+                        );
                       }}
                       width="inline-flex ml-0.5"
                       anchor="left"
@@ -302,7 +305,7 @@ const ElectionPartiesDashboard: FunctionComponent<ElectionPartiesProps> = ({
                         {t("no_data", {
                           ns: "parties",
                           party: `$t(party:${params.party ?? DEFAULT_PARTY})`,
-                          state: CountryAndStates[filter.state],
+                          state: CountryAndStates[params.state],
                           context: "parlimen",
                         })}
                       </Trans>
@@ -312,9 +315,7 @@ const ElectionPartiesDashboard: FunctionComponent<ElectionPartiesProps> = ({
                 <Panel name={t("dun")}>
                   <ElectionTable
                     data={
-                      ["mys", null].includes(filter.state)
-                        ? []
-                        : elections.dun
+                      ["mys", null].includes(params.state) ? [] : elections.dun
                     }
                     columns={party_schema}
                     isLoading={data.loading}
@@ -322,11 +323,11 @@ const ElectionPartiesDashboard: FunctionComponent<ElectionPartiesProps> = ({
                       <Trans>
                         {t("no_data", {
                           ns: "parties",
-                          party: `$t(party:${filter.name ?? DEFAULT_PARTY})`,
-                          state: CountryAndStates[filter.state],
-                          context: ["kul", "lbn", "pjy"].includes(filter.state)
+                          party: `$t(party:${params.party ?? DEFAULT_PARTY})`,
+                          state: CountryAndStates[params.state],
+                          context: ["kul", "lbn", "pjy"].includes(params.state)
                             ? "dun_wp"
-                            : ["mys", null].includes(filter.state)
+                            : ["mys", null].includes(params.state)
                             ? "dun_mys"
                             : "dun",
                         })}

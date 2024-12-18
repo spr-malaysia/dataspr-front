@@ -5,7 +5,8 @@ import { get } from "@lib/api";
 import { AnalyticsProvider } from "@lib/contexts/analytics";
 import { withi18n } from "@lib/decorators";
 import { Page } from "@lib/types";
-import { GetServerSideProps, InferGetServerSidePropsType } from "next";
+import groupBy from "lodash/groupBy";
+import { GetStaticPaths, GetStaticProps, InferGetStaticPropsType } from "next";
 
 const ElectionCandidates: Page = ({
   elections,
@@ -13,7 +14,7 @@ const ElectionCandidates: Page = ({
   meta,
   params,
   selection,
-}: InferGetServerSidePropsType<typeof getServerSideProps>) => {
+}: InferGetStaticPropsType<typeof getStaticProps>) => {
   const { t } = useTranslation("common");
 
   return (
@@ -21,7 +22,7 @@ const ElectionCandidates: Page = ({
       <Metadata
         title={t("header")}
         description={t("description")}
-        keywords={""}
+        keywords=""
       />
       <ElectionCandidatesDashboard
         elections={elections}
@@ -33,34 +34,29 @@ const ElectionCandidates: Page = ({
   );
 };
 
-export const getServerSideProps: GetServerSideProps = withi18n(
+export const getStaticPaths: GetStaticPaths = () => {
+  return {
+    paths: [],
+    fallback: "blocking",
+  };
+};
+
+export const getStaticProps: GetStaticProps = withi18n(
   "candidates",
-  async ({ query }) => {
+  async ({ params }) => {
     try {
-      const slug =
-        Object.keys(query).length === 0
-          ? "tunku-abdul-rahman-putra-alhaj"
-          : query.name;
+      const slug = params && params.slug ? params.slug.toString() : null;
 
-      const results = await Promise.allSettled([
-        get("/dropdown_candidates.json"),
-        get("/query_candidate.json", {
-          slug,
-          election_type: "parlimen",
-        }),
-        get("/query_candidate.json", {
-          slug,
-          election_type: "dun",
-        }),
-      ]).catch((e) => {
-        throw new Error("Invalid candidate name. Message: " + e);
+      const { data: dropdown } = await get("/dropdown_candidates.json");
+      const selection: Array<{ slug: string }> = dropdown.data;
+      const slugExists = selection.some((e) => e.slug === slug);
+
+      if (slug && !slugExists) return { notFound: true };
+
+      const { data: query } = await get("/query_candidate.json", {
+        slug: slug ?? "tunku-abdul-rahman-putra-alhaj",
       });
-
-      const [{ data: dropdown }, { data: parlimen }, { data: dun }] =
-        results.map((e) => {
-          if (e.status === "rejected") return {};
-          else return e.value.data;
-        });
+      const elections = groupBy(query.data, "type");
 
       return {
         props: {
@@ -69,9 +65,12 @@ export const getServerSideProps: GetServerSideProps = withi18n(
             id: "candidates",
             type: "dashboard",
           },
-          params: { candidate_name: slug },
-          selection: dropdown,
-          elections: { parlimen: parlimen ?? [], dun: dun ?? [] },
+          params: { candidate: slug },
+          selection,
+          elections: {
+            parlimen: elections.parlimen ?? [],
+            dun: elections.dun ?? [],
+          },
         },
       };
     } catch (e: any) {
