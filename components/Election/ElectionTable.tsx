@@ -8,13 +8,8 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 import BarPerc from "@charts/bar-perc";
-import {
-  ImageWithFallback,
-  Skeleton,
-  Spinner,
-  Tooltip,
-} from "@components/index";
-import { clx, numFormat, slugify, toDate } from "@lib/helpers";
+import { ImageWithFallback, Skeleton, Tooltip } from "@components/index";
+import { clx, numFormat, toDate } from "@lib/helpers";
 import { useTranslation } from "@hooks/useTranslation";
 import { FunctionComponent, ReactNode } from "react";
 
@@ -464,11 +459,6 @@ const ElectionTable: FunctionComponent<ElectionTableProps> = ({
             </div>
           );
         })}
-        {isLoading && (
-          <div className="flex h-[200px] w-full items-center justify-center md:hidden">
-            <Spinner loading={isLoading} />
-          </div>
-        )}
         {!data.length && (
           <div className="flex items-center justify-center h-[200px]">
             <div className="bg-slate-200 dark:bg-zinc-800 flex h-auto w-[300px] rounded-md px-3 pb-2 pt-1 lg:w-fit">
