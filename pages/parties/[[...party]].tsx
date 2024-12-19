@@ -50,13 +50,8 @@ export const getStaticProps: GetStaticProps = withi18n(
       : [null, null];
       const state = state_code ? CountryAndStates[state_code] : "Malaysia";
 
-      const { data: dropdown } = await get("/dropdown_parties.json");
-      const selection: Array<{ party: string }> = dropdown.data;
-      const partyExists = selection.some((e) => e.party === party);
-
-      if (party && !partyExists) return { notFound: true };
-
-      const responses = await Promise.allSettled([
+      const results = await Promise.allSettled([
+        get("/dropdown_parties.json"),
         get("/query_party.json", {
           party: party ?? "PERIKATAN",
           state,
@@ -75,10 +70,14 @@ export const getStaticProps: GetStaticProps = withi18n(
         throw new Error("Invalid party name. Message: " + e);
       });
 
-      const [parlimen, dun] = responses.map((e) => {
+      const [dropdown, parlimen, dun] = results.map((e) => {
         if (e.status === "rejected") return null;
         else return e.value.data;
       });
+      const selection: Array<{ party: string }> = dropdown.data;
+      const partyExists = selection.some((e) => e.party === party);
+
+      if (party && !partyExists) return { notFound: true };
 
       return {
         props: {

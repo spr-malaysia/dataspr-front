@@ -44,16 +44,23 @@ export const getStaticProps: GetStaticProps = withi18n(
     try {
       const slug = params.seat.toString();
 
-      const { data: dropdown } = await get("/dropdown_seats.json");
+      const results = await Promise.allSettled([
+        get("/dropdown_seats.json"),
+        get("/query_area.json", {
+          slug,
+        type: "dun",
+        }),
+      ]);
+
+      const [dropdown, seat] = results.map((e) => {
+        if (e.status === "rejected") return null;
+        else return e.value.data;
+      });
+
       const selection: Array<{ slug: string }> = dropdown.data;
       const slugExists = selection.some((e) => e.slug === slug);
 
       if (slug && !slugExists) return { notFound: true };
-
-      const { data: seat } = await get("/query_area.json", {
-        slug,
-        type: "dun",
-      });
 
       return {
         props: {

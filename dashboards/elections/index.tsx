@@ -16,9 +16,7 @@ import {
 } from "@components/index";
 import { CountryAndStates } from "@lib/constants";
 import { WindowProvider } from "@lib/contexts/window";
-import { useCache } from "@hooks/useCache";
 import { useData } from "@hooks/useData";
-import { useFilter } from "@hooks/useFilter";
 import { useTranslation } from "@hooks/useTranslation";
 import { useScrollIntersect } from "@hooks/useScrollIntersect";
 import { OptionType } from "@lib/types";
@@ -27,6 +25,7 @@ import { FunctionComponent, useMemo, useRef } from "react";
 import Overview from "./overview";
 import { useRouter } from "next/router";
 import { routes } from "@lib/routes";
+import { toDate } from "@lib/helpers";
 
 /**
  * Election Explorer Dashboard
@@ -43,7 +42,10 @@ interface ElectionExplorerProps {
     election: string;
   };
   seats: OverallSeat[];
-  selection: Array<{ state: string; date: string[] }>;
+  selection: Record<
+    string,
+    { state: string; election: string; date: string }[]
+  >;
   table: PartyResult;
 }
 
@@ -56,10 +58,12 @@ const ElectionExplorer: FunctionComponent<ElectionExplorerProps> = ({
   table,
 }) => {
   const { t } = useTranslation(["common", "elections", "election"]);
-  const { cache } = useCache();
 
   const divRef = useRef<HTMLDivElement>(null);
-  useScrollIntersect(divRef.current, "drop-shadow-xl");
+  useScrollIntersect(divRef.current, [
+    "drop-shadow-xl",
+    "dark:lg:drop-shadow-[0_8px_8px_rgba(255,255,255,0.15)]",
+  ]);
 
   const PANELS = [
     {
@@ -85,40 +89,29 @@ const ElectionExplorer: FunctionComponent<ElectionExplorerProps> = ({
     election_acronym: ELECTION_ACRONYM,
     state: CURRENT_STATE,
     showFullTable: false,
-    seats: seats,
-    table: table,
   });
 
   const TOGGLE_IS_DUN = data.toggle_index === ElectionEnum.Dun;
   const TOGGLE_IS_PARLIMEN = data.toggle_index === ElectionEnum.Parlimen;
   const NON_SE_STATE = ["mys", "kul", "lbn", "pjy"];
 
-  const GE_OPTIONS: Array<OptionType> = selection
-    .find((e) => e.state === "Malaysia")!
-    .date.map((date) => {
-      const [election, year] = date.split(" ");
-      return {
-        label: t(election, { ns: "election" }) + " " + year,
-        value: election,
-      };
-    })
+  const GE_OPTIONS: Array<OptionType> = selection["Malaysia"]
+    .map(({ election, date }) => ({
+      label: `${t(election, { ns: "election" })} (${toDate(date, "yyyy")})`,
+      value: election,
+    }))
     .reverse();
 
   const SE_OPTIONS = useMemo<Array<OptionType>>(() => {
-    let _options: Array<OptionType> = [];
+    let options: Array<OptionType> = [];
     if (data.state !== null && NON_SE_STATE.includes(data.state) === false)
-      _options = selection
-        .find((e) => e.state === CountryAndStates[data.state])!
-        .date.map((date) => {
-          const [election, year] = date.split(" ");
-
-          return {
-            label: t(election, { ns: "election" }) + " " + year,
-            value: election,
-          };
-        })
+      options = selection[CountryAndStates[data.state]]
+        .map(({ election, date }) => ({
+          label: `${t(election, { ns: "election" })} (${toDate(date, "yyyy")})`,
+          value: election,
+        }))
         .reverse();
-    return _options;
+    return options;
   }, [data.state]);
 
   const handleElectionTab = (index: number) => {
@@ -291,12 +284,12 @@ const ElectionExplorer: FunctionComponent<ElectionExplorerProps> = ({
           </div>
 
           <Overview choropleth={choropleth} params={params} table={table} />
-          <hr className="dark:border-zinc-800 border-slate-200 pt-8 h-px lg:pt-12"></hr>
+          <hr className="dark:border-zinc-800 border-slate-200 h-px"></hr>
 
           {/* View the full ballot for a specific seat */}
           <BallotSeat
-            election={data.election_fullname}
-            seats={data.seats}
+            election={params.election}
+            seats={seats}
             state={params.state}
           />
           <hr className="dark:border-zinc-800 border-slate-200 h-px"></hr>
@@ -304,7 +297,7 @@ const ElectionExplorer: FunctionComponent<ElectionExplorerProps> = ({
           {/* Election analysis */}
           <ElectionAnalysis
             choropleth={choropleth}
-            seats={data.seats}
+            seats={seats}
             state={params.state}
             toggle={data.toggle_index}
           />

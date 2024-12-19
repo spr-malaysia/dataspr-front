@@ -6,6 +6,7 @@ import { CountryAndStates } from "@lib/constants";
 import { AnalyticsProvider } from "@lib/contexts/analytics";
 import { withi18n } from "@lib/decorators";
 import { Page } from "@lib/types";
+import groupBy from "lodash/groupBy";
 import { GetStaticPaths, GetStaticProps, InferGetStaticPropsType } from "next";
 
 const ElectionExplorerIndex: Page = ({
@@ -75,16 +76,18 @@ export const getStaticProps: GetStaticProps = withi18n(
           state: state_code === "mys" ? undefined : state,
           election_type,
         }),
-      ]).catch((e) => {
-        throw new Error("Invalid election name/state. Message: " + e);
-      });
+      ]);
 
       const [dropdown, table, seats] = results.map((e) => {
         if (e.status === "rejected") return null;
         else return e.value.data;
       });
-console.log(election_name)
-      if (!seats || !table) return { notFound: true };
+
+      const selection: Array<{ state: string, election: string }> = dropdown.data;
+      const stateExists = selection.some((e) => e.state === state);
+      const electionExists = selection.some((e) => e.election === election);
+
+      if (!stateExists || !electionExists) return { notFound: true };
 
       return {
         props: {
@@ -95,7 +98,7 @@ console.log(election_name)
           },
           params: { election, state: state_code },
           seats: seats.data,
-          selection: dropdown.data ?? [],
+          selection: groupBy(selection, "state"),
           table: table.data,
           choropleth: {},
         },
