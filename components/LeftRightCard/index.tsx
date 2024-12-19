@@ -19,15 +19,15 @@ interface CardProps {
 const LeftRightCard: FunctionComponent<CardProps> = ({
   left,
   right,
-  leftBg = "dark:bg-zinc-800/50",
-  rightBg = "bg-slate-50 dark:bg-zinc-900",
+  leftBg = "bg-slate-50 dark:bg-zinc-800",
+  rightBg = "bg-white dark:bg-zinc-900",
 }) => {
   return (
     <>
       <div className="border-slate-200 dark:border-zinc-800 flex flex-col items-stretch overflow-visible rounded-xl border lg:flex-row">
         <div
           className={clx(
-            "border-slate-200 dark:border-zinc-800 w-full overflow-visible lg:w-1/3 lg:border-r lg:rounded-l-xl",
+            "border-slate-200 dark:border-zinc-800 w-full overflow-visible lg:w-1/3 lg:border-r max-lg:rounded-xl lg:rounded-l-xl",
             leftBg
           )}
         >
