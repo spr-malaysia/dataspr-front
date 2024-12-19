@@ -242,7 +242,9 @@ const ElectionPartiesDashboard: FunctionComponent<ElectionPartiesProps> = ({
                       setData("loading", true);
                       setData("party_value", selected.value);
                       push(
-                        `${routes.PARTIES}/${selected.value}/${data.state}`,
+                        `${routes.PARTIES}/${selected.value}/${
+                          data.state ?? CURRENT_STATE
+                        }`,
                         undefined,
                         { scroll: false }
                       );
@@ -278,9 +280,7 @@ const ElectionPartiesDashboard: FunctionComponent<ElectionPartiesProps> = ({
                         setData("state", selected.value);
                         push(
                           `${routes.PARTIES}/${
-                            data.party_value
-                              ? data.party_value.value
-                              : DEFAULT_PARTY
+                            data.party_value ? data.party_value : DEFAULT_PARTY
                           }/${selected.value}`,
                           undefined,
                           { scroll: false }
