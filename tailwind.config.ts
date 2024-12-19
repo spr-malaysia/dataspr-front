@@ -1,21 +1,21 @@
-import type { Config } from 'tailwindcss'
+import type { Config } from "tailwindcss"
 
 const config: Config = {
   darkMode: "class",
   content: [
-    './pages/**/*.{js,ts,jsx,tsx,mdx}',
-    './components/**/*.{js,ts,jsx,tsx,mdx}',
-    './app/**/*.{js,ts,jsx,tsx,mdx}',
-    './charts/**/*.{js,ts,jsx,tsx,mdx}',
-    './dashboards/**/*.{js,ts,jsx,tsx}',
-    './data-catalogue/**/*.{js,ts,jsx,tsx}',
-    './hooks/**/*.{js,ts,jsx,tsx}',
-    './lib/**/*.{js,ts,jsx,tsx}',
+    "./pages/**/*.{js,ts,jsx,tsx,mdx}",
+    "./components/**/*.{js,ts,jsx,tsx,mdx}",
+    "./app/**/*.{js,ts,jsx,tsx,mdx}",
+    "./charts/**/*.{js,ts,jsx,tsx,mdx}",
+    "./dashboards/**/*.{js,ts,jsx,tsx}",
+    "./data-catalogue/**/*.{js,ts,jsx,tsx}",
+    "./hooks/**/*.{js,ts,jsx,tsx}",
+    "./lib/**/*.{js,ts,jsx,tsx}",
   ],
   theme: {
     extend: {
       backgroundImage: {
-        'gradient-radial': 'radial-gradient(59.1% 166.02% at 50% -66.02%, var(--tw-gradient-stops))'
+        "gradient-radial": "radial-gradient(59.1% 166.02% at 50% -66.02%, var(--tw-gradient-stops))"
       },
       spacing: {
         4.5: "18px",
@@ -53,20 +53,14 @@ const config: Config = {
           from: { height: "var(--from-height)" },
           to: { height: "var(--to-height)" },
         },
-        gradient: {
-          "0%, 100%": {
-            "background-position": "0% 50%",
-            "background-size": "400%",
-          },
-          "50%": {
-            "background-position": "100% 50%",
-            "background-size": "400%",
+        shimmer: {
+          to: {
+            "transform": "translateX(100%)",
           },
         },
       },
       animation: {
         slide: "slide 1.5s ease-out",
-        "bg-gradient-flow": "gradient 3s ease infinite",
       },
     },
   },
