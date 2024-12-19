@@ -1,5 +1,4 @@
 import ResultBadge from "@components/Election/ResultBadge";
-import ElectionTable from "@components/Election/ElectionTable";
 import type {
   BaseResult,
   Candidate,
@@ -23,14 +22,13 @@ import {
 } from "@components/drawer";
 import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/20/solid";
 import { ArrowsPointingOutIcon, XMarkIcon } from "@heroicons/react/24/solid";
-import BarPerc from "@charts/bar-perc";
 import Button from "@components/Button";
-import { clx, numFormat, toDate } from "@lib/helpers";
+import { clx, toDate } from "@lib/helpers";
 import { useData } from "@hooks/useData";
 import { useTranslation } from "@hooks/useTranslation";
 import { useState } from "react";
-import Skeleton from "@components/Skeleton";
 import { useMediaQuery } from "@hooks/useMediaQuery";
+import { FullResultContent } from "./content";
 
 export type Result<T> = {
   data: T;
@@ -70,7 +68,8 @@ const FullResults = <T extends Candidate | Party | Seat>({
     date: "",
     election_name: "",
     state: "",
-    result: {},
+    ballot: [],
+    votes: null,
     loading: false,
   });
 
@@ -103,7 +102,8 @@ const FullResults = <T extends Candidate | Party | Seat>({
         onChange(selected)
           .then((results) => {
             if (!results) return;
-            setData("result", results);
+            setData("ballot", results.data);
+            setData("votes", results.votes);
           })
           .finally(() => setData("loading", false));
       }}
@@ -111,73 +111,6 @@ const FullResults = <T extends Candidate | Party | Seat>({
       <ArrowsPointingOutIcon className="h-4.5 w-4.5" />
       <p className="whitespace-nowrap font-normal">{t("full_result")}</p>
     </Button>
-  );
-
-  const ElectionResults = () => (
-    <div className="h-[calc(100%-80px)] space-y-6 text-base max-md:overflow-y-scroll max-md:px-4 max-md:pb-4">
-      <div className="space-y-3">
-        <div className="font-bold">{t("election_result")}</div>
-        <ElectionTable
-          className="max-h-96 w-full overflow-y-auto"
-          data={data.result.data}
-          columns={columns}
-          isLoading={data.loading}
-          highlighted={highlighted}
-          highlightedRows={highlightedRows}
-          result={isCandidate ? selected.result : undefined}
-        />
-      </div>
-      <div className="space-y-3">
-        <div className="font-bold">{t("voting_statistics")}</div>
-        {data.result.votes && data.result.votes.length > 0 ? (
-          <div className="flex flex-col gap-3 text-sm">
-            {data.result.votes.map(
-              (item: { x: string; abs: number; perc: number }, i: number) =>
-                data.loading ? (
-                  <Skeleton
-                    className={clx(
-                      data.result.votes.length > 2
-                        ? { 0: "w-48", 1: "w-64", 2: "w-56" }[i]
-                        : { 0: "w-64", 1: "w-56" }[i]
-                    )}
-                  />
-                ) : (
-                  <div
-                    className="flex flex-wrap gap-3 whitespace-nowrap"
-                    key={item.x}
-                  >
-                    <p className="w-28 md:w-fit">{t(item.x)}:</p>
-                    <div className="flex flex-wrap items-center gap-3">
-                      <BarPerc
-                        hidden
-                        value={item.perc}
-                        size={"h-[5px] w-[50px]"}
-                      />
-                      <p>{`${
-                        item.abs !== null
-                          ? numFormat(item.abs, "standard")
-                          : "—"
-                      } ${
-                        item.perc !== null
-                          ? `(${numFormat(item.perc, "compact", [1, 1])}%)`
-                          : "(—)"
-                      }`}</p>
-                    </div>
-                  </div>
-                )
-            )}
-          </div>
-        ) : (
-          <div className="flex flex-col gap-3 text-sm h-full">
-            {Array(3)
-              .fill(null)
-              .map((_, i) => (
-                <Skeleton className="w-64" />
-              ))}
-          </div>
-        )}
-      </div>
-    </div>
   );
 
   const Pagination = () => {
@@ -192,10 +125,11 @@ const FullResults = <T extends Candidate | Party | Seat>({
                   onClick={() => {
                     setData("loading", true);
                     onChange(option)
-                      .then((result) => {
-                        if (!result) return;
+                      .then((results) => {
+                        if (!results) return;
                         setData("index", index);
-                        setData("result", result);
+                        setData("ballot", results.data);
+                        setData("votes", results.votes);
                         getData(options[index]);
                       })
                       .finally(() => setData("loading", false));
@@ -218,11 +152,12 @@ const FullResults = <T extends Candidate | Party | Seat>({
               onClick={() => {
                 setData("loading", true);
                 onChange(options[data.index - 1])
-                  .then((result) => {
-                    if (!result) return;
+                  .then((results) => {
+                    if (!results) return;
                     setData("index", data.index - 1);
                     getData(options[data.index - 1]);
-                    setData("result", result);
+                    setData("ballot", results.data);
+                    setData("votes", results.votes);
                   })
                   .finally(() => setData("loading", false));
               }}
@@ -241,17 +176,18 @@ const FullResults = <T extends Candidate | Party | Seat>({
               onClick={() => {
                 setData("loading", true);
                 onChange(options[data.index + 1])
-                  .then((result) => {
-                    if (!result) return;
+                  .then((results) => {
+                    if (!results) return;
                     setData("index", data.index + 1);
-                    setData("result", result);
+                    setData("ballot", results.data);
+                    setData("votes", results.votes);
                     getData(options[data.index + 1]);
                   })
-
                   .finally(() => setData("loading", false));
               }}
               disabled={data.index === options.length - 1}
-            >              {t("common:next")}
+            >
+              {t("common:next")}
               <ChevronRightIcon className="h-4.5 w-4.5" />
             </Button>
           </div>
@@ -288,16 +224,22 @@ const FullResults = <T extends Candidate | Party | Seat>({
 
               {isCandidate && <ResultBadge value={data.badge} />}
             </div>
-            <div className="space-x-3">
-              {!isParty && (
-                <div className="flex flex-wrap gap-x-2">
-                  <span>{t(data.election_name, { ns: "election" })}</span>
-                  <span className="text-zinc-500">{data.date}</span>
-                </div>
-              )}
-            </div>
+            {!isParty && (
+              <div className="flex flex-wrap gap-x-2">
+                <span>{t(data.election_name, { ns: "election" })}</span>
+                <span className="text-zinc-500">{data.date}</span>
+              </div>
+            )}
           </DialogHeader>
-          <ElectionResults />
+          <FullResultContent
+            data={data.ballot}
+            columns={columns}
+            loading={data.loading}
+            highlighted={highlighted}
+            highlightedRows={highlightedRows}
+            result={isCandidate ? selected.result : undefined}
+            votes={data.votes}
+          />
           <Pagination />
         </DialogContent>
       </Dialog>
@@ -339,7 +281,15 @@ const FullResults = <T extends Candidate | Party | Seat>({
           )}
           {isCandidate && <ResultBadge value={data.badge} />}
         </DrawerHeader>
-        <ElectionResults />
+        <FullResultContent
+          data={data.ballot}
+          columns={columns}
+          loading={data.loading}
+          highlighted={highlighted}
+          highlightedRows={highlightedRows}
+          result={isCandidate ? selected.result : undefined}
+          votes={data.votes}
+        />
         <DrawerFooter>
           <Pagination />
         </DrawerFooter>
