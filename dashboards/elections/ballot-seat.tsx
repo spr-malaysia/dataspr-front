@@ -58,8 +58,7 @@ const BallotSeat: FunctionComponent<BallotSeatProps> = ({
     seat: seats[0].seat,
     search_seat: "",
     loading: false,
-    ballot: [],
-    votes: null,
+    results: {},
   });
 
   const columns = generateSchema<BaseResult>([
@@ -94,7 +93,7 @@ const BallotSeat: FunctionComponent<BallotSeatProps> = ({
           ? `${CountryAndStates[state]} ${election}`
           : election;
 
-      const results = await Promise.allSettled([
+      const responses = await Promise.allSettled([
         get("/result_ballot.json", {
           election: election_name,
           seat,
@@ -108,7 +107,7 @@ const BallotSeat: FunctionComponent<BallotSeatProps> = ({
         throw new Error("Invalid election or seat. Message: " + e);
       });
 
-      const [{ data: ballot }, { data: ballot_summary }] = results.map((e) => {
+      const [{ data: ballot }, { data: ballot_summary }] = responses.map((e) => {
         if (e.status === "rejected") return {};
         else return e.value.data;
       });
@@ -130,10 +129,9 @@ const BallotSeat: FunctionComponent<BallotSeatProps> = ({
           perc: summary.votes_rejected_perc,
         },
       ];
-      const result = { data: ballot, votes };
-      cache.set(identifier, result);
-      setData("ballot", ballot);
-      setData("votes", votes);
+      const results = { data: ballot, votes };
+      cache.set(identifier, results);
+      setData("results", results);
       setData("loading", false);
     }
   };
@@ -289,16 +287,16 @@ const BallotSeat: FunctionComponent<BallotSeatProps> = ({
                           seat={data.seat}
                         />
                         <DrawerClose>
-                          <XMarkIcon className="h-5 w-5" />
+                          <XMarkIcon className="h-5 w-5 text-zinc-500" />
                         </DrawerClose>
                       </DrawerHeader>
                       <FullResultContent
                         columns={columns}
-                        data={data.ballot}
+                        data={data.results.data}
                         highlightedRows={[0]}
                         loading={data.loading}
                         result="won"
-                        votes={data.votes}
+                        votes={data.results.votes}
                       />
                     </DrawerContent>
                   </Drawer>
@@ -306,7 +304,7 @@ const BallotSeat: FunctionComponent<BallotSeatProps> = ({
               }
               right={
                 <div className="max-lg:hidden h-[600px] w-full space-y-8 overflow-y-auto p-8">
-                  {data.ballot.length > 0 && election && (
+                  {data.results.data.length > 0 && election && (
                     <>
                       <FullResultHeader
                         date={seats[0].date}
@@ -315,11 +313,11 @@ const BallotSeat: FunctionComponent<BallotSeatProps> = ({
                       />
                       <FullResultContent
                         columns={columns}
-                        data={data.ballot}
+                        data={data.results.data}
                         highlightedRows={[0]}
                         loading={data.loading}
                         result="won"
-                        votes={data.votes}
+                        votes={data.results.votes}
                       />
                     </>
                   )}
