@@ -107,10 +107,12 @@ const BallotSeat: FunctionComponent<BallotSeatProps> = ({
         throw new Error("Invalid election or seat. Message: " + e);
       });
 
-      const [{ data: ballot }, { data: ballot_summary }] = responses.map((e) => {
-        if (e.status === "rejected") return {};
-        else return e.value.data;
-      });
+      const [{ data: ballot }, { data: ballot_summary }] = responses.map(
+        (e) => {
+          if (e.status === "rejected") return {};
+          else return e.value.data;
+        }
+      );
       const summary = ballot_summary[0];
       const votes = [
         {
@@ -304,23 +306,25 @@ const BallotSeat: FunctionComponent<BallotSeatProps> = ({
               }
               right={
                 <div className="max-lg:hidden h-[600px] w-full space-y-8 overflow-y-auto p-8">
-                  {data.results.data.length > 0 && election && (
-                    <>
-                      <FullResultHeader
-                        date={seats[0].date}
-                        election={election}
-                        seat={data.seat}
-                      />
-                      <FullResultContent
-                        columns={columns}
-                        data={data.results.data}
-                        highlightedRows={[0]}
-                        loading={data.loading}
-                        result="won"
-                        votes={data.results.votes}
-                      />
-                    </>
-                  )}
+                  {data.results.data &&
+                    data.results.data.length > 0 &&
+                    election && (
+                      <>
+                        <FullResultHeader
+                          date={seats[0].date}
+                          election={election}
+                          seat={data.seat}
+                        />
+                        <FullResultContent
+                          columns={columns}
+                          data={data.results.data}
+                          highlightedRows={[0]}
+                          loading={data.loading}
+                          result="won"
+                          votes={data.results.votes}
+                        />
+                      </>
+                    )}
                 </div>
               }
             />
