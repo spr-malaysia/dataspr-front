@@ -49,7 +49,7 @@ export const getStaticProps: GetStaticProps = withi18n(
         get("/dropdown_seats.json"),
         get("/query_area.json", {
           slug,
-        type: "dun",
+        type: "parlimen",
         }),
       ]);
 
