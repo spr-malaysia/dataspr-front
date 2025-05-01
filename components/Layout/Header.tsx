@@ -1,7 +1,7 @@
 import Container from "@components/Container";
 import Nav from "@components/Nav";
 import { useTranslation } from "@hooks/useTranslation";
-import Image from "next/image";
+import { SPRIconSolid } from "@icons/index";
 import Link from "next/link";
 import { FunctionComponent, ReactNode } from "react";
 
@@ -21,15 +21,8 @@ const Header: FunctionComponent<HeaderProps> = ({ stateSelector }) => {
         <div className="flex w-full items-center gap-4">
           <Link href="/">
             <div className="flex cursor-pointer gap-2">
-              <div className="flex w-8 items-center justify-center">
-                <Image
-                  src="/static/images/jata_logo.png"
-                  width={48}
-                  height={36}
-                  alt="jata_logo"
-                />
-              </div>
-              <h4>data.spr.gov.my</h4>
+              <SPRIconSolid className="h-7 w-7 rounded-full bg-black text-white" />
+              <h4>ElectionData.MY</h4>
             </div>
           </Link>
 
@@ -64,18 +57,6 @@ const Header: FunctionComponent<HeaderProps> = ({ stateSelector }) => {
                   title="Trivia"
                   link="/trivia"
                   key="/trivia"
-                  onClick={close}
-                />
-                <Nav.Item
-                  title={t("nav.catalogue")}
-                  key="/data-catalogue"
-                  link="/data-catalogue"
-                  onClick={close}
-                />
-                <Nav.Item
-                  title={t("nav.api_docs")}
-                  key="api_docs"
-                  link="/api-docs"
                   onClick={close}
                 />
               </>

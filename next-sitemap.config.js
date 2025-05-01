@@ -1,6 +1,6 @@
 /** @type {import('next-sitemap').IConfig} */
 module.exports = {
-  siteUrl: process.env.APP_URL || "https://data.spr.gov.my",
+  siteUrl: process.env.APP_URL || "https://electiondata.my",
   generateIndexSitemap: true,
   generateRobotsTxt: true,
   priority: 0.7,

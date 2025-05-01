@@ -21,7 +21,11 @@ export default async function handler(
   if (req.headers.authorization !== `Bearer ${process.env.REVALIDATE_TOKEN}`) {
     return res
       .status(401)
-      .json({ error: "Unauthorized", message: "Invalid bearer token", revalidated: [] });
+      .json({
+        error: "Unauthorized",
+        message: "Invalid bearer token",
+        revalidated: [],
+      });
   }
 
   try {
@@ -31,28 +35,37 @@ export default async function handler(
     const routes: string[] = _route.split(",");
 
     await Promise.all(
-      routes.map(async route =>
+      routes.map(async (route) =>
         validate(route)
-          .then(valid_route => rebuild(res, valid_route, routes))
-          .catch(e => {
+          .then((valid_route) => rebuild(res, valid_route, routes))
+          .catch((e) => {
             throw new Error(e);
           })
       )
     );
 
-    return res.json({ message: "Revalidation successful", revalidated: routes });
+    return res.json({
+      message: "Revalidation successful",
+      revalidated: routes,
+    });
   } catch (err: any) {
     return res
       .status(400)
-      .json({ error: "Revalidation failed", message: err.message, revalidated: [] });
+      .json({
+        error: "Revalidation failed",
+        message: err.message,
+        revalidated: [],
+      });
   }
 }
 
 // Checks if route exists. Routes only valid for static pages
 const validate = (route: string): Promise<string> =>
   new Promise((resolve, reject) => {
-    if (static_routes.includes(route)) resolve(route);
-    else reject(`Route does not exist or is not a static page. Route: ${route}`);
+    if (static_routes.some((s_route) => route.startsWith(s_route)))
+      resolve(route);
+    else
+      reject(`Route does not exist or is not a static page. Route: ${route}`);
   });
 
 // Rebuilds the relevant page(s).
@@ -70,17 +83,23 @@ const rebuild = async (res: NextApiResponse, route: string, routes: string[]) =>
 
       // Simple route
       default:
-        await res.revalidate(route).catch(e => reject(e));
+        await res.revalidate(route).catch((e) => reject(e));
         resolve(true);
         break;
     }
   });
 
-const revalidateWithStates = (res: NextApiResponse, route: string, except?: string[]): string[] => {
-  let states = except ? STATES.filter(item => !except?.includes(item.key)) : STATES;
+const revalidateWithStates = (
+  res: NextApiResponse,
+  route: string,
+  except?: string[]
+): string[] => {
+  let states = except
+    ? STATES.filter((item) => !except?.includes(item.key))
+    : STATES;
   states.forEach(
-    async state =>
-      await res.revalidate(route.concat("/", state.key)).catch(e => {
+    async (state) =>
+      await res.revalidate(route.concat("/", state.key)).catch((e) => {
         throw new Error(e);
       })
   );

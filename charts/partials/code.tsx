@@ -108,7 +108,7 @@ const SampleCode: FunctionComponent<SampleCodeProps> = ({
   catalogueId = "<catalogue_id>",
   url,
 }) => {
-  const _url = `https://api.data.spr.gov.my/data-catalogue?id=${catalogueId}&limit=3`;
+  const _url = `${process.env.APP_URL}/data-catalogue?id=${catalogueId}&limit=3`;
 
   const children: Partial<Record<Language, string>> = {
     javascript: `var requestOptions = {
