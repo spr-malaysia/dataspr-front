@@ -1,6 +1,6 @@
 import { At, Container } from "@components/index";
 import { useTranslation } from "@hooks/useTranslation";
-import { SPRIconSolid } from "@icons/index";
+import { VoteIconSolid } from "@icons/index";
 
 const Footer = () => {
   const { t } = useTranslation();
@@ -10,11 +10,11 @@ const Footer = () => {
       <div className="flex w-full max-md:flex-col max-md:gap-8 md:justify-between">
         <div className="flex gap-4">
           {/* LOGO */}
-          <SPRIconSolid className="h-9 w-9 rounded-full bg-black text-white" />
+          <VoteIconSolid className="h-9 w-9 rounded-full bg-gradient-to-br from-zinc-700 to-black text-white" />
           <div>
             <div className="mb-2 font-bold">ElectionData.MY</div>
             <p className="text-zinc-500 text-sm">
-              © {new Date().getFullYear()} {t("footer.public_open_data")}
+              © {new Date().getFullYear()} {t("footer.copyright")}
             </p>
           </div>
         </div>

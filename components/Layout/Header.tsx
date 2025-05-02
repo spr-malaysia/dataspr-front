@@ -1,7 +1,7 @@
 import Container from "@components/Container";
 import Nav from "@components/Nav";
 import { useTranslation } from "@hooks/useTranslation";
-import { SPRIconSolid } from "@icons/index";
+import { VoteIconSolid } from "@icons/index";
 import Link from "next/link";
 import { FunctionComponent, ReactNode } from "react";
 
@@ -21,7 +21,7 @@ const Header: FunctionComponent<HeaderProps> = ({ stateSelector }) => {
         <div className="flex w-full items-center gap-4">
           <Link href="/">
             <div className="flex cursor-pointer gap-2">
-              <SPRIconSolid className="h-7 w-7 rounded-full bg-black text-white" />
+              <VoteIconSolid className="h-7 w-7 rounded-full bg-gradient-to-br from-zinc-700 to-black text-white" />
               <h4>ElectionData.MY</h4>
             </div>
           </Link>
