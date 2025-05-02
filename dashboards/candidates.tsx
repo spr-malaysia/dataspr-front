@@ -48,7 +48,7 @@ const ElectionCandidatesDashboard: FunctionComponent<
     }
   );
 
-  const DEFAULT_CANDIDATE = "tunku-abdul-rahman-putra-alhaj";
+  const DEFAULT_CANDIDATE = "01426";
   const CANDIDATE_OPTION = CANDIDATE_OPTIONS.find(
     (e) => e.value === (params.candidate ?? DEFAULT_CANDIDATE)
   );
