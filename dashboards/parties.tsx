@@ -154,14 +154,22 @@ const ElectionPartiesDashboard: FunctionComponent<ElectionPartiesProps> = ({
       });
 
       const summary = (ballot_summary as PartySummary[]).reduce(
-        (prev, curr) => ({
-          voter_turnout: prev.voter_turnout + curr.voter_turnout,
+        (acc, curr) => ({
+          voter_turnout: acc.voter_turnout + curr.voter_turnout,
           voter_turnout_perc:
-            (prev.voter_turnout_perc + curr.voter_turnout_perc) / 2,
-          votes_rejected: prev.votes_rejected + curr.votes_rejected,
+            acc.voter_turnout_perc +
+            Math.round(curr.voter_turnout / curr.voter_turnout_perc * 100),
+          votes_rejected: acc.votes_rejected + curr.votes_rejected,
           votes_rejected_perc:
-            (prev.votes_rejected_perc + curr.votes_rejected_perc) / 2,
-        })
+            acc.votes_rejected_perc +
+            Math.round(curr.votes_rejected / curr.votes_rejected_perc * 100),
+        }),
+        {
+          voter_turnout: 0,
+          voter_turnout_perc: 0,
+          votes_rejected: 0,
+          votes_rejected_perc: 0,
+        }
       );
 
       const result: Result<PartyResult> = {
@@ -170,12 +178,12 @@ const ElectionPartiesDashboard: FunctionComponent<ElectionPartiesProps> = ({
           {
             x: "voter_turnout",
             abs: summary.voter_turnout,
-            perc: summary.voter_turnout_perc,
+            perc: summary.voter_turnout / summary.voter_turnout_perc * 100,
           },
           {
             x: "rejected_votes",
             abs: summary.votes_rejected,
-            perc: summary.votes_rejected_perc,
+            perc: summary.votes_rejected / summary.votes_rejected_perc * 100,
           },
         ],
       };
