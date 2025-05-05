@@ -53,7 +53,7 @@ const ElectionCandidatesDashboard: FunctionComponent<
 
   const { cache } = useCache();
   const { data, setData } = useData({
-    tab_index: elections.parlimen.length === 0 ? 1 : 0, // parlimen = 0; dun = 1
+    tab_index: 0, // parlimen = 0; dun = 1
     candidate_value: null,
     loading: false,
     parlimen: elections.parlimen,
@@ -162,6 +162,7 @@ const ElectionCandidatesDashboard: FunctionComponent<
     const finishLoading = () => {
       setData("loading", false);
       setData("candidate_value", params.candidate);
+      setData("tab_index", elections.parlimen.length === 0 ? 1 : 0);
     };
     events.on("routeChangeComplete", finishLoading);
     return () => events.off("routeChangeComplete", finishLoading);
