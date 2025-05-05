@@ -86,20 +86,13 @@ const BallotSeat: FunctionComponent<BallotSeatProps> = ({
       return setData("seat_result", cache.get(identifier));
     else {
       setData("loading", true);
-      const election_name =
-        election.startsWith("S") &&
-        state &&
-        ["mys", "kul", "lbn", "pjy"].includes(state) === false
-          ? `${CountryAndStates[state]} ${election}`
-          : election;
-
       const responses = await Promise.allSettled([
         get("/result_ballot.json", {
-          election: election_name,
+          election,
           seat,
         }),
         get("/result_ballot_summary.json", {
-          election: election_name,
+          election,
           seat,
         }),
       ]).catch((e) => {

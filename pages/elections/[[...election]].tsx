@@ -50,19 +50,12 @@ export const getStaticProps: GetStaticProps = withi18n(
   ["election", "elections", "home", "party"],
   async ({ params }) => {
     try {
-      const [state_code, election] = params?.election
+      const [state_code, election_name] = params?.election
         ? (params.election as string[])
         : ["mys", "GE-15"];
-      const state = state_code ? CountryAndStates[state_code] : "Malaysia";
+      const state = CountryAndStates[state_code];
 
-      const election_type = election?.startsWith("S") ? "dun" : "parlimen";
-
-      const election_name =
-        election?.startsWith("S") &&
-        state &&
-        ["mys", "kul", "lbn", "pjy"].includes(state_code) === false
-          ? `${state} ${election}`
-          : election;
+      const election_type = election_name?.startsWith("S") ? "dun" : "parlimen";
 
       const results = await Promise.allSettled([
         get("/dates.json"),
@@ -85,7 +78,7 @@ export const getStaticProps: GetStaticProps = withi18n(
 
       const selection: Array<{ state: string, election: string }> = dropdown.data;
       const stateExists = selection.some((e) => e.state === state);
-      const electionExists = selection.some((e) => e.election === election);
+      const electionExists = selection.some((e) => e.election === election_name);
 
       if (!stateExists || !electionExists) return { notFound: true };
 
@@ -96,7 +89,7 @@ export const getStaticProps: GetStaticProps = withi18n(
             id: "elections",
             type: "dashboard",
           },
-          params: { election, state: state_code },
+          params: { election: election_name, state: state_code },
           seats: seats.data,
           selection: groupBy(selection, "state"),
           table: table.data,
