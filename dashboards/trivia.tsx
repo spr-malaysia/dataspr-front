@@ -2,7 +2,7 @@ import { BaseResult, ElectionEnum, Seat } from "./types";
 import FullResults, { Result } from "@components/Election/FullResults";
 import { FaceFrownIcon } from "@heroicons/react/24/outline";
 import { generateSchema } from "@lib/schema/election-explorer";
-import { get } from "@lib/api";
+import { getNew } from "@lib/api";
 import {
   Container,
   Dropdown,
@@ -84,8 +84,8 @@ const ElectionTriviaDashboard: FunctionComponent<ElectionTriviaProps> = ({
     return new Promise(async (resolve) => {
       if (cache.has(identifier)) return resolve(cache.get(identifier));
       const results = await Promise.allSettled([
-        get("/result_ballot.json", { election, seat }),
-        get("/result_ballot_summary.json", { election, seat }),
+        getNew(`/results/${encodeURIComponent(seat)}/${election}.json`),
+        getNew(`/results/${encodeURIComponent(seat)}/${election}-summary.json`),
       ]).catch((e) => {
         toast.error(t("toast.request_failure"), t("toast.try_again"));
         throw new Error("Invalid party. Message: " + e);
