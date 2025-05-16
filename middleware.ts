@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-import { get } from "@vercel/edge-config";
 
 export async function middleware(request: NextRequest) {
   let response: NextResponse;
@@ -9,13 +8,7 @@ export async function middleware(request: NextRequest) {
   const purpose = headers.get("purpose");
   if (purpose && purpose.match(/prefetch/i)) headers.delete("x-middleware-prefetch"); // empty json bugfix (in the browser headers still show, but here it is gone)
 
-  /**
-   * @todo Move the code inside production/staging land after finish development
-   */
-  const token = await get<string>("ROLLING_TOKEN");
-
   // Request authenticated
   response = NextResponse.next({ request: { headers } });
-  response.cookies.set("rolling_token", token || "yikes", { path: "/", maxAge: 60 * 60 });
   return response;
 }
