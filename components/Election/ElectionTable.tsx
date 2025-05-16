@@ -315,8 +315,7 @@ const ElectionTable: FunctionComponent<ElectionTableProps> = ({
 
   const isHighlighted = (row: any) => {
     if (highlightedRows) return highlightedRows.includes(row.index);
-    else if ("name" in row.original)
-      return row.original.name === highlighted;
+    else if ("name" in row.original) return row.original.name === highlighted;
     else if ("party" in row.original) return row.original.party === highlighted;
     else return false;
   };
@@ -489,7 +488,7 @@ const ElectionTable: FunctionComponent<ElectionTableProps> = ({
 
 export default ElectionTable;
 
-const dummyData = [
+export const dummyData = [
   {
     name: "Rushdan Bin Rusmi",
     type: "parlimen",
@@ -497,14 +496,10 @@ const dummyData = [
     election_name: "GE-15",
     seat: "P.001 Padang Besar, Perlis",
     party: "PN",
-    votes: {
-      abs: 24267,
-      perc: 53.5,
-    },
-    majority: {
-      abs: 24267,
-      perc: 53.5,
-    },
+    votes: 24267,
+    votes_perc: 53.5,
+    majority: 24267,
+    majority_perc: 53.5,
     result: "won",
   },
   {
@@ -514,14 +509,10 @@ const dummyData = [
     election_name: "GE-15",
     seat: "P.001 Padang Besar, Perlis",
     party: "WARISAN",
-    votes: {
-      abs: 244,
-      perc: 0.5,
-    },
-    majority: {
-      abs: 244,
-      perc: 0.5,
-    },
+    votes: 244,
+    votes_perc: 0.5,
+    majority: 244,
+    majority_perc: 0.5,
     result: "lost_deposit",
   },
   {
@@ -531,14 +522,10 @@ const dummyData = [
     election_name: "GE-15",
     seat: "P.001 Padang Besar, Perlis",
     party: "BEBAS",
-    votes: {
-      abs: 1939,
-      perc: 4.2,
-    },
-    majority: {
-      abs: 1939,
-      perc: 4.2,
-    },
+    votes: 1939,
+    votes_perc: 4.2,
+    majority: 1939,
+    majority_perc: 4.2,
     result: "lost_deposit",
   },
   {
@@ -548,14 +535,10 @@ const dummyData = [
     election_name: "GE-15",
     seat: "P.001 Padang Besar, Perlis",
     party: "BN",
-    votes: {
-      abs: 11753,
-      perc: 25.9,
-    },
-    majority: {
-      abs: 11753,
-      perc: 25.9,
-    },
+    votes: 11753,
+    votes_perc: 25.9,
+    majority: 11753,
+    majority_perc: 25.9,
     result: "lost",
   },
   {
@@ -565,14 +548,10 @@ const dummyData = [
     election_name: "GE-15",
     seat: "P.001 Padang Besar, Perlis",
     party: "PH",
-    votes: {
-      abs: 7085,
-      perc: 15.6,
-    },
-    majority: {
-      abs: 7085,
-      perc: 15.6,
-    },
+    votes: 7085,
+    votes_perc: 15.6,
+    majority: 7085,
+    majority_perc: 15.6,
     result: "lost",
   },
 ];
