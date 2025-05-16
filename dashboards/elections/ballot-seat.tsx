@@ -25,6 +25,7 @@ import {
   useRef,
   useState,
 } from "react";
+import { CountryAndStates } from "@lib/constants";
 
 /**
  * Election Explorer - Ballot Seat
@@ -67,14 +68,10 @@ const BallotSeat: FunctionComponent<BallotSeatProps> = ({
       const election_name =
         election.startsWith("S") &&
         state &&
-        [
-          "Malaysia",
-          "W.P. Kuala Lumpur",
-          "W.P. Labuan",
-          "W.P. Putrajaya",
-        ].includes(state) === false
-          ? `${state} ${election}`
+        ["mys", "kul", "lbn", "pjy"].includes(state) === false
+          ? `${CountryAndStates[state]} ${election}`
           : election;
+
       const results = await Promise.allSettled([
         get("/result_ballot.json", {
           election: election_name,
