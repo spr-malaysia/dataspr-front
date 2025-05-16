@@ -20,9 +20,9 @@ const ElectionFilter: FunctionComponent<ElectionFilterProps> = ({ onClick }) => 
   const show = useMemo(() => scroll.y > 500, [scroll.y]);
 
   return (
-    <div className={clx(show ? "fixed right-3 top-[120px] z-20 sm:top-32 lg:hidden" : "hidden")}>
+    <div className={clx(show ? "fixed right-3 top-16 z-20 sm:top-32 lg:hidden" : "hidden")}>
       <Button onClick={onClick} className="btn-default shadow-floating">
-        <span>{t("filter")}</span>
+        <span>{t("filters")}</span>
         <span className="bg-primary dark:bg-primary-dark w-4.5 h-5 rounded-md text-center text-white">
           3
         </span>
