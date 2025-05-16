@@ -6,7 +6,7 @@ import { CountryAndStates } from "@lib/constants";
 import { AnalyticsProvider } from "@lib/contexts/analytics";
 import { withi18n } from "@lib/decorators";
 import { Page } from "@lib/types";
-import { GetServerSideProps, InferGetServerSidePropsType } from "next";
+import { GetStaticPaths, GetStaticProps, InferGetStaticPropsType } from "next";
 
 const ElectionExplorerIndex: Page = ({
   choropleth,
@@ -16,7 +16,7 @@ const ElectionExplorerIndex: Page = ({
   seats,
   selection,
   table,
-}: InferGetServerSidePropsType<typeof getServerSideProps>) => {
+}: InferGetStaticPropsType<typeof getStaticProps>) => {
   const { t } = useTranslation("common");
 
   return (
@@ -24,7 +24,7 @@ const ElectionExplorerIndex: Page = ({
       <Metadata
         title={t("header")}
         description={t("description")}
-        keywords={""}
+        keywords=""
       />
       <ElectionExplorerDashboard
         choropleth={choropleth}
@@ -38,45 +38,53 @@ const ElectionExplorerIndex: Page = ({
   );
 };
 
-export const getServerSideProps: GetServerSideProps = withi18n(
+export const getStaticPaths: GetStaticPaths = () => {
+  return {
+    paths: [],
+    fallback: "blocking",
+  };
+};
+
+export const getStaticProps: GetStaticProps = withi18n(
   ["election", "elections", "home", "party"],
-  async ({ query }) => {
+  async ({ params }) => {
     try {
-      const [election, state] =
-        Object.keys(query).length === 0
-          ? [null, null]
-          : [query.election?.toString(), query.state?.toString()];
+      const [state_code, election] = params?.election
+        ? (params.election as string[])
+        : ["mys", "GE-15"];
+      const state = state_code ? CountryAndStates[state_code] : "Malaysia";
 
       const election_type = election?.startsWith("S") ? "dun" : "parlimen";
 
       const election_name =
         election?.startsWith("S") &&
         state &&
-        ["mys", "kul", "lbn", "pjy"].includes(state) === false
-          ? `${CountryAndStates[state]} ${election}`
+        ["mys", "kul", "lbn", "pjy"].includes(state_code) === false
+          ? `${state} ${election}`
           : election;
 
       const results = await Promise.allSettled([
         get("/dates.json"),
         get("/result_election.json", {
-          election_name: election_name ?? "GE-15",
-          state: state ? CountryAndStates[state] : "Malaysia",
+          election_name,
+          state,
           election_type,
         }),
         get("/result_election_summary.json", {
-          election_name: election_name ?? "GE-15",
-          state: state ? CountryAndStates[state] : undefined,
+          election_name,
+          state: state_code === "mys" ? undefined : state,
           election_type,
         }),
       ]).catch((e) => {
         throw new Error("Invalid election name/state. Message: " + e);
       });
 
-      const [{ data: dropdown }, { data: table }, { data: seats }] =
-        results.map((e) => {
-          if (e.status === "rejected") return {};
-          else return e.value.data;
-        });
+      const [dropdown, table, seats] = results.map((e) => {
+        if (e.status === "rejected") return null;
+        else return e.value.data;
+      });
+console.log(election_name)
+      if (!seats || !table) return { notFound: true };
 
       return {
         props: {
@@ -85,10 +93,10 @@ export const getServerSideProps: GetServerSideProps = withi18n(
             id: "elections",
             type: "dashboard",
           },
-          params: { election, state },
-          seats: seats,
-          selection: dropdown ?? [],
-          table: table,
+          params: { election, state: state_code },
+          seats: seats.data,
+          selection: dropdown.data ?? [],
+          table: table.data,
           choropleth: {},
         },
       };

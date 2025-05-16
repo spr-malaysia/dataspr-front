@@ -3,7 +3,7 @@ import ElectionSeatsDashboard from "@dashboards/seats";
 import { get } from "@lib/api";
 import { withi18n } from "@lib/decorators";
 import { Page } from "@lib/types";
-import { GetServerSideProps, InferGetServerSidePropsType } from "next";
+import { GetStaticProps, InferGetStaticPropsType } from "next";
 
 /**
  * Home
@@ -15,10 +15,10 @@ const Home: Page = ({
   params,
   selection,
   elections,
-}: InferGetServerSidePropsType<typeof getServerSideProps>) => {
+}: InferGetStaticPropsType<typeof getStaticProps>) => {
   return (
     <>
-      <Metadata keywords={"data.spr.gov.my data malaysia election"} />
+      <Metadata keywords="" />
       <ElectionSeatsDashboard
         elections={elections}
         last_updated={last_updated}
@@ -29,26 +29,21 @@ const Home: Page = ({
   );
 };
 
-export const getServerSideProps: GetServerSideProps = withi18n(
+export const getStaticProps: GetStaticProps = withi18n(
   ["home", "election"],
-  async ({ query }) => {
+  async () => {
     try {
-      const [slug, type] =
-        Object.keys(query).length === 0
-          ? [null, null]
-          : [query.name, query.type];
-
+      const slug = "padang-besar-perlis";
+      const type = "parlimen";
       const results = await Promise.allSettled([
         get("/dropdown_seats.json"),
-        get("/query_area.json", {
-          slug: slug ?? "padang-besar-perlis",
-        }),
+        get("/query_area.json", { slug, type }),
       ]).catch((e) => {
-        throw new Error("Invalid candidate name. Message: " + e);
+        throw new Error(e);
       });
 
-      const [{ data: dropdown }, { data: seat }] = results.map((e) => {
-        if (e.status === "rejected") return {};
+      const [dropdown, seat] = results.map((e) => {
+        if (e.status === "rejected") return null;
         else return e.value.data;
       });
 
@@ -60,9 +55,9 @@ export const getServerSideProps: GetServerSideProps = withi18n(
             id: "home",
             type: "misc",
           },
-          params: { seat_name: slug, type: type },
-          selection: dropdown,
-          elections: seat ?? [],
+          params: { seat_name: null, type: null },
+          selection: dropdown.data,
+          elections: seat.data ?? [],
         },
       };
     } catch (error: any) {

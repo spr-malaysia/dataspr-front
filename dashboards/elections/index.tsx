@@ -25,6 +25,8 @@ import { OptionType } from "@lib/types";
 import dynamic from "next/dynamic";
 import { FunctionComponent, useMemo, useRef } from "react";
 import Overview from "./overview";
+import { useRouter } from "next/router";
+import { routes } from "@lib/routes";
 
 /**
  * Election Explorer Dashboard
@@ -70,15 +72,9 @@ const ElectionExplorer: FunctionComponent<ElectionExplorerProps> = ({
     },
   ];
 
-  const { filter, setFilter } = useFilter({
-    election: params.election,
-    state: params.state,
-  });
-
-  const ELECTION_FULLNAME = filter.election ?? "GE-15";
+  const ELECTION_FULLNAME = params.election ?? "GE-15";
   const ELECTION_ACRONYM = ELECTION_FULLNAME.slice(-5);
-  const CURRENT_STATE = filter.state ?? "mys"
-    // [MALAYSIA, ...STATES].find((s) => s.name === filter.state)?.key ?? "mys";
+  const CURRENT_STATE = params.state ?? "mys";
 
   const { data, setData } = useData({
     toggle_index: ELECTION_ACRONYM.startsWith("G")
@@ -140,6 +136,8 @@ const ElectionExplorer: FunctionComponent<ElectionExplorerProps> = ({
     }
     setData("toggle_index", index);
   };
+
+  const { push } = useRouter();
 
   return (
     <>
@@ -227,8 +225,9 @@ const ElectionExplorer: FunctionComponent<ElectionExplorerProps> = ({
                       className="btn-primary w-full justify-center"
                       onClick={() => {
                         setData("loading", true);
-                        setFilter("election", data.election_acronym);
-                        setFilter("state", data.state);
+                        push(
+                          `${routes.ELECTIONS}/${data.state}/${data.election_acronym}`
+                        );
                       }}
                     >
                       {t("filter")}
@@ -263,8 +262,9 @@ const ElectionExplorer: FunctionComponent<ElectionExplorerProps> = ({
               onChange={(selected) => {
                 if (TOGGLE_IS_PARLIMEN && data.election_acronym) {
                   setData("loading", true);
-                  setFilter("election", data.election_acronym);
-                  setFilter("state", selected.value);
+                  push(
+                    `${routes.ELECTIONS}/${selected.value}/${data.election_acronym}`
+                  );
                 } else setData("election_acronym", null);
                 setData("state", selected.value);
               }}
@@ -284,8 +284,7 @@ const ElectionExplorer: FunctionComponent<ElectionExplorerProps> = ({
               onChange={(selected) => {
                 setData("election_acronym", selected.value);
                 setData("loading", true);
-                setFilter("election", selected.value);
-                setFilter("state", data.state);
+                push(`${routes.ELECTIONS}/${data.state}/${selected.value}`);
               }}
               disabled={!data.state}
             />
@@ -298,7 +297,7 @@ const ElectionExplorer: FunctionComponent<ElectionExplorerProps> = ({
           <BallotSeat
             election={data.election_fullname}
             seats={data.seats}
-            state={filter.state ?? "Malaysia"}
+            state={params.state}
           />
           <hr className="dark:border-zinc-800 border-slate-200 h-px"></hr>
 
@@ -306,7 +305,7 @@ const ElectionExplorer: FunctionComponent<ElectionExplorerProps> = ({
           <ElectionAnalysis
             choropleth={choropleth}
             seats={data.seats}
-            state={filter.state ?? "Malaysia"}
+            state={params.state}
             toggle={data.toggle_index}
           />
         </Section>
