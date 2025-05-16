@@ -28,9 +28,12 @@ import { FunctionComponent } from "react";
  * @overview Status: Live
  */
 
-const ElectionTable = dynamic(() => import("@components/Election/ElectionTable"), {
-  ssr: false,
-});
+const ElectionTable = dynamic(
+  () => import("@components/Election/ElectionTable"),
+  {
+    ssr: false,
+  }
+);
 
 interface ElectionPartiesProps extends ElectionResource<Party> {
   selection: string[];
@@ -168,10 +171,7 @@ const ElectionPartiesDashboard: FunctionComponent<ElectionPartiesProps> = ({
           }
         )
         .catch((e) => {
-          toast.error(
-            t("toast.request_failure"),
-            t("toast.try_again")
-          );
+          toast.error(t("toast.request_failure"), t("toast.try_again"));
           console.error(e);
         });
     });
@@ -207,10 +207,7 @@ const ElectionPartiesDashboard: FunctionComponent<ElectionPartiesProps> = ({
           resolve(result);
         })
         .catch((e) => {
-          toast.error(
-            t("toast.request_failure"),
-            t("toast.try_again")
-          );
+          toast.error(t("toast.request_failure"), t("toast.try_again"));
           console.error(e);
         });
     });
@@ -230,10 +227,10 @@ const ElectionPartiesDashboard: FunctionComponent<ElectionPartiesProps> = ({
           <div className="xl:grid xl:grid-cols-12">
             <div className="xl:col-span-10 xl:col-start-2">
               {/* Explore any party's entire electoral history */}
-              <h4 className="text-center">{t("parties:header")}</h4>
+              <h4 className="text-center">{t("header", { ns: "parties" })}</h4>
               <div className="mx-auto w-full py-6 sm:w-[500px]">
                 <ComboBox
-                  placeholder={t("parties:search_party")}
+                  placeholder={t("search_party", { ns: "parties" })}
                   image={(value) => (
                     <div className="flex h-auto max-h-8 w-8 justify-center self-center">
                       <ImageWithFallback
@@ -286,10 +283,9 @@ const ElectionPartiesDashboard: FunctionComponent<ElectionPartiesProps> = ({
                       inline
                     />
                     <Trans>
-                      {t("parties:title", {
-                        party: `$t(party:${
-                          filter.name ?? DEFAULT_PARTY
-                        })`,
+                      {t("title", {
+                        ns: "parties",
+                        party: `$t(party:${filter.name ?? DEFAULT_PARTY})`,
                       })}
                     </Trans>
                     <StateDropdown
@@ -318,10 +314,9 @@ const ElectionPartiesDashboard: FunctionComponent<ElectionPartiesProps> = ({
                     isLoading={data.loading}
                     empty={
                       <Trans>
-                        {t("parties:no_data", {
-                          party: `$t(party:${
-                            filter.name ?? DEFAULT_PARTY
-                          })`,
+                        {t("no_data", {
+                          ns: "parties",
+                          party: `$t(party:${filter.name ?? DEFAULT_PARTY})`,
                           state: CountryAndStates[filter.state],
                           context: "parlimen",
                         })}
@@ -336,10 +331,9 @@ const ElectionPartiesDashboard: FunctionComponent<ElectionPartiesProps> = ({
                     isLoading={data.loading}
                     empty={
                       <Trans>
-                        {t("parties:no_data", {
-                          party: `$t(party:${
-                            filter.name ?? DEFAULT_PARTY
-                          })`,
+                        {t("no_data", {
+                          ns: "parties",
+                          party: `$t(party:${filter.name ?? DEFAULT_PARTY})`,
                           state: CountryAndStates[filter.state],
                           context: ["kul", "lbn", "pjy"].includes(filter.state)
                             ? "dun_wp"

@@ -83,7 +83,7 @@ const CodeBlock: FunctionComponent<CodeBlockProps> = ({ children, hidden, event,
   });
 
   const [language, setLanguage] = useState<(typeof LANGUAGE_OPTIONS)[number]>(languageOptions[0]);
-  const [copyText, setCopyText] = useState<string>(t("copy"));
+  const [copyText, setCopyText] = useState<string>("copy");
 
   useEffect(() => {
     const head = document.head;
@@ -105,9 +105,9 @@ const CodeBlock: FunctionComponent<CodeBlockProps> = ({ children, hidden, event,
   const handleCopy = () => {
     track("code_copy", { language: language.value, ...event });
     copyClipboard(children[language.value] ?? "");
-    setCopyText(t("copied"));
+    setCopyText("copied");
     setTimeout(() => {
-      setCopyText(t("copy"));
+      setCopyText("copy");
     }, 1000);
   };
   return (
@@ -123,7 +123,7 @@ const CodeBlock: FunctionComponent<CodeBlockProps> = ({ children, hidden, event,
         />
         <button className="btn text-zinc-500 hover:bg-washed/10 px-3 py-1.5" onClick={handleCopy}>
           <DocumentDuplicateIcon className="h-4 w-4" />
-          {copyText}
+          {t(copyText, {ns: "common"})}
         </button>
       </div>
       <div className="p-3 text-xs">

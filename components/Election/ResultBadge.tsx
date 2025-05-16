@@ -8,15 +8,18 @@ interface ResultBadgeProps {
   hidden?: boolean;
 }
 
-const ResultBadge: FunctionComponent<ResultBadgeProps> = ({ value, hidden = false }) => {
+const ResultBadge: FunctionComponent<ResultBadgeProps> = ({
+  value,
+  hidden = false,
+}) => {
   const { t } = useTranslation("candidates");
   switch (value) {
     case "won":
     case "won_uncontested":
-      return <Won desc={!hidden && t(`candidates:${value}`)} />;
+      return <Won desc={!hidden && t(value, { ns: "candidates" })} />;
     case "lost":
     case "lost_deposit":
-      return <Lost desc={!hidden && t(`candidates:${value}`)} />;
+      return <Lost desc={!hidden && t(value, { ns: "candidates" })} />;
     default:
       return <></>;
   }

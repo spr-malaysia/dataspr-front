@@ -22,14 +22,17 @@ import dynamic from "next/dynamic";
 import { FunctionComponent } from "react";
 
 /**
- * Trivia 
+ * Trivia
  * @overview Status: Live
  */
 
 const BarMeter = dynamic(() => import("@charts/bar-meter"), { ssr: false });
-const ElectionTable = dynamic(() => import("@components/Election/ElectionTable"), {
-  ssr: false,
-});
+const ElectionTable = dynamic(
+  () => import("@components/Election/ElectionTable"),
+  {
+    ssr: false,
+  }
+);
 
 interface ElectionTriviaProps {
   dun_bar: any;
@@ -102,10 +105,7 @@ const ElectionTriviaDashboard: FunctionComponent<ElectionTriviaProps> = ({
           resolve(result);
         })
         .catch((e) => {
-          toast.error(
-            t("toast.request_failure"),
-            t("toast.try_again")
-          );
+          toast.error(t("toast.request_failure"), t("toast.try_again"));
           console.error(e);
         });
     });
@@ -189,7 +189,8 @@ const ElectionTriviaDashboard: FunctionComponent<ElectionTriviaProps> = ({
           <div className="space-y-12 xl:col-span-10 xl:col-start-2">
             <div className="flex flex-col items-center gap-6">
               <h4 className="text-center">
-                {t("trivia:header", {
+                {t("header", {
+                  ns: "trivia",
                   country: CountryAndStates[params.state],
                 })}
               </h4>
@@ -207,9 +208,9 @@ const ElectionTriviaDashboard: FunctionComponent<ElectionTriviaProps> = ({
                 <div className="gap-3">
                   <SPRIconSolid className="text-primary mx-auto h-16 w-16" />
                   <h5 className="text-center">
-                    {t("trivia:majority", {
+                    {t("majority", {
+                      ns: "trivia",
                       country: CountryAndStates[params.state],
-                      context: data.filter,
                     })}
                   </h5>
                 </div>
@@ -256,7 +257,8 @@ const ElectionTriviaDashboard: FunctionComponent<ElectionTriviaProps> = ({
                       columns={seat_schema}
                       isLoading={data.loading}
                       highlightedRows={[0, 1, 2]}
-                      empty={t("parties:no_data_dun_wp", {
+                      empty={t("no_data_dun_wp", {
+                        ns: "parties",
                         state: CountryAndStates[params.state],
                       })}
                     />
@@ -265,37 +267,37 @@ const ElectionTriviaDashboard: FunctionComponent<ElectionTriviaProps> = ({
               </div>
               <div className="grid grid-cols-1 gap-12 md:grid-cols-2 lg:gap-6 xl:grid-cols-6">
                 <div className="border-slate-200 dark:border-zinc-800 space-y-6 rounded-xl border-0 p-0 lg:border lg:p-8 xl:col-span-2 xl:col-start-2">
-                  <h5 className="text-center">{t("trivia:ge_veterans")}</h5>
+                  <h5 className="text-center">
+                    {t("ge_veterans", { ns: "trivia" })}
+                  </h5>
                   <BarMeter
                     layout="horizontal"
                     data={parlimen_bar.competed}
                     relative
                     formatY={(y, x) => (
-                      <p className="whitespace-nowrap">{`${y} (${t(
-                        "trivia:won"
-                      )} ${
-                        parlimen_bar.won.find(
-                          (e: Record<string, any>) => e.x === x
-                        )?.y
-                      })`}</p>
+                      <p className="whitespace-nowrap">{`${y} (${t("won", {
+                        ns: "trivia",
+                      })} ${parlimen_bar.won.find(
+                        (e: Record<string, any>) => e.x === x
+                      )?.y})`}</p>
                     )}
                   />
                 </div>
                 <div className="border-slate-200 dark:border-zinc-800 flex h-max flex-col gap-y-6 rounded-xl border-0 p-0 lg:border lg:p-8 xl:col-span-2 xl:col-start-4">
-                  <h5 className="text-center">{t("trivia:se_veterans")}</h5>
+                  <h5 className="text-center">
+                    {t("se_veterans", { ns: "trivia" })}
+                  </h5>
                   {dun_bar.data ? (
                     <BarMeter
                       layout="horizontal"
                       data={dun_bar.data && dun_bar.data.competed}
                       relative
                       formatY={(y, x) => (
-                        <p className="whitespace-nowrap">{`${y} (${t(
-                          "trivia:won"
-                        )} ${
-                          dun_bar.data.won.find(
-                            (e: Record<string, any>) => e.x === x
-                          )?.y
-                        })`}</p>
+                        <p className="whitespace-nowrap">{`${y} (${t("won", {
+                          ns: "trivia",
+                        })} ${dun_bar.data.won.find(
+                          (e: Record<string, any>) => e.x === x
+                        )?.y})`}</p>
                       )}
                     />
                   ) : (
@@ -305,7 +307,8 @@ const ElectionTriviaDashboard: FunctionComponent<ElectionTriviaProps> = ({
                           <span className="inline-flex pr-1">
                             <FaceFrownIcon className="h-5 w-5 translate-y-1" />
                           </span>
-                          {t("parties:no_data_dun_wp", {
+                          {t("no_data_dun_wp", {
+                            ns: "parties",
                             state: CountryAndStates[params.state],
                           })}
                         </p>

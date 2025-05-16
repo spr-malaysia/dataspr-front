@@ -1,5 +1,6 @@
 import { TableConfig } from "@charts/table";
-import { LeftRightCard, List, Panel, Tabs } from "@components/index";
+import LeftRightCard from "@components/LeftRightCard";
+import { List, Panel, default as Tabs } from "@components/Tabs";
 import { OverallSeat } from "@dashboards/types";
 import { MapIcon, TableCellsIcon } from "@heroicons/react/24/solid";
 import { useData } from "@hooks/useData";
@@ -41,7 +42,11 @@ interface ElectionAnalysisProps {
   state: string;
 }
 
-const ElectionAnalysis: FunctionComponent<ElectionAnalysisProps> = ({ index, seats, state }) => {
+const ElectionAnalysis: FunctionComponent<ElectionAnalysisProps> = ({
+  index,
+  seats,
+  state,
+}) => {
   const { t } = useTranslation(["common", "elections"]);
 
   const config: TableConfig[] = [
@@ -89,7 +94,7 @@ const ElectionAnalysis: FunctionComponent<ElectionAnalysisProps> = ({ index, sea
     },
   ];
 
-  const analysisData: Array<Analysis> = seats.map(seat => {
+  const analysisData: Array<Analysis> = seats.map((seat) => {
     const matches = seat.seat.split(", ");
     return {
       seat: matches[0],
@@ -118,25 +123,35 @@ const ElectionAnalysis: FunctionComponent<ElectionAnalysisProps> = ({ index, sea
   return (
     <div className="grid grid-cols-12 py-8 lg:py-12">
       <div className="col-span-full col-start-1 xl:col-span-10 xl:col-start-2">
-        <h4 className="text-center">{t("elections:header_3")}</h4>
+        <h4 className="text-center">{t("header_3", { ns: "elections" })}</h4>
         <div className="flex justify-end py-3 lg:py-6">
           <List
-            options={[t("elections:table"), t("elections:map")]}
+            options={[
+              t("table", { ns: "elections" }),
+              t("map", { ns: "elections" }),
+            ]}
             icons={[
               <TableCellsIcon key="table_cell_icon" className="mr-1 h-5 w-5" />,
               <MapIcon key="map_icon" className="mr-1 h-5 w-5" />,
             ]}
-            current={0} // current={data.tab_index}
-            onChange={index => 0} //setData("tab_index", index)}
+            current={data.tab_index}
+            onChange={(index) => setData("tab_index", index)}
           />
         </div>
-        <Tabs hidden current={data.tab_index} onChange={index => setData("tab_index", index)}>
-          <Panel name={t("table")} icon={<TableCellsIcon className="mr-1 h-5 w-5" />}>
+        <Tabs hidden current={data.tab_index}>
+          <Panel
+            name={t("table", { ns: "elections" })}
+            icon={<TableCellsIcon className="mr-1 h-5 w-5" />}
+          >
             <Table
               className="table-sticky-header"
               // data={analysisData}
               enablePagination={10}
-              config={state !== "mys" ? config.filter(col => col.id !== "state") : config}
+              config={
+                state !== "mys"
+                  ? config.filter((col) => col.id !== "state")
+                  : config
+              }
               freeze={["constituency"]}
               precision={{
                 default: 0,
@@ -148,23 +163,29 @@ const ElectionAnalysis: FunctionComponent<ElectionAnalysisProps> = ({ index, sea
               }}
             />
           </Panel>
-          <Panel name={t("elections:map")} icon={<MapIcon className="mr-1 h-5 w-5" />}>
+          <Panel
+            name={t("map", { ns: "elections" })}
+            icon={<MapIcon className="mr-1 h-5 w-5" />}
+          >
             <LeftRightCard
               left={
                 <div className="flex h-full w-full flex-col space-y-6 p-8">
                   <div className="flex flex-col gap-2">
                     <h4>
-                      {t("elections:choro_header", {
-                        stat: t(""),
+                      {t("choro_header", {
+                        ns: "elections",
+                        // stat: t(""),
                       })}
                     </h4>
                     <span className="text-zinc-500 text-sm">
-                      {/* {t("common.data_of", { date: choropleth.data_as_of })} */}
+                      {/* {t("data_of", { date: choropleth.data_as_of })} */}
                     </span>
                   </div>
                   <div className="flex grow flex-col justify-between space-y-6">
                     <div className="space-y-3 pt-6">
-                      <p className="font-bold">{t("elections:choro_rank")}</p>
+                      <p className="font-bold">
+                        {t("choro_rank", { ns: "elections" })}
+                      </p>
                     </div>
                   </div>
                 </div>

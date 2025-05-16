@@ -42,7 +42,11 @@ interface BallotSeatProps {
   election: string | undefined;
 }
 
-const BallotSeat: FunctionComponent<BallotSeatProps> = ({ seats, state, election }) => {
+const BallotSeat: FunctionComponent<BallotSeatProps> = ({
+  seats,
+  state,
+  election,
+}) => {
   const { t, i18n } = useTranslation(["common", "elections", "home"]);
   const { cache } = useCache();
   const listRef = useRef<List>(null);
@@ -61,7 +65,8 @@ const BallotSeat: FunctionComponent<BallotSeatProps> = ({ seats, state, election
   const fetchSeatResult = (seat: string) => {
     if (!election) return;
     const identifier = `${election}-${state}-${seat}`;
-    if (cache.has(identifier)) return setData("seat_result", cache.get(identifier));
+    if (cache.has(identifier))
+      return setData("seat_result", cache.get(identifier));
     else {
       setData("seat_loading", true);
       get("/explorer", {
@@ -97,8 +102,8 @@ const BallotSeat: FunctionComponent<BallotSeatProps> = ({ seats, state, election
           setData("seat_result", result);
           setData("seat_loading", false);
         })
-        .catch(e => {
-          toast.error(t("common:toast.request_failure"), t("common:toast.try_again"));
+        .catch((e) => {
+          toast.error(t("toast.request_failure"), t("toast.try_again"));
           console.error(e);
         });
     }
@@ -132,7 +137,10 @@ const BallotSeat: FunctionComponent<BallotSeatProps> = ({ seats, state, election
     };
   }, [data.seat_result, seats]);
 
-  const SEAT_OPTIONS = seats.map(seat => ({ label: seat.seat, value: seat.seat }));
+  const SEAT_OPTIONS = seats.map((seat) => ({
+    label: seat.seat,
+    value: seat.seat,
+  }));
 
   const OverallResultCard = ({ seat }: { seat: OverallSeat }) => {
     return (
@@ -151,7 +159,9 @@ const BallotSeat: FunctionComponent<BallotSeatProps> = ({ seats, state, election
       >
         <div className="flex justify-between">
           <div className="flex w-[224px] gap-2">
-            <span className="text-zinc-500 text-sm font-medium">{seat.seat.slice(0, 5)}</span>
+            <span className="text-zinc-500 text-sm font-medium">
+              {seat.seat.slice(0, 5)}
+            </span>
             <span className="truncate">{seat.seat.slice(5)}</span>
           </div>
 
@@ -171,7 +181,12 @@ const BallotSeat: FunctionComponent<BallotSeatProps> = ({ seats, state, election
             width={32}
             height={18}
             alt={t(`${seat.party}`)}
-            style={{ width: "auto", maxWidth: "32px", height: "auto", maxHeight: "32px" }}
+            style={{
+              width: "auto",
+              maxWidth: "32px",
+              height: "auto",
+              maxHeight: "32px",
+            }}
           />
           <span className="truncate font-medium">{`${seat.name} `}</span>
           <span>{`(${seat.party})`}</span>
@@ -179,9 +194,15 @@ const BallotSeat: FunctionComponent<BallotSeatProps> = ({ seats, state, election
         </div>
         <div className="flex items-center gap-1.5">
           <p className="text-zinc-500 text-sm">{t("majority")}</p>
-          <BarPerc hidden value={seat.majority.perc} size="h-[5px] w-[30px] xl:w-[50px]" />
+          <BarPerc
+            hidden
+            value={seat.majority.perc}
+            size="h-[5px] w-[30px] xl:w-[50px]"
+          />
           <span>
-            {seat.majority.abs === null ? `—` : numFormat(seat.majority.abs, "standard")}
+            {seat.majority.abs === null
+              ? `—`
+              : numFormat(seat.majority.abs, "standard")}
             {seat.majority.perc === null
               ? ` (—)`
               : ` (${numFormat(seat.majority.perc, "compact", 1)}%)`}
@@ -237,17 +258,27 @@ const BallotSeat: FunctionComponent<BallotSeatProps> = ({ seats, state, election
         <div className="space-y-3">
           <div className="font-bold">{t("voting_statistics")}</div>
           <div className="flex flex-col gap-3 text-sm">
-            {data.seat_result.votes.map((item: { x: string; abs: number; perc: number }) => (
-              <div className="flex space-x-3 whitespace-nowrap" key={item.x}>
-                <p className="w-28">{t(item.x)}:</p>
-                <div className="flex items-center space-x-3">
-                  <BarPerc hidden value={item.perc} size={"h-[5px] w-[50px]"} />
-                  <p>{`${item.abs !== null ? numFormat(item.abs, "standard") : "—"} ${
-                    item.perc !== null ? `(${numFormat(item.perc, "compact", 1)}%)` : "(—)"
-                  }`}</p>
+            {data.seat_result.votes.map(
+              (item: { x: string; abs: number; perc: number }) => (
+                <div className="flex space-x-3 whitespace-nowrap" key={item.x}>
+                  <p className="w-28">{t(item.x)}:</p>
+                  <div className="flex items-center space-x-3">
+                    <BarPerc
+                      hidden
+                      value={item.perc}
+                      size={"h-[5px] w-[50px]"}
+                    />
+                    <p>{`${
+                      item.abs !== null ? numFormat(item.abs, "standard") : "—"
+                    } ${
+                      item.perc !== null
+                        ? `(${numFormat(item.perc, "compact", 1)}%)`
+                        : "(—)"
+                    }`}</p>
+                  </div>
                 </div>
-              </div>
-            ))}
+              )
+            )}
           </div>
         </div>
       </div>
@@ -259,7 +290,9 @@ const BallotSeat: FunctionComponent<BallotSeatProps> = ({ seats, state, election
       <div className="grid grid-cols-12">
         <div className="col-span-full col-start-1 space-y-12 xl:col-span-10 xl:col-start-2">
           <div className="space-y-6">
-            <h4 className="text-center">{t("elections:header_2")}</h4>
+            <h4 className="text-center">
+              {t("header_2", { ns: "elections" })}
+            </h4>
 
             <LeftRightCard
               left={
@@ -271,8 +304,12 @@ const BallotSeat: FunctionComponent<BallotSeatProps> = ({ seats, state, election
                     <ComboBox
                       placeholder={t("home:search_seat")}
                       options={SEAT_OPTIONS}
-                      selected={data.seat ? SEAT_OPTIONS.find(e => e.value === data.seat) : null}
-                      onChange={selected => {
+                      selected={
+                        data.seat
+                          ? SEAT_OPTIONS.find((e) => e.value === data.seat)
+                          : null
+                      }
+                      onChange={(selected) => {
                         if (selected) {
                           fetchSeatResult(selected.value);
                           setData("seat", selected.value);
@@ -280,7 +317,9 @@ const BallotSeat: FunctionComponent<BallotSeatProps> = ({ seats, state, election
                           setData("seat", null);
                         }
 
-                        const index = SEAT_OPTIONS.findIndex(e => e === selected);
+                        const index = SEAT_OPTIONS.findIndex(
+                          (e) => e === selected
+                        );
                         if (listRef && listRef.current)
                           listRef.current.scrollToItem(index, "smart");
                         if (gridRef && gridRef.current)
@@ -302,9 +341,19 @@ const BallotSeat: FunctionComponent<BallotSeatProps> = ({ seats, state, election
                         layout="vertical"
                         className="hidden lg:flex"
                       >
-                        {({ index, style }: { index: number; style: CSSProperties }) => {
+                        {({
+                          index,
+                          style,
+                        }: {
+                          index: number;
+                          style: CSSProperties;
+                        }) => {
                           return (
-                            <div style={style} key={index} className="px-1.5 pt-3">
+                            <div
+                              style={style}
+                              key={index}
+                              className="px-1.5 pt-3"
+                            >
                               <OverallResultCard seat={seats[index]} />
                             </div>
                           );
@@ -312,7 +361,13 @@ const BallotSeat: FunctionComponent<BallotSeatProps> = ({ seats, state, election
                       </List>
                       <div className="flex h-[394px] lg:hidden">
                         <AutoSizer>
-                          {({ height, width }: { height: number; width: number }) => (
+                          {({
+                            height,
+                            width,
+                          }: {
+                            height: number;
+                            width: number;
+                          }) => (
                             <Grid
                               ref={gridRef}
                               rowCount={3}
@@ -333,7 +388,11 @@ const BallotSeat: FunctionComponent<BallotSeatProps> = ({ seats, state, election
                               }) => {
                                 const seat = seats[columnIndex * 3 + rowIndex];
                                 return (
-                                  <div style={style} key={seat.seat} className="px-1.5 pt-3">
+                                  <div
+                                    style={style}
+                                    key={seat.seat}
+                                    className="px-1.5 pt-3"
+                                  >
                                     <OverallResultCard seat={seat} />
                                   </div>
                                 );
@@ -348,7 +407,11 @@ const BallotSeat: FunctionComponent<BallotSeatProps> = ({ seats, state, election
               }
               right={
                 <div className="hidden h-[600px] w-full space-y-8 overflow-y-auto rounded-r-xl bg-white p-8 dark:bg-zinc-900 lg:block">
-                  {data.seat_result.data.length > 0 && election ? <BallotCard /> : <></>}
+                  {data.seat_result.data.length > 0 && election ? (
+                    <BallotCard />
+                  ) : (
+                    <></>
+                  )}
                 </div>
               }
             />
@@ -357,7 +420,11 @@ const BallotSeat: FunctionComponent<BallotSeatProps> = ({ seats, state, election
       </div>
 
       <Transition show={show} as={Fragment}>
-        <Dialog as="div" className="relative z-30" onClose={() => setShow(false)}>
+        <Dialog
+          as="div"
+          className="relative z-30"
+          onClose={() => setShow(false)}
+        >
           <Transition.Child
             as={Fragment}
             enter="ease-out duration-300"
