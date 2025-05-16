@@ -1,11 +1,11 @@
 import DataCatalogueShow from "@data-catalogue/show";
-import { get } from "@lib/api";
 import Metadata from "@components/Metadata";
+import { get } from "@lib/api";
 import { SHORT_LANG } from "@lib/constants";
 import { AnalyticsProvider } from "@lib/contexts/analytics";
+import { CatalogueProvider } from "@lib/contexts/catalogue";
 import { withi18n } from "@lib/decorators";
-import { useTranslation } from "@hooks/useTranslation";
-import { DCConfig, DCFilter, FilterDate, OptionType, Page } from "@lib/types";
+import { DCConfig, DCFilter, FilterDate, Page } from "@lib/types";
 import { GetServerSideProps, InferGetServerSidePropsType } from "next";
 import { useMemo } from "react";
 
@@ -41,17 +41,19 @@ const CatalogueShow: Page = ({
         description={dataset.meta.desc.replace(/^(.*?)]/, "")}
         keywords={""}
       />
-      <DataCatalogueShow
-        options={availableOptions}
-        params={params}
-        config={config}
-        dataset={dataset}
-        explanation={explanation}
-        metadata={metadata}
-        urls={urls}
-        translations={translations}
-        catalogueId={catalogueId}
-      />
+      <CatalogueProvider dataset={dataset} urls={urls}>
+        <DataCatalogueShow
+          options={availableOptions}
+          params={params}
+          config={config}
+          dataset={dataset}
+          explanation={explanation}
+          metadata={metadata}
+          urls={urls}
+          translations={translations}
+          catalogueId={catalogueId}
+        />
+      </CatalogueProvider>
     </AnalyticsProvider>
   );
 };
@@ -74,6 +76,7 @@ export const getServerSideProps: GetServerSideProps = withi18n(
         color: data.API.colour ?? "blues",
         geojson: data.API.file_json ?? null,
         line_variables: data.API.line_variables ?? null,
+        exclude_openapi: data.exclude_openapi ?? false,
       };
 
       const hasTranslations =
@@ -146,7 +149,7 @@ export const getServerSideProps: GetServerSideProps = withi18n(
           },
           urls: data.downloads ?? {},
           translations: data.translations ?? {},
-          catalogueId: params?.id,
+          catalogueId: data.openapi_id ?? "",
         },
       };
     } catch (error) {

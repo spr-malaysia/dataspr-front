@@ -1,104 +1,28 @@
-import { DownloadOptions, Precision } from "@lib/types";
-import { toast } from "@components/Toast";
-import { useAnalytics } from "@hooks/useAnalytics";
-import { useTranslation } from "@hooks/useTranslation";
-import { useWatch } from "@hooks/useWatch";
 import { CATALOGUE_COLORS } from "@lib/constants";
-import { download, exportAs, numFormat } from "@lib/helpers";
-import { CloudArrowDownIcon, DocumentArrowDownIcon } from "@heroicons/react/24/outline";
+import { CatalogueContext } from "@lib/contexts/catalogue";
+import { numFormat } from "@lib/helpers";
+import { Precision } from "@lib/types";
 import { ChartDataset } from "chart.js";
 import { default as dynamic } from "next/dynamic";
-import { FunctionComponent, useMemo, useState } from "react";
-import { ChartJSOrUndefined } from "react-chartjs-2/dist/types";
+import { FunctionComponent, useContext, useMemo } from "react";
 
 const Line = dynamic(() => import("../line"), { ssr: false });
+
 interface CatalogueLineProps {
   className?: string;
   config: {
     line_variables?: Record<string, any>;
     precision: number | Precision;
   };
-  dataset: any;
-  urls: {
-    [key: string]: string;
-  };
-  onDownload?: (prop: DownloadOptions) => void;
   translations: Record<string, string>;
 }
 
 const CatalogueLine: FunctionComponent<CatalogueLineProps> = ({
   className = "h-[350px] w-full lg:h-[450px]",
   config,
-  dataset,
-  urls,
-  onDownload,
   translations,
 }) => {
-  const { t } = useTranslation(["catalogue", "common"]);
-  const [ctx, setCtx] = useState<ChartJSOrUndefined<"line", any[], unknown> | null>(null);
-  const { track } = useAnalytics(dataset);
-
-  const availableDownloads = useMemo<DownloadOptions>(
-    () => ({
-      chart: [
-        {
-          id: "png",
-          image: ctx && ctx.toBase64Image("png", 1),
-          title: t("image.title"),
-          description: t("image.desc"),
-          icon: <CloudArrowDownIcon className="text-zinc-500 h-6 min-w-[24px]" />,
-          href: () => {
-            download(ctx!.toBase64Image("png", 1), dataset.meta.unique_id.concat(".png"));
-            track("png");
-          },
-        },
-        {
-          id: "svg",
-          image: ctx && ctx.toBase64Image("image/png", 1),
-          title: t("vector.title"),
-          description: t("vector.desc"),
-          icon: <CloudArrowDownIcon className="text-zinc-500 h-6 min-w-[24px]" />,
-          href: () => {
-            exportAs("svg", ctx!.canvas)
-              .then(dataUrl => download(dataUrl, dataset.meta.unique_id.concat(".svg")))
-              .then(() => track("svg"))
-              .catch(e => {
-                toast.error(
-                  t("common:toast.image_download_failure"),
-                  t("common:toast.try_again")
-                );
-                console.error(e);
-              });
-          },
-        },
-      ],
-      data: [
-        {
-          id: "csv",
-          image: "/static/images/icons/csv.png",
-          title: t("csv.title"),
-          description: t("csv.desc"),
-          icon: <DocumentArrowDownIcon className="text-zinc-500 h-6 min-w-[24px]" />,
-          href: () => {
-            download(urls.csv, dataset.meta.unique_id.concat(".csv"));
-            track("csv");
-          },
-        },
-        {
-          id: "parquet",
-          image: "/static/images/icons/parquet.png",
-          title: t("parquet.title"),
-          description: t("parquet.desc"),
-          icon: <DocumentArrowDownIcon className="text-zinc-500 h-6 min-w-[24px]" />,
-          href: () => {
-            download(urls.parquet, dataset.meta.unique_id.concat(".parquet"));
-            track("parquet");
-          },
-        },
-      ],
-    }),
-    [ctx]
-  );
+  const { bind, dataset } = useContext(CatalogueContext);
 
   const getPrecision = (key: string, precision: number | Precision): number | [number, number] => {
     if (!precision) return [1, 0];
@@ -130,14 +54,10 @@ const CatalogueLine: FunctionComponent<CatalogueLineProps> = ({
     }));
   }, [dataset.chart]);
 
-  useWatch(() => {
-    if (onDownload) onDownload(availableDownloads);
-  }, [dataset.chart.x, ctx]);
-
   return (
     <Line
       className={className}
-      _ref={ref => setCtx(ref)}
+      _ref={ref => bind.chartjs(ref)}
       precision={
         typeof config.precision === "number"
           ? config.precision

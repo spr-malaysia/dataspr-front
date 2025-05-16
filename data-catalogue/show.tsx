@@ -15,7 +15,7 @@ import {
 } from "@components/index";
 import { SHORT_PERIOD, SHORT_PERIOD_FORMAT } from "@lib/constants";
 import { WindowProvider } from "@lib/contexts/window";
-import { clx, download, interpolate, numFormat, toDate } from "@lib/helpers";
+import { clx, interpolate, numFormat, toDate } from "@lib/helpers";
 import { useAnalytics } from "@hooks/useAnalytics";
 import { useFilter } from "@hooks/useFilter";
 import { useTranslation } from "@hooks/useTranslation";
@@ -27,7 +27,6 @@ import {
   DCChartKeys,
   DCConfig,
   DownloadOption,
-  DownloadOptions,
   FilterDefault,
   OptionType,
 } from "@lib/types";
@@ -37,11 +36,11 @@ import Image from "next/image";
 import {
   FunctionComponent,
   ReactNode,
-  useEffect,
-  useMemo,
+  useContext,
   useRef,
   useState,
 } from "react";
+import { CatalogueContext } from "@lib/contexts/catalogue";
 
 /**
  * Catalogue Show
@@ -142,15 +141,13 @@ const CatalogueShow: FunctionComponent<CatalogueShowProps> = ({
   catalogueId,
 }) => {
   const { t, i18n } = useTranslation(["catalogue", "common"]);
-  const availableOptions: OptionType[] = options.map(value => ({
+  const availableOptions: OptionType[] = options.map((value) => ({
     label: t(value),
     value: value,
   }));
   const [show, setShow] = useState<OptionType>(availableOptions[0]);
-  const [downloads, setDownloads] = useState<DownloadOptions>({
-    chart: [],
-    data: [],
-  });
+  const { downloads } = useContext(CatalogueContext);
+  const _downloads = Object.values(downloads).flatMap((option) => option);
   const embedRef = useRef<EmbedInterface>(null);
   const { filter, setFilter } = useFilter(
     config.context,
@@ -158,10 +155,6 @@ const CatalogueShow: FunctionComponent<CatalogueShowProps> = ({
     true
   );
   const { result, track } = useAnalytics(dataset);
-  const availableDownloads = useMemo<DownloadOption[]>(
-    () => Object.values(downloads).flatMap((option) => option),
-    [downloads]
-  );
 
   const renderChart = (): ReactNode | undefined => {
     switch (dataset.type) {
@@ -170,49 +163,11 @@ const CatalogueShow: FunctionComponent<CatalogueShowProps> = ({
       case "INTRADAY":
         return (
           <CatalogueTimeseries
-            urls={urls}
-            dataset={dataset}
             translations={translations}
-            onDownload={(prop) => setDownloads(prop)}
             config={{
               precision: config.precision,
-              range: filter?.range?.value ?? "INTRADAY",
+              range: filter?.range?.value || "INTRADAY",
             }}
-          />
-        );
-      case "CHOROPLETH":
-        return (
-          <CatalogueChoropleth
-            dataset={dataset}
-            urls={urls}
-            config={config}
-            onDownload={(prop) => setDownloads(prop)}
-          />
-        );
-      case "GEOCHOROPLETH":
-        return (
-          <CatalogueGeoChoropleth
-            dataset={dataset}
-            urls={urls}
-            config={config}
-            onDownload={(prop) => setDownloads(prop)}
-          />
-        );
-      case "GEOPOINT":
-        return (
-          <CatalogueMapPlot
-            dataset={dataset}
-            urls={urls}
-            onDownload={(prop) => setDownloads(prop)}
-          />
-        );
-      case "GEOJSON":
-        return (
-          <CatalogueGeojson
-            config={config}
-            dataset={dataset}
-            urls={urls}
-            onDownload={(prop) => setDownloads(prop)}
           />
         );
       case "BAR":
@@ -220,96 +175,35 @@ const CatalogueShow: FunctionComponent<CatalogueShowProps> = ({
       case "STACKED_BAR":
         return (
           <WindowProvider>
-            <CatalogueBar
-              config={config}
-              dataset={dataset}
-              urls={urls}
-              translations={translations}
-              onDownload={(prop) => setDownloads(prop)}
-            />
+            <CatalogueBar config={config} translations={translations} />
           </WindowProvider>
         );
+      case "CHOROPLETH":
+        return <CatalogueChoropleth config={config} />;
+      case "GEOCHOROPLETH":
+        return <CatalogueGeoChoropleth config={config} />;
+      case "GEOPOINT":
+        return <CatalogueMapPlot />;
+      case "GEOJSON":
+        return <CatalogueGeojson config={config} />;
       case "PYRAMID":
-        return (
-          <CataloguePyramid
-            config={config}
-            dataset={dataset}
-            urls={urls}
-            translations={translations}
-            onDownload={(prop) => setDownloads(prop)}
-          />
-        );
+        return <CataloguePyramid config={config} translations={translations} />;
       case "HEATTABLE":
-        return (
-          <CatalogueHeatmap
-            config={config}
-            dataset={dataset}
-            urls={urls}
-            translations={translations}
-            onDownload={(prop) => setDownloads(prop)}
-          />
-        );
+        return <CatalogueHeatmap config={config} translations={translations} />;
       case "SCATTER":
         return (
           <CatalogueScatter
             className="mx-auto aspect-square w-full lg:h-[512px] lg:w-1/2"
-            dataset={dataset}
-            urls={urls}
             translations={translations}
-            onDownload={(prop) => setDownloads(prop)}
           />
         );
       case "LINE":
-        return (
-          <CatalogueLine
-            config={config}
-            dataset={dataset}
-            urls={urls}
-            translations={translations}
-            onDownload={(prop) => setDownloads(prop)}
-          />
-        );
+        return <CatalogueLine config={config} translations={translations} />;
       default:
         break;
     }
     return;
   };
-
-  useEffect(() => {
-    if (dataset.type === "TABLE") {
-      setDownloads({
-        chart: [],
-        data: [
-          {
-            id: "csv",
-            image: "/static/images/icons/csv.png",
-            title: t("csv.title"),
-            description: t("csv.desc"),
-            icon: (
-              <DocumentArrowDownIcon className="text-zinc-500 h-6 min-w-[24px]" />
-            ),
-            href() {
-              download(urls.csv, dataset.meta.unique_id.concat(".csv"));
-              track("csv");
-            },
-          },
-          {
-            id: "parquet",
-            image: "/static/images/icons/parquet.png",
-            title: t("parquet.title"),
-            description: t("parquet.desc"),
-            icon: (
-              <DocumentArrowDownIcon className="text-zinc-500 h-6 min-w-[24px]" />
-            ),
-            href() {
-              download(urls.parquet, dataset.meta.unique_id.concat(".parquet"));
-              track("parquet");
-            },
-          },
-        ],
-      });
-    }
-  }, []);
 
   const generateTableSchema = () => {
     const columns = Array.isArray(dataset.table)
@@ -326,7 +220,9 @@ const CatalogueShow: FunctionComponent<CatalogueShowProps> = ({
             if (key === "x")
               return toDate(
                 item[key],
-                "dd MMM yyyy", //SHORT_PERIOD_FORMAT[filter.range.value as keyof typeof SHORT_PERIOD_FORMAT],
+                SHORT_PERIOD_FORMAT[
+                  filter.range.value as keyof typeof SHORT_PERIOD_FORMAT
+                ],
                 i18n.language
               );
             else return item[key];
@@ -345,36 +241,6 @@ const CatalogueShow: FunctionComponent<CatalogueShowProps> = ({
     }
   };
 
-  const sampleDescription = (
-    <>
-      {t("sample_query.desc1")}
-      <At
-        external={true}
-        className="link-dim text-base underline"
-        href={
-          i18n.language == "en-GB"
-            ? "https://developer.data.gov.my/data-catalogue/request-query"
-            : "https://developer.data.gov.my/ms/data-catalogue/request-query"
-        }
-      >
-        {t("sample_query.link1")}
-      </At>
-      <span>{`. ${t("sample_query.desc2")}`}</span>
-      <At
-        external={true}
-        className="link-dim text-base underline"
-        href={
-          i18n.language == "en-GB"
-            ? `https://developer.data.gov.my/data-catalogue/example-requests?id=${catalogueId}`
-            : `https://developer.data.gov.my/ms/data-catalogue/example-requests?id=${catalogueId}`
-        }
-      >
-        {t("sample_query.link2")}
-      </At>
-      .
-    </>
-  );
-
   return (
     <div>
       <Container className="mx-auto w-full pt-6 md:max-w-screen-md lg:max-w-screen-lg">
@@ -383,7 +249,7 @@ const CatalogueShow: FunctionComponent<CatalogueShowProps> = ({
           title={<h4 data-testid="catalogue-title">{dataset.meta.title}</h4>}
           description={
             <p
-              className="text-zinc-500 whitespace-pre-line text-base"
+              className="whitespace-pre-line text-base text-dim"
               data-testid="catalogue-description"
             >
               {interpolate(
@@ -396,18 +262,18 @@ const CatalogueShow: FunctionComponent<CatalogueShowProps> = ({
           menu={
             <>
               <Dropdown
-                className="w-fit"
+                width="w-fit"
                 sublabel={<EyeIcon className="h-4 w-4" />}
-                selected={availableOptions.find(e => e.value === show.value)}
+                selected={availableOptions.find((e) => e.value === show.value)}
                 options={availableOptions}
-                onChange={(e) => setShow(e)}
+                onChange={(e) => setShow(e.value)}
               />
               <Dropdown
                 width="w-fit"
                 anchor="right"
                 sublabel={<DocumentArrowDownIcon className="h-4 w-4" />}
                 placeholder={t("download")}
-                options={availableDownloads
+                options={_downloads
                   .map((item) => ({
                     label: item.title as string,
                     value: item.id,
@@ -420,9 +286,7 @@ const CatalogueShow: FunctionComponent<CatalogueShowProps> = ({
                     return;
                   }
                   // downloads
-                  const action = availableDownloads.find(
-                    ({ id }) => e.value === id
-                  );
+                  const action = _downloads.find(({ id }) => e.value === id);
                   if (!action) return;
                   return action.href();
                 }}
@@ -505,7 +369,7 @@ const CatalogueShow: FunctionComponent<CatalogueShowProps> = ({
             <Slider
               type="single"
               value={config.dates?.options.indexOf(
-                filter[config.dates.key].value ?? config.dates.default
+                config.context[config.dates.key]?.value || config.dates.default
               )}
               data={config.dates.options}
               period={SHORT_PERIOD[config.dates.interval]}
@@ -525,14 +389,12 @@ const CatalogueShow: FunctionComponent<CatalogueShowProps> = ({
           />
 
           {/* Views / download count*/}
-          <p className="text-zinc-500 flex justify-end gap-2 py-6 text-sm">
+          <p className="flex justify-end gap-2 py-6 text-sm text-dim">
             <span>
-              {`${numFormat(result?.all_time_view ?? 0, "compact")} ${t(
-                "common:views",
-                {
-                  count: result?.all_time_view ?? 0,
-                }
-              )}`}
+              {`${numFormat(result?.view_count ?? 0, "compact")} ${t("views", {
+                ns: "common",
+                count: result?.view_count ?? 0,
+              })}`}
             </span>
             <span>&middot;</span>
             <span>
@@ -544,7 +406,8 @@ const CatalogueShow: FunctionComponent<CatalogueShowProps> = ({
                   result?.download_svg,
                 ]) ?? 0,
                 "compact"
-              )} ${t("common:downloads", {
+              )} ${t("downloads", {
+                ns: "common",
                 count:
                   sum([
                     result?.download_csv,
@@ -557,7 +420,7 @@ const CatalogueShow: FunctionComponent<CatalogueShowProps> = ({
           </p>
         </Section>
 
-        <div className="dark:border-b-zinc-700 space-y-8 border-b py-8 lg:py-12">
+        <div className="space-y-8 border-b py-8 dark:border-b-outlineHover-dark lg:py-12">
           {/* How is this data produced? */}
           <Section
             title={t("header_1")}
@@ -606,14 +469,14 @@ const CatalogueShow: FunctionComponent<CatalogueShowProps> = ({
         {/* Metadata */}
         <Section
           title={"Metadata"}
-          className="dark:border-b-zinc-700 mx-auto border-b py-8 lg:py-12"
+          className="mx-auto border-b py-8 dark:border-b-outlineHover-dark lg:py-12"
         >
-          <Card className="bg-slate-50 dark:border-zinc-700 dark:bg-zinc-800 p-6">
+          <Card className="bg-background p-6 dark:border-outlineHover-dark dark:bg-washed-dark">
             <div className="space-y-6">
               {/* Dataset description */}
               <div className="space-y-3">
                 <h5>{t("meta_desc")}</h5>
-                <p className="text-zinc-500 leading-relaxed">
+                <p className="leading-relaxed text-dim">
                   {interpolate(metadata.description)}
                 </p>
               </div>
@@ -622,7 +485,7 @@ const CatalogueShow: FunctionComponent<CatalogueShowProps> = ({
                 <h5>{t("meta_def")}</h5>
                 {metadata.definitions?.length > 0 && (
                   <>
-                    <ul className="text-zinc-500 ml-6 list-outside list-disc md:hidden">
+                    <ul className="ml-6 list-outside list-disc text-dim md:hidden">
                       {metadata.definitions?.map((item) => (
                         <li key={item.title}>
                           <span className="flex gap-x-1">
@@ -671,9 +534,9 @@ const CatalogueShow: FunctionComponent<CatalogueShowProps> = ({
               </div>
               {/* Last updated */}
               <div className="space-y-3">
-                <h5>{t("common:last_updated", { date: "" })}</h5>
+                <h5>{t("last_updated", { ns: "common", date: "" })}</h5>
                 <p
-                  className="text-zinc-500 whitespace-pre-line"
+                  className="whitespace-pre-line text-dim"
                   data-testid="catalogue-last-updated"
                 >
                   {toDate(
@@ -686,7 +549,7 @@ const CatalogueShow: FunctionComponent<CatalogueShowProps> = ({
               {/* Next update */}
               <div className="space-y-3">
                 <h5>{t("next_update", { date: "" })}</h5>
-                <p className="text-zinc-500" data-testid="catalogue-next-update">
+                <p className="text-dim" data-testid="catalogue-next-update">
                   {toDate(
                     metadata.next_update,
                     "dd MMM yyyy, HH:mm",
@@ -697,7 +560,7 @@ const CatalogueShow: FunctionComponent<CatalogueShowProps> = ({
               {/* Data Source */}
               <div className="space-y-3">
                 <h5>{t("meta_source")}</h5>
-                <ul className="text-zinc-500 ml-6 list-outside list-disc">
+                <ul className="ml-6 list-outside list-disc text-dim">
                   {metadata.source?.map((source) => (
                     <li key={source}>{source}</li>
                   ))}
@@ -706,14 +569,14 @@ const CatalogueShow: FunctionComponent<CatalogueShowProps> = ({
               {/* URLs to dataset */}
               <div className="space-y-3">
                 <h5>{t("meta_url")}</h5>
-                <ul className="text-zinc-500 ml-6 list-outside list-disc">
+                <ul className="ml-6 list-outside list-disc text-dim">
                   {Object.entries(metadata.url).map(
                     ([key, url]: [string, unknown]) =>
                       url ? (
                         <li key={url as string}>
                           <a
                             href={url as string}
-                            className="text-primary dark:text-primary-dark break-all [text-underline-position:from-font] hover:underline"
+                            className="break-all text-primary [text-underline-position:from-font] hover:underline dark:text-primary-dark"
                             onClick={() =>
                               track(
                                 key === "link_geojson"
@@ -732,10 +595,10 @@ const CatalogueShow: FunctionComponent<CatalogueShowProps> = ({
               {/* License */}
               <div className="space-y-3">
                 <h5>{t("meta_license")}</h5>
-                <p className="text-zinc-500">
+                <p className="text-dim">
                   {t("license_text")}{" "}
                   <a
-                    className="text-primary dark:text-primary-dark lowercase [text-underline-position:from-font] hover:underline"
+                    className="lowercase text-primary [text-underline-position:from-font] hover:underline dark:text-primary-dark"
                     target="_blank"
                     rel="noopener"
                     href="https://creativecommons.org/licenses/by/4.0/"
@@ -751,19 +614,19 @@ const CatalogueShow: FunctionComponent<CatalogueShowProps> = ({
         {/* Download */}
         <Section
           title={t("download")}
-          className="dark:border-b-zinc-700 mx-auto border-b py-12 "
+          className="mx-auto border-b py-12 dark:border-b-outlineHover-dark "
         >
           <div className="space-y-5">
             {downloads?.chart.length > 0 && (
               <>
                 <h5>{t("chart")}</h5>
-                <div className="gap-4.5 grid grid-cols-1 md:grid-cols-2">
+                <div className="grid grid-cols-1 gap-4.5 md:grid-cols-2">
                   {downloads?.chart.map((props) => (
                     <DownloadCard
-                      key={dataset.meta.unique_id}
+                      key={`${dataset.meta.unique_id}_${props.id}`}
                       views={
                         result
-                          ? result[`download_${props.id as "csv" | "parquet"}`]
+                          ? result[`download_${props.id as "png" | "svg"}`]
                           : undefined
                       }
                       {...props}
@@ -778,7 +641,7 @@ const CatalogueShow: FunctionComponent<CatalogueShowProps> = ({
                 <div className="gap-4.5 grid grid-cols-1 md:grid-cols-2">
                   {downloads?.data.map((props) => (
                     <DownloadCard
-                      key={dataset.meta.unique_id}
+                      key={`${dataset.meta.unique_id}_${props.id}`}
                       views={
                         result
                           ? result[`download_${props.id as "csv" | "parquet"}`]
@@ -806,16 +669,31 @@ const CatalogueShow: FunctionComponent<CatalogueShowProps> = ({
         </Section>
 
         {/* API Request Code */}
-        <Section
-          title={t("sample_query.section_title")}
-          description={sampleDescription}
-          className="mx-auto w-full py-12"
-        >
-          <SampleCode
-            catalogueId={catalogueId}
-            url={urls?.parquet || urls[Object.keys(urls)[0]]}
+        {config.exclude_openapi ? (
+          <Section
+            title={t("sample_query.section_title")}
+            description={t("sample_query.unavailable")}
           />
-        </Section>
+        ) : (
+          <Section
+            title={t("sample_query.section_title")}
+            description={
+              <>
+                {t("sample_query.desc1")}
+                <At className="link-dim text-base underline" href="/api-docs">
+                  {t("sample_query.link1")}
+                </At>
+                .
+              </>
+            }
+            className="mx-auto w-full py-12"
+          >
+            <SampleCode
+              catalogueId={catalogueId}
+              url={urls?.parquet || urls[Object.keys(urls)[0]]}
+            />
+          </Section>
+        )}
       </Container>
     </div>
   );
@@ -858,7 +736,9 @@ const DownloadCard: FunctionComponent<DownloadCard> = ({
         )}
         <div className="block flex-grow">
           <p className="font-bold">{title}</p>
-          {description && <p className="text-zinc-500 text-sm">{description}</p>}
+          {description && (
+            <p className="text-zinc-500 text-sm">{description}</p>
+          )}
         </div>
 
         <div className="space-y-1">
