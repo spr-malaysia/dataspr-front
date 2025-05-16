@@ -300,8 +300,8 @@ export const exportAs = async (
 
 /**
  * @tutorial interpolate Pass the raw text with markdown link syntax eg. [some-link](/url-goes-here)
- * @example interpolate("This is an example of a [link](https://data.gov.my)")
- * // ["This is an example of a", <a href="https://data.gov.my">link</a>]
+ * @example interpolate("This is an example of a [link](https://data.spr.gov.my)")
+ * // ["This is an example of a", <a href="https://data.spr.gov.my">link</a>]
  * @param {string} raw_text Raw text
  * @returns {string | ReactElement[]} string | React elements
  */
