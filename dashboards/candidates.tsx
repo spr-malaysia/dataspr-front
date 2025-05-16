@@ -46,7 +46,7 @@ const ElectionCandidatesDashboard: FunctionComponent<
     ({ name, slug }) => ({ label: name, value: slug })
   );
 
-  const DEFAULT_CANDIDATE = "01426";
+  const DEFAULT_CANDIDATE = "00103";
   const CANDIDATE_OPTION = CANDIDATE_OPTIONS.find(
     (e) => e.value === (params.candidate ?? DEFAULT_CANDIDATE)
   );
