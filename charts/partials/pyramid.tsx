@@ -1,5 +1,5 @@
 
-import { AKSARA_COLOR } from "@lib/constants";
+import { COLOR } from "@lib/constants";
 import { CatalogueContext } from "@lib/contexts/catalogue";
 import { ChartDataset } from "chart.js";
 import { default as dynamic } from "next/dynamic";
@@ -22,15 +22,15 @@ const CataloguePyramid: FunctionComponent<CataloguePyramidProps> = ({
 
   const _datasets = useMemo<ChartDataset<"bar", any[]>[]>(() => {
     const sets = Object.entries(dataset.chart);
-    const colors = [AKSARA_COLOR.PRIMARY, AKSARA_COLOR.DANGER]; // [blue, red]
+    const colors = [COLOR.PRIMARY, COLOR.DANGER]; // [blue, red]
 
     return sets
       .filter(([key, _]) => key !== "x")
       .map(([key, y], index) => ({
         data: y as number[],
         label: translations[key] ?? key,
-        backgroundColor: colors[index].concat("1A") ?? AKSARA_COLOR.PRIMARY_H,
-        borderColor: colors[index] ?? AKSARA_COLOR.PRIMARY,
+        backgroundColor: colors[index].concat("1A") ?? COLOR.PRIMARY_H,
+        borderColor: colors[index] ?? COLOR.PRIMARY,
         borderWidth: 1,
       }));
   }, [dataset.chart]);

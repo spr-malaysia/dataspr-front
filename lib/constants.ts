@@ -95,10 +95,10 @@ export const CountryAndStates: Record<string, string> = (() => {
 })();
 
 /**
- * Dictionary of AKSARA's color palette.
- * @example AKSARA_COLOR.PRIMARY -> "#2563EB"
+ * Dictionary of color palette.
+ * @example COLOR.PRIMARY -> "#2563EB"
  */
-export const AKSARA_COLOR = {
+export const COLOR = {
   BLACK: "#18181B",
   BLACK_H: "#18181B1A",
   WHITE: "#FFFFFF",
@@ -123,8 +123,6 @@ export const AKSARA_COLOR = {
   OUTLINE: "#E2E8F0",
   OUTLINE_H: "#E2E8F01A",
   OUTLINE_DARK: "#3F3F46",
-  LABOUR: "#FF8328",
-  LABOUR_H: "#FF83281A",
   TURQUOISE: "#30C3B2",
   TURQUOISE_H: "#30C3B21A",
   GREY: "#94A3B8",
@@ -138,7 +136,7 @@ export const AKSARA_COLOR = {
 } as const;
 
 /**
- * Convert locale code to shorter code. Used in reference to AKSARA's API
+ * Convert locale code to shorter code.
  * @example SHORT_LANG["ms-MY"] -> "bm"
  */
 export const SHORT_LANG = {
@@ -148,17 +146,17 @@ export const SHORT_LANG = {
 
 /**
  * Color ordering for data-catalogue.
- * @example CATALOGUE_COLORS[0] -> AKSARA_COLOR.PRIMARY
+ * @example CATALOGUE_COLORS[0] -> COLOR.PRIMARY
  */
 export const CATALOGUE_COLORS = [
-  AKSARA_COLOR.PRIMARY,
-  AKSARA_COLOR.GREY,
+  COLOR.PRIMARY,
+  COLOR.GREY,
   "#E2A614",
-  AKSARA_COLOR.DANGER,
+  COLOR.DANGER,
 ] as const;
 
 /**
- * Convert AKSARA API periods to the designated timeseries interval.
+ * Convert API periods to the designated timeseries interval.
  * @example SHORT_PERIOD["WEEKLY"] -> "weekly"
  */
 export const SHORT_PERIOD = {
@@ -173,7 +171,7 @@ export const SHORT_PERIOD = {
 } as const;
 
 /**
- * Convert AKSARA API periods to the designated timeseries tooltip format.
+ * Convert API periods to the designated timeseries tooltip format.
  * @example SHORT_PERIOD_FORMAT["WEEKLY"] -> "weekly"
  */
 export const SHORT_PERIOD_FORMAT = {

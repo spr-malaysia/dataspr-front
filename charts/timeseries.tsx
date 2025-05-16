@@ -38,7 +38,7 @@ import "chartjs-adapter-luxon";
 import { ChartCrosshairOption } from "@lib/types";
 import { ChartJSOrUndefined } from "react-chartjs-2/dist/types";
 import { useTheme } from "next-themes";
-import { AKSARA_COLOR } from "@lib/constants";
+import { COLOR } from "@lib/constants";
 import Spinner from "@components/Spinner";
 
 export type Periods = TimeUnit | "auto" | false;
@@ -363,7 +363,7 @@ const Timeseries: FunctionComponent<TimeseriesProps> = ({
             },
             drawTicks: false,
             drawBorder: false,
-            color: theme === "light" ? AKSARA_COLOR.OUTLINE : AKSARA_COLOR.WASHED_DARK,
+            color: theme === "light" ? COLOR.OUTLINE : COLOR.WASHED_DARK,
             offset: false,
             lineWidth(ctx) {
               if (ctx.tick.value === 0) return 2;

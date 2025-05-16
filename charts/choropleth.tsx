@@ -124,6 +124,7 @@ const Choropleth: FunctionComponent<ChoroplethProps> = ({
           <div className="hidden h-full w-full lg:block">
             <Chart
               id={id}
+              data-testid={id || title}
               ref={_ref}
               type="choropleth"
               data={{
