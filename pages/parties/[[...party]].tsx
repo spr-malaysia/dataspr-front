@@ -1,7 +1,7 @@
 import Metadata from "@components/Metadata";
 import ElectionPartiesDashboard from "@dashboards/parties";
 import { useTranslation } from "@hooks/useTranslation";
-import { get } from "@lib/api";
+import { getNew } from "@lib/api";
 import { CountryAndStates } from "@lib/constants";
 import { AnalyticsProvider } from "@lib/contexts/analytics";
 import { withi18n } from "@lib/decorators";
@@ -45,25 +45,15 @@ export const getStaticProps: GetStaticProps = withi18n(
   ["election", "parties", "party"],
   async ({ params }) => {
     try {
-      const [party, state_code] = params?.party
-      ? (params.party as string[])
-      : [null, null];
+      const [party = "PERIKATAN", state_code = "mys"] = (params?.party as string[] ?? []);
       const state = state_code ? CountryAndStates[state_code] : "Malaysia";
 
       const results = await Promise.allSettled([
-        get("/dropdown_parties.json"),
-        get("/query_party.json", {
-          party: party ?? "PERIKATAN",
-          state,
-          election_type: "parlimen",
-        }),
+        getNew("/parties/dropdown.json"),
+        getNew(`/parties/${party ?? "PERIKATAN"}/parlimen/${state ?? "Malaysia"}.json`),
         ...(state_code !== "mys"
           ? [
-              get("/query_party.json", {
-                party: party ?? "PERIKATAN",
-                state,
-                election_type: "dun",
-              }),
+              getNew(`/parties/${party ?? "PERIKATAN"}/dun/${state}.json`),
             ]
           : []),
       ]).catch((e) => {
