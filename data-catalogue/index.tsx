@@ -15,6 +15,7 @@ import { BREAKPOINTS } from "@lib/constants";
 import { WindowContext } from "@lib/contexts/window";
 import { routes } from "@lib/routes";
 import { OptionType } from "@lib/types";
+import { Trans } from "next-i18next";
 import {
   FunctionComponent,
   useMemo,
@@ -74,12 +75,9 @@ const CatalogueIndex: FunctionComponent<CatalogueIndexProps> = ({
     <>
       <Hero
         background="blue"
-        category={[
-          t("common:category"),
-          "text-primary dark:text-primary-dark",
-        ]}
+        category={[t("category"), "text-primary dark:text-primary-dark"]}
         header={[t("header")]}
-        description={[t("description")]}
+        description={[<Trans>{t("description")}</Trans>]}
         // action={
         //   <div className="flex flex-wrap items-center gap-6">
         //     <At

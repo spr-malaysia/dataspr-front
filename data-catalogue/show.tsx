@@ -1,6 +1,4 @@
-import { DocumentArrowDownIcon, EyeIcon } from "@heroicons/react/24/solid";
-import CatalogueCode from "@charts/partials/code";
-import { SampleCode } from "@charts/partials/code";
+import { default as CatalogueCode, SampleCode } from "@charts/partials/code";
 import CatalogueEmbed, { EmbedInterface } from "@charts/partials/embed";
 import {
   At,
@@ -13,12 +11,14 @@ import {
   Tooltip,
   Markdown,
 } from "@components/index";
-import { SHORT_PERIOD, SHORT_PERIOD_FORMAT } from "@lib/constants";
-import { WindowProvider } from "@lib/contexts/window";
-import { clx, interpolate, numFormat, toDate } from "@lib/helpers";
+import { DocumentArrowDownIcon, EyeIcon } from "@heroicons/react/24/solid";
 import { useAnalytics } from "@hooks/useAnalytics";
 import { useFilter } from "@hooks/useFilter";
 import { useTranslation } from "@hooks/useTranslation";
+import { SHORT_PERIOD, SHORT_PERIOD_FORMAT } from "@lib/constants";
+import { CatalogueContext } from "@lib/contexts/catalogue";
+import { WindowProvider } from "@lib/contexts/window";
+import { clx, interpolate, numFormat, toDate } from "@lib/helpers";
 import {
   METADATA_TABLE_SCHEMA,
   UNIVERSAL_TABLE_SCHEMA,
@@ -40,7 +40,6 @@ import {
   useRef,
   useState,
 } from "react";
-import { CatalogueContext } from "@lib/contexts/catalogue";
 
 /**
  * Catalogue Show
