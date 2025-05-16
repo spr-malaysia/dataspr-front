@@ -16,7 +16,7 @@ import { CountryAndStates } from "@lib/constants";
 import { useCache } from "@hooks/useCache";
 import { useData } from "@hooks/useData";
 import { useTranslation } from "@hooks/useTranslation";
-import { SPRIconSolid } from "@icons/index";
+import { VoteIconSolid } from "@icons/index";
 import { OptionType } from "@lib/types";
 import dynamic from "next/dynamic";
 import { FunctionComponent } from "react";
@@ -218,7 +218,7 @@ const ElectionTriviaDashboard: FunctionComponent<ElectionTriviaProps> = ({
             <div className="space-y-12 lg:space-y-6">
               <div className="border-slate-200 dark:border-zinc-800 w-full space-y-6 rounded-xl border-0 p-0 lg:border lg:p-8">
                 <div className="gap-3">
-                  <SPRIconSolid className="text-primary mx-auto h-16 w-16" />
+                  <VoteIconSolid className="text-primary mx-auto h-16 w-16" />
                   <h5 className="text-center">
                     {t("majority", {
                       ns: "trivia",

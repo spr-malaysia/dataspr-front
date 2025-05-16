@@ -33,11 +33,11 @@ export const UpDownIcon: FunctionComponent<IconProps> = ({ className, transform 
 };
 
 /**
- * SPR Icon
+ * Vote Icon
  * @param className
- * @returns SPRIcon
+ * @returns VoteIcon
  */
-export const SPRIcon: FunctionComponent<IconProps> = ({ className, fillColor = "#DC2626" }) => {
+export const VoteIcon: FunctionComponent<IconProps> = ({ className, fillColor = "#DC2626" }) => {
   return (
     <svg
       width="32"
@@ -76,7 +76,7 @@ export const SPRIcon: FunctionComponent<IconProps> = ({ className, fillColor = "
   );
 };
 
-export const SPRIconSolid: FunctionComponent<IconProps> = ({ className }) => {
+export const VoteIconSolid: FunctionComponent<IconProps> = ({ className }) => {
   return (
     <svg
       width="32"
