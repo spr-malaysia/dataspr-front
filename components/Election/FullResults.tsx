@@ -68,8 +68,7 @@ const FullResults = <T extends Candidate | Party | Seat>({
     date: "",
     election_name: "",
     state: "",
-    ballot: [],
-    votes: null,
+    results: {},
     loading: false,
   });
 
@@ -102,8 +101,7 @@ const FullResults = <T extends Candidate | Party | Seat>({
         onChange(selected)
           .then((results) => {
             if (!results) return;
-            setData("ballot", results.data);
-            setData("votes", results.votes);
+            setData("results", results);
           })
           .finally(() => setData("loading", false));
       }}
@@ -127,9 +125,8 @@ const FullResults = <T extends Candidate | Party | Seat>({
                     onChange(option)
                       .then((results) => {
                         if (!results) return;
-                        setData("index", index);
-                        setData("ballot", results.data);
-                        setData("votes", results.votes);
+                        setData("index", index);            
+                        setData("results", results);
                         getData(options[index]);
                       })
                       .finally(() => setData("loading", false));
@@ -156,8 +153,7 @@ const FullResults = <T extends Candidate | Party | Seat>({
                     if (!results) return;
                     setData("index", data.index - 1);
                     getData(options[data.index - 1]);
-                    setData("ballot", results.data);
-                    setData("votes", results.votes);
+                    setData("results", results);
                   })
                   .finally(() => setData("loading", false));
               }}
@@ -179,8 +175,7 @@ const FullResults = <T extends Candidate | Party | Seat>({
                   .then((results) => {
                     if (!results) return;
                     setData("index", data.index + 1);
-                    setData("ballot", results.data);
-                    setData("votes", results.votes);
+                    setData("results", results);
                     getData(options[data.index + 1]);
                   })
                   .finally(() => setData("loading", false));
@@ -232,13 +227,13 @@ const FullResults = <T extends Candidate | Party | Seat>({
             )}
           </DialogHeader>
           <FullResultContent
-            data={data.ballot}
+            data={data.results.data}
             columns={columns}
             loading={data.loading}
             highlighted={highlighted}
             highlightedRows={highlightedRows}
             result={isCandidate ? selected.result : undefined}
-            votes={data.votes}
+            votes={data.results.votes}
           />
           <Pagination />
         </DialogContent>
@@ -270,7 +265,7 @@ const FullResults = <T extends Candidate | Party | Seat>({
               </span>
             </div>
             <DrawerClose>
-              <XMarkIcon className="h-5 w-5" />
+              <XMarkIcon className="h-5 w-5 text-zinc-500" />
             </DrawerClose>
           </div>
           {!isParty && (
@@ -282,13 +277,13 @@ const FullResults = <T extends Candidate | Party | Seat>({
           {isCandidate && <ResultBadge value={data.badge} />}
         </DrawerHeader>
         <FullResultContent
-          data={data.ballot}
+          data={data.results.data}
           columns={columns}
           loading={data.loading}
           highlighted={highlighted}
           highlightedRows={highlightedRows}
           result={isCandidate ? selected.result : undefined}
-          votes={data.votes}
+          votes={data.results.votes}
         />
         <DrawerFooter>
           <Pagination />
