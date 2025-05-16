@@ -7,6 +7,7 @@ export { useExport } from "./useExport";
 export { useFilter } from "./useFilter";
 export { useLanguage } from "./useLanguage";
 export { useLocalStorage } from "./useLocalStorage";
+export { useMediaQuery } from "./useMediaQuery";
 export { useScrollIntersect } from "./useScrollIntersect";
 export { useSessionStorage } from "./useSessionStorage";
 export { useSlice } from "./useSlice";

@@ -1,5 +1,4 @@
 import type { Config } from 'tailwindcss'
-import { fontFamily } from 'tailwindcss/defaultTheme'
 
 const config: Config = {
   darkMode: "class",
@@ -22,9 +21,7 @@ const config: Config = {
         4.5: "18px",
       },
       fontFamily: {
-        sans: ["var(--font-body)", ...fontFamily.sans],
-        body: ["var(--font-body)", ...fontFamily.sans],
-        header: ["var(--font-header)"],
+        poppins: ["var(--font-poppins)"],
       },
       colors: {
         "black": "#18181B", // Zinc 900
@@ -56,12 +53,23 @@ const config: Config = {
           from: { height: "var(--from-height)" },
           to: { height: "var(--to-height)" },
         },
+        gradient: {
+          "0%, 100%": {
+            "background-position": "0% 50%",
+            "background-size": "400%",
+          },
+          "50%": {
+            "background-position": "100% 50%",
+            "background-size": "400%",
+          },
+        },
       },
       animation: {
         slide: "slide 1.5s ease-out",
+        "bg-gradient-flow": "gradient 3s ease infinite",
       },
     },
   },
-  plugins: [],
+  plugins: [require("tailwindcss-animate")],
 }
 export default config
