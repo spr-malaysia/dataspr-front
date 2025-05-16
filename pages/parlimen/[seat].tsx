@@ -1,7 +1,7 @@
 import { dummyData } from "@components/Election/ElectionTable";
 import Metadata from "@components/Metadata";
 import ElectionSeatsDashboard from "@dashboards/seats";
-import { get } from "@lib/api";
+import { getNew } from "@lib/api";
 import { withi18n } from "@lib/decorators";
 import { Page } from "@lib/types";
 import { GetStaticPaths, GetStaticProps, InferGetStaticPropsType } from "next";
@@ -46,11 +46,8 @@ export const getStaticProps: GetStaticProps = withi18n(
       const slug = params.seat.toString();
 
       const results = await Promise.allSettled([
-        get("/dropdown_seats.json"),
-        get("/query_area.json", {
-          slug,
-        type: "parlimen",
-        }),
+        getNew("/seats/dropdown.json"),
+        getNew(`/seats/parlimen-${slug}.json`),
       ]);
 
       const [dropdown, seat] = results.map((e) => {
