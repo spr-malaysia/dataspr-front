@@ -35,15 +35,19 @@ import { useScrollIntersect } from "@hooks/useScrollIntersect";
 import { OptionType } from "@lib/types";
 import dynamic from "next/dynamic";
 import { FunctionComponent, useMemo, useRef } from "react";
+import Overview from "./overview";
 
 /**
  * Election Explorer Dashboard
  * @overview Status: In-development
  */
 
-const ElectionTable = dynamic(() => import("@components/Election/ElectionTable"), {
-  ssr: false,
-});
+const ElectionTable = dynamic(
+  () => import("@components/Election/ElectionTable"),
+  {
+    ssr: false,
+  }
+);
 const Choropleth = dynamic(() => import("@charts/choropleth"), { ssr: false });
 const Waffle = dynamic(() => import("@charts/waffle"), { ssr: false });
 
@@ -197,7 +201,7 @@ const ElectionExplorer: FunctionComponent<ElectionExplorerProps> = ({
         .then(
           ([{ data: _seats }, { data: _table }]: [
             { data: { data: OverallSeat[] } },
-            { data: { data: Party[] } }
+            { data: { data: Party[] } },
           ]) => {
             const elections = {
               seats: _seats.data,
@@ -215,10 +219,7 @@ const ElectionExplorer: FunctionComponent<ElectionExplorerProps> = ({
           }
         )
         .catch((e) => {
-          toast.error(
-            t("common:toast.request_failure"),
-            t("common:toast.try_again")
-          );
+          toast.error(t("toast.request_failure"), t("toast.try_again"));
           console.error(e);
         });
     });
@@ -243,7 +244,7 @@ const ElectionExplorer: FunctionComponent<ElectionExplorerProps> = ({
     <>
       <Hero
         background="red"
-        category={[t("common:category"), "text-danger"]}
+        category={[t("category"), "text-danger"]}
         header={[t("header")]}
         description={[t("description")]}
         last_updated={last_updated}
@@ -251,7 +252,7 @@ const ElectionExplorer: FunctionComponent<ElectionExplorerProps> = ({
       <Container>
         {/* Explore any election from Merdeka to the present! */}
         <Section className="pt-8 lg:pt-12">
-          <h4 className="text-center">{t("elections:header_1")}</h4>
+          <h4 className="text-center">{t("header_1", { ns: "elections" })}</h4>
 
           {/* Mobile */}
           <Modal
@@ -268,7 +269,10 @@ const ElectionExplorer: FunctionComponent<ElectionExplorerProps> = ({
               <div className="flex flex-col">
                 <div className="space-y-4 bg-white p-3 dark:bg-zinc-900">
                   <div className="space-y-2">
-                    <Label label={t("election") + ":"} className="text-sm" />
+                    <Label
+                      label={t("election", { ns: "elections" }) + ":"}
+                      className="text-sm"
+                    />
                     <div className="border-slate-200 dark:border-zinc-800 max-w-fit rounded-full border bg-white p-1 dark:bg-zinc-900">
                       <List
                         options={PANELS.map((item) => item.name)}
@@ -281,7 +285,7 @@ const ElectionExplorer: FunctionComponent<ElectionExplorerProps> = ({
                   <div className="dark:border-zinc-700 grid grid-cols-2 gap-2 border-y py-4">
                     <Label label={t("state") + ":"} className="text-sm" />
                     <Label
-                      label={t("election_year") + ":"}
+                      label={t("election_year", { ns: "elections" }) + ":"}
                       className="text-sm"
                     />
                     <StateDropdown
@@ -297,7 +301,7 @@ const ElectionExplorer: FunctionComponent<ElectionExplorerProps> = ({
                     <Dropdown
                       width="w-full"
                       anchor="right-0 bottom-10"
-                      placeholder={t("elections:select_election")}
+                      placeholder={t("select_election", { ns: "elections" })}
                       options={TOGGLE_IS_PARLIMEN ? GE_OPTIONS : SE_OPTIONS}
                       selected={
                         TOGGLE_IS_PARLIMEN
@@ -327,7 +331,7 @@ const ElectionExplorer: FunctionComponent<ElectionExplorerProps> = ({
                         );
                       }}
                     >
-                      {t("apply_filters")}
+                      {t("filter")}
                     </Button>
                     <Button
                       className="btn w-full justify-center px-3 py-1.5"
@@ -373,7 +377,7 @@ const ElectionExplorer: FunctionComponent<ElectionExplorerProps> = ({
             />
             <Dropdown
               anchor="left"
-              placeholder={t("elections:select_election")}
+              placeholder={t("select_election", { ns: "elections" })}
               options={TOGGLE_IS_PARLIMEN ? GE_OPTIONS : SE_OPTIONS}
               selected={
                 TOGGLE_IS_PARLIMEN
@@ -393,176 +397,9 @@ const ElectionExplorer: FunctionComponent<ElectionExplorerProps> = ({
             />
           </div>
 
-          <Tabs
-            className="mt-8 lg:mt-12"
-            hidden
-            current={data.toggle_index}
-            onChange={(index) => setData("toggle_index", index)}
-          >
-            {PANELS.map((panel, index) => (
-              <Tabs.Panel
-                name={panel.name as string}
-                icon={panel.icon}
-                key={index}
-              >
-                <div className="xl:grid xl:grid-cols-12">
-                  <div className="flex flex-col gap-y-3 xl:col-span-10 xl:col-start-2">
-                    <div className="flex flex-col items-baseline justify-between gap-y-3 sm:flex-row md:gap-y-0">
-                      <h5 className="w-fit">
-                        {t("elections:election_of", {
-                          context: (filter.election ?? "GE-15").startsWith("G")
-                            ? "parlimen"
-                            : "dun",
-                        })}
-                        <span className="text-primary">
-                          {CountryAndStates[filter.state ?? "mys"]}
-                        </span>
-                        <span>: </span>
-                        <span className="text-primary">
-                          {t(filter.election ?? "GE-15")}
-                        </span>
-                      </h5>
-                      <div className="flex w-full justify-start sm:w-auto">
-                        <List
-                          options={[t("elections:table"), t("elections:map"), t("elections:summary")]}
-                          icons={[
-                            <TableCellsIcon
-                              key="table_cell_icon"
-                              className="mr-1 h-5 w-5"
-                            />,
-                            <MapIcon key="map_icon" className="mr-1 h-5 w-5" />,
-                          ]}
-                          current={data.tab_index}
-                          onChange={(index) => 0} //setData("tab_index", index)}
-                        />
-                      </div>
-                    </div>
-                    <Tabs
-                      hidden
-                      current={data.tab_index}
-                      onChange={(index) => setData("tab_index", index)}
-                    >
-                      <Panel
-                        name={t("elections:table")}
-                        icon={<TableCellsIcon className="mr-1 h-5 w-5" />}
-                      >
-                        <>
-                          <ElectionTable
-                            isLoading={false}
-                            data={
-                              data.showFullTable
-                                ? data.table
-                                : data.table.slice(0, 10)
-                            }
-                            columns={generateSchema<Party>([
-                              {
-                                key: "party",
-                                id: "party",
-                                header: t("party_name"),
-                              },
-                              {
-                                key: "seats",
-                                id: "seats",
-                                header: t("seats_won"),
-                              },
-                              {
-                                key: "votes",
-                                id: "votes",
-                                header: t("votes_won"),
-                              },
-                            ])}
-                          />
-                          {data.showFullTable !== true && (
-                            <Button
-                              className="btn-default mx-auto mt-6"
-                              onClick={() => setData("showFullTable", true)}
-                            >
-                              {t("elections:show_more")}
-                            </Button>
-                          )}
-                        </>
-                      </Panel>
-                      <Panel
-                        name={t("elections:map")}
-                        icon={<MapIcon className="mr-1 h-5 w-5" />}
-                      >
-                        <div className="bg-slate-50 dark:bg-[#121212] border-slate-200 dark:border-zinc-800 rounded-xl border static xl:py-4">
-                          <Choropleth
-                            className="h-[400px] w-auto lg:h-[500px]"
-                            type={
-                              (filter.election ?? "GE-15").startsWith("S")
-                                ? "dun"
-                                : "parlimen"
-                            }
-                          />
-                        </div>
-                      </Panel>
-                      <Panel name={t("elections:summary")}>
-                        <div className="space-y-6">
-                          <p className="text-center text-sm font-medium">
-                            {t("elections:simple_majority")}
-                          </p>
-                          <div className="relative h-12 w-full">
-                            <Waffle
-                              className="h-[50px] min-h-max w-full"
-                              fillDirection={"left"}
-                              data={waffleDummy}
-                              margin={{ top: 0, right: 0, bottom: 0, left: 2 }}
-                              total={222}
-                              rows={3}
-                              cols={74}
-                              color={waffleColours}
-                            />
-                            <hr className="border-[#121212] absolute inset-x-1/2 -top-3 h-[72px] w-0 border border-dashed dark:border-white"></hr>
-                          </div>
-                          <div className="text-zinc-500 flex flex-row flex-wrap items-center justify-center gap-6">
-                            {waffleDummy.map(({ label, value }) => (
-                              <div
-                                className="flex flex-row items-center gap-1"
-                                key={label}
-                              >
-                                {label === "Others" ? (
-                                  <div className="bg-zinc-500 h-4 w-4 rounded-md"></div>
-                                ) : (
-                                  <ImageWithFallback
-                                    className="border-slate-200 dark:border-zinc-700 rounded border"
-                                    src={`/static/images/parties/${label}.png`}
-                                    width={32}
-                                    height={18}
-                                    alt={t(`${label}`)}
-                                  />
-                                )}
-                                <span
-                                  className="uppercase"
-                                  style={{
-                                    color: PoliticalPartyColours[label],
-                                  }}
-                                >
-                                  {label}
-                                </span>
-                                <span
-                                  className="font-bold"
-                                  style={{
-                                    color: PoliticalPartyColours[label],
-                                  }}
-                                >
-                                  {value}
-                                </span>
-                              </div>
-                            ))}
-                          </div>
-                          <p className="text-zinc-500 whitespace-pre-line text-center text-sm">
-                            {t("elections:explore")}
-                          </p>
-                        </div>
-                      </Panel>
-                    </Tabs>
-                  </div>
-                </div>
-              </Tabs.Panel>
-            ))}
-          </Tabs>
+          <Overview filter={filter} seats={seats} table={table} />
           <hr className="dark:border-zinc-800 border-slate-200 mt-8 h-px lg:mt-12"></hr>
+
           {/* View the full ballot for a specific seat */}
           <BallotSeat
             seats={data.seats}
@@ -570,6 +407,7 @@ const ElectionExplorer: FunctionComponent<ElectionExplorerProps> = ({
             election={data.election_fullname}
           />
           <hr className="dark:border-zinc-800 border-slate-200 h-px"></hr>
+          
           {/* Election analysis */}
           <ElectionAnalysis
             state={filter.state ?? "mys"}
