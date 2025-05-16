@@ -39,40 +39,38 @@ export const getServerSideProps: GetServerSideProps = withi18n(
   async ({ query }) => {
     try {
       const name = Object.keys(query).length === 0 ? null : query.name;
-      // const [{ data: dropdown }, { data: candidate }] = await Promise.all([
-      //   get("/explorer", {
-      //     explorer: "ELECTIONS",
-      //     dropdown: "candidate_list",
-      //   }),
-      //   get("/explorer", {
-      //     explorer: "ELECTIONS",
-      //     chart: "candidates",
-      //     name: name ?? "tunku-abdul-rahman-putra-alhaj",
-      //   }),
-      // ]).catch((e) => {
-      //   throw new Error("Invalid candidate name. Message: " + e);
-      // });
+      const [{ data: dropdown }, { data: candidate }] = await Promise.all([
+        get("/spr-dashboard", {
+          dropdown: "candidate_list",
+        }),
+        get("/spr-dashboard", {
+          chart: "candidates",
+          name: name ?? "tunku-abdul-rahman-putra-alhaj",
+        }),
+      ]).catch((e) => {
+        throw new Error("Invalid candidate name. Message: " + e);
+      });
 
       return {
         props: {
-          last_updated: "",//candidate.data_last_updated,
+          last_updated: candidate.data_last_updated,
           meta: {
             id: "candidates",
             type: "dashboard",
           },
           params: { candidate_name: name },
-          selection: [],//dropdown,
+          selection: dropdown,
           elections: {
-            parlimen: [],
-              // candidate.data.parlimen.sort(
-              //   (a: Candidate, b: Candidate) =>
-              //     Date.parse(b.date) - Date.parse(a.date)
-              // ) ?? [],
-            dun: [],
-              // candidate.data.dun.sort(
-              //   (a: Candidate, b: Candidate) =>
-              //     Date.parse(b.date) - Date.parse(a.date)
-              // ) ?? [],
+            parlimen:
+              candidate.data.parlimen.sort(
+                (a: Candidate, b: Candidate) =>
+                  Date.parse(b.date) - Date.parse(a.date)
+              ) ?? [],
+            dun:
+              candidate.data.dun.sort(
+                (a: Candidate, b: Candidate) =>
+                  Date.parse(b.date) - Date.parse(a.date)
+              ) ?? [],
           },
         },
       };

@@ -1,5 +1,7 @@
 import Metadata from "@components/Metadata";
 import ElectionSeatsDashboard from "@dashboards/seats";
+import { Seat } from "@dashboards/types";
+import { get } from "@lib/api";
 import { withi18n } from "@lib/decorators";
 import { Page } from "@lib/types";
 import { GetServerSideProps, InferGetServerSidePropsType } from "next";
@@ -37,20 +39,18 @@ export const getServerSideProps: GetServerSideProps = withi18n(
           ? [null, null]
           : [query.name, query.type];
 
-      // const [{ data: dropdown }, { data: seat }] = await Promise.all([
-      //   get("/explorer", {
-      //     explorer: "ELECTIONS",
-      //     dropdown: "seats_list",
-      //   }),
-      //   get("/explorer", {
-      //     explorer: "ELECTIONS",
-      //     chart: "seats",
-      //     seat_name: name ?? "padang-besar-perlis",
-      //     type: type ?? "parlimen",
-      //   }),
-      // ]).catch((e) => {
-      //   throw new Error("Invalid seat name. Message: " + e);
-      // });
+      const [{ data: dropdown }, { data: seat }] = await Promise.all([
+        get("/spr-dashboard", {
+          dropdown: "seats_list",
+        }),
+        get("/spr-dashboard", {
+          chart: "seats",
+          seat_name: name ?? "padang-besar-perlis",
+          type: type ?? "parlimen",
+        }),
+      ]).catch((e) => {
+        throw new Error("Invalid seat name. Message: " + e);
+      });
 
       return {
         notFound: false,
@@ -61,12 +61,12 @@ export const getServerSideProps: GetServerSideProps = withi18n(
             type: "misc",
           },
           params: { seat_name: name, type: type },
-          selection: [], //dropdown,
-          elections: [], //
-          // seat.data.sort(
-          //   (a: Seat, b: Seat) =>
-          //     Number(new Date(b.date)) - Number(new Date(a.date))
-          // ) ?? [],
+          selection: dropdown,
+          elections: 
+          seat.data.sort(
+            (a: Seat, b: Seat) =>
+              Number(new Date(b.date)) - Number(new Date(a.date))
+          ) ?? [],
         },
       };
     } catch (error: any) {
