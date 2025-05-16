@@ -73,7 +73,8 @@ const ElectionTriviaDashboard: FunctionComponent<ElectionTriviaProps> = ({
     const identifier = `${election}_${seat}`;
     return new Promise((resolve) => {
       if (cache.has(identifier)) return resolve(cache.get(identifier));
-      get("/spr-dashboard", {
+      get("/explorer", {
+        explorer: "ELECTIONS",
         chart: "full_result",
         type: "candidates",
         election,

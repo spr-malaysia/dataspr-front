@@ -40,10 +40,12 @@ export const getServerSideProps: GetServerSideProps = withi18n(
     try {
       const name = Object.keys(query).length === 0 ? null : query.name;
       const [{ data: dropdown }, { data: candidate }] = await Promise.all([
-        get("/spr-dashboard", {
+        get("/explorer", {
+        explorer: "ELECTIONS",
           dropdown: "candidate_list",
         }),
-        get("/spr-dashboard", {
+        get("/explorer", {
+        explorer: "ELECTIONS",
           chart: "candidates",
           name: name ?? "tunku-abdul-rahman-putra-alhaj",
         }),

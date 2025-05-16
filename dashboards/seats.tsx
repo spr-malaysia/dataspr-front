@@ -99,7 +99,8 @@ const ElectionSeatsDashboard: FunctionComponent<ElectionSeatsProps> = ({
         return resolve(cache.get(identifier));
       }
 
-      get("/spr-dashboard", {
+      get("/explorer", {
+        explorer: "ELECTIONS",
         chart: "seats",
         seat_name,
         type,
@@ -127,7 +128,8 @@ const ElectionSeatsDashboard: FunctionComponent<ElectionSeatsProps> = ({
     const identifier = `${election}_${seat}`;
     return new Promise((resolve) => {
       if (cache.has(identifier)) return resolve(cache.get(identifier));
-      get("/spr-dashboard", {
+      get("/explorer", {
+        explorer: "ELECTIONS",
         chart: "full_result",
         type: "candidates",
         election,

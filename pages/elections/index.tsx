@@ -10,6 +10,7 @@ import { Page } from "@lib/types";
 import { GetServerSideProps, InferGetServerSidePropsType } from "next";
 
 const ElectionExplorerIndex: Page = ({
+  choropleth,
   last_updated,
   meta,
   params,
@@ -27,6 +28,7 @@ const ElectionExplorerIndex: Page = ({
         keywords={""}
       />
       <ElectionExplorerDashboard
+        choropleth={choropleth}
         last_updated={last_updated}
         params={params}
         seats={seats}
@@ -38,7 +40,7 @@ const ElectionExplorerIndex: Page = ({
 };
 
 export const getServerSideProps: GetServerSideProps = withi18n(
-  ["election", "elections", "home"],
+  ["election", "elections", "home", "party"],
   async ({ query }) => {
     try {
       let [election, state] =
@@ -57,15 +59,18 @@ export const getServerSideProps: GetServerSideProps = withi18n(
 
       const [{ data: dropdown }, { data: seats }, { data: table }] =
         await Promise.all([
-          get("/spr-dashboard", {
+          get("/explorer", {
+            explorer: "ELECTIONS",
             dropdown: "election_list",
           }),
-          get("/spr-dashboard", {
+          get("/explorer", {
+            explorer: "ELECTIONS",
             chart: "overall_seat",
             election: election ?? "GE-15",
             state: state ?? "mys",
           }),
-          get("/spr-dashboard", {
+          get("/explorer", {
+            explorer: "ELECTIONS",
             chart: "full_result",
             type: "party",
             election: election ?? "GE-15",
@@ -92,6 +97,7 @@ export const getServerSideProps: GetServerSideProps = withi18n(
               return b.seats.won - a.seats.won;
             }
           }),
+          choropleth: {},
         },
       };
     } catch (error: any) {
