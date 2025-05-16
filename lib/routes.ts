@@ -5,7 +5,8 @@ export const routes = {
   ELECTIONS: "/elections",
   CANDIDATES: "/candidates",
   PARTIES: "/parties",
-  TRIVIA: "/trivia"
+  TRIVIA: "/trivia",
+  API_DOCS: "/api-docs"
 };
 
 export const static_routes: string[] = (() => {

@@ -111,7 +111,7 @@ class HTMLDocument extends Document {
           {/* <link rel="mask-icon" href="/icons/safari-pinned-tab.svg" color="#5bbad5" /> */}
           <link rel="shortcut icon" href="/favicon.ico" />
 
-          {/* // Apple Splash Screen */}
+          {/* Apple Splash Screen */}
           <link
             rel="apple-touch-startup-image"
             href="/static/images/icons/apple_splash_2048.png"
@@ -127,7 +127,6 @@ class HTMLDocument extends Document {
             href="/static/images/icons/apple_splash_1536.png"
             sizes="1536x2048"
           />
-
           <link
             rel="apple-touch-startup-image"
             href="/static/images/icons/apple_splash_1125.png"

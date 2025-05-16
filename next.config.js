@@ -22,7 +22,7 @@ const nextConfig = {
   swcMinify: true,
   publicRuntimeConfig: {
     APP_NAME: "data.spr.gov.my",
-    META_AUTHOR: "Government of Malaysia",
+    META_AUTHOR: "Electoral Commission of Malaysia",
     META_THEME: "#13293D",
     META_KEYWORDS: "open data statistics election malaysia",
     META_DOMAIN: "data.spr.gov.my",
