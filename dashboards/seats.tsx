@@ -186,20 +186,6 @@ const ElectionSeatsDashboard: FunctionComponent<ElectionSeatsProps> = ({
         category={[t("hero.category", { ns: "home" }), "text-danger"]}
         header={[t("hero.header", { ns: "home" })]}
         description={[t("hero.description", { ns: "home" })]}
-        action={
-          <div className="flex flex-wrap gap-3">
-            <At
-              className="btn btn-border active:bg-slate-100 shadow-button bg-white px-3 py-1.5 text-sm text-zinc-900"
-              href="/data-catalogue"
-              enableIcon
-            >
-              {t("nav.catalogue")}
-            </At>
-            <At className="btn px-3 py-1.5 text-sm" href="/api-docs" enableIcon>
-              {t("nav.api_docs")}
-            </At>
-          </div>
-        }
       />
 
       <Container>

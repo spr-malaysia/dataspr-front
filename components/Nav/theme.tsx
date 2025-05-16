@@ -5,16 +5,16 @@ import SunIcon from "@heroicons/react/20/solid/SunIcon";
 import { useTheme } from "next-themes";
 
 const ThemeToggle = () => {
-  const { theme, setTheme } = useTheme();
+  const { resolvedTheme, setTheme } = useTheme();
 
   return (
     <>
       <Button
         className="btn hover:bg-slate-100 dark:hover:bg-zinc-800 group relative p-2"
-        onClick={() => setTheme(theme === "light" ? "dark" : "light")}
+        onClick={() => setTheme(resolvedTheme === "light" ? "dark" : "light")}
       >
         <Transition
-          show={theme === "light"}
+          show={resolvedTheme === "light"}
           enter="delay-200 transition ease-out duration-150"
           enterFrom="opacity-0 translate-y-1"
           enterTo="opacity-100 translate-y-0"
@@ -25,7 +25,7 @@ const ThemeToggle = () => {
           <MoonIcon className="text-zinc-500 h-4 w-4 group-hover:text-zinc-900" />
         </Transition>
         <Transition
-          show={theme !== "light"}
+          show={resolvedTheme !== "light"}
           enter="delay-200 transition ease-out duration-150"
           enterFrom="opacity-0 translate-y-1"
           enterTo="opacity-100 translate-y-0"
