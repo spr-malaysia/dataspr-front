@@ -180,7 +180,7 @@ const Dropdown: FunctionComponent<DropdownProps> = ({
             className={clx(
               "shadow-button flex items-center gap-1.5 rounded-md px-3 py-1.5",
               "text-start text-sm font-medium text-zinc-900 dark:text-white",
-              "active:bg-slate-100 hover:dark:bg-zinc-800/50 active:dark:bg-zinc-800 select-none bg-white dark:bg-zinc-900",
+              "active:bg-slate-100 hover:dark:bg-zinc-800 active:dark:bg-zinc-800 select-none bg-white dark:bg-zinc-900",
               "border-slate-200 dark:border-zinc-800 hover:border-slate-400 hover:dark:border-zinc-700 border outline-none",
               disabled &&
                 "disabled:bg-slate-200 dark:disabled:bg-zinc-800 disabled:border-slate-200 dark:disabled:border-zinc-800 disabled:text-slate-400 dark:disabled:text-zinc-700 disabled:pointer-events-none disabled:cursor-not-allowed",
