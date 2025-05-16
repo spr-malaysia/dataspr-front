@@ -43,9 +43,7 @@ const ElectionCandidatesDashboard: FunctionComponent<
   const { t } = useTranslation(["common", "candidates"]);
 
   const CANDIDATE_OPTIONS: Array<OptionType> = selection.map(
-    ({ name, slug }) => {
-      return { label: name, value: slug };
-    }
+    ({ name, slug }) => ({ label: name, value: slug })
   );
 
   const DEFAULT_CANDIDATE = "01426";
@@ -55,7 +53,7 @@ const ElectionCandidatesDashboard: FunctionComponent<
 
   const { cache } = useCache();
   const { data, setData } = useData({
-    tab_index: 0, // parlimen = 0; dun = 1
+    tab_index: elections.parlimen.length === 0 ? 1 : 0, // parlimen = 0; dun = 1
     candidate_value: null,
     loading: false,
     parlimen: elections.parlimen,
