@@ -1,4 +1,4 @@
-import { FunctionComponent } from "react";
+import { ComponentProps, FunctionComponent } from "react";
 
 export interface IconProps {
   className?: string;
@@ -113,3 +113,36 @@ export const SPRIconSolid: FunctionComponent<IconProps> = ({ className }) => {
     </svg>
   );
 };
+
+export function MenuIcon(props: ComponentProps<'svg'>) {
+  return (
+    <svg
+      fill="none"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      stroke="currentColor"
+      {...props}
+    >
+      <g>
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth="2"
+          d="M4 6h16" />
+      </g>
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="2"
+        d="M4 12h16" />
+      <g>
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth="2"
+          d="M4 18h16" />
+      </g>
+    </svg>
+  );
+}

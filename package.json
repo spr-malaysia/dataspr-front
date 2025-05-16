@@ -69,6 +69,7 @@
   },
   "devDependencies": {
     "@next/bundle-analyzer": "^13.4.19",
+    "@tailwindcss/nesting": "^0.0.0-insiders.565cd3e",
     "@types/cookie": "^0.5.2",
     "@types/dom-to-image": "^2.6.4",
     "@types/gtag.js": "^0.0.12",
