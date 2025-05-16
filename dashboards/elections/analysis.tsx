@@ -145,7 +145,7 @@ const ElectionAnalysis: FunctionComponent<ElectionAnalysisProps> = ({
           >
             <Table
               className="table-sticky-header"
-              // data={analysisData}
+              data={analysisData}
               enablePagination={10}
               config={
                 state !== "mys"
