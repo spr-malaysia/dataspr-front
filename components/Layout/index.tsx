@@ -10,7 +10,7 @@ interface LayoutProps {
 
 const Layout: FunctionComponent<LayoutProps> = ({ className, children, stateSelector }) => {
   return (
-    <div className={className}>
+    <div vaul-drawer-wrapper="" className={className}>
       <Header stateSelector={stateSelector} />
       <div className="flex min-h-screen flex-col">
         <div className="flex flex-grow flex-col pt-14">{children}</div>

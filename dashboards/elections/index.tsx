@@ -1,9 +1,8 @@
 import ElectionAnalysis from "./analysis";
 import BallotSeat from "./ballot-seat";
 import ElectionFilter from "./filter";
-import { ElectionEnum, OverallSeat, Party, PartyResult } from "../types";
+import { ElectionEnum, OverallSeat, PartyResult } from "../types";
 import { BuildingLibraryIcon, FlagIcon } from "@heroicons/react/24/solid";
-import { get } from "@lib/api";
 import {
   Button,
   Container,
@@ -14,7 +13,6 @@ import {
   Modal,
   Section,
   StateDropdown,
-  toast,
 } from "@components/index";
 import { CountryAndStates } from "@lib/constants";
 import { WindowProvider } from "@lib/contexts/window";
@@ -43,7 +41,7 @@ interface ElectionExplorerProps {
     election: string;
   };
   seats: OverallSeat[];
-  selection: Record<string, any>;
+  selection: Array<{ state: string; date: string[] }>;
   table: PartyResult;
 }
 
@@ -79,7 +77,8 @@ const ElectionExplorer: FunctionComponent<ElectionExplorerProps> = ({
 
   const ELECTION_FULLNAME = filter.election ?? "GE-15";
   const ELECTION_ACRONYM = ELECTION_FULLNAME.slice(-5);
-  const CURRENT_STATE = filter.state ?? "mys";
+  const CURRENT_STATE = filter.state ?? "mys"
+    // [MALAYSIA, ...STATES].find((s) => s.name === filter.state)?.key ?? "mys";
 
   const { data, setData } = useData({
     toggle_index: ELECTION_ACRONYM.startsWith("G")
@@ -98,96 +97,40 @@ const ElectionExplorer: FunctionComponent<ElectionExplorerProps> = ({
   const TOGGLE_IS_PARLIMEN = data.toggle_index === ElectionEnum.Parlimen;
   const NON_SE_STATE = ["mys", "kul", "lbn", "pjy"];
 
-  const GE_OPTIONS: Array<OptionType> = selection["mys"]
-    .map((election: Record<string, any>) => ({
-      label: t(election.name, { ns: "election" }) + ` (${election.year})`,
-      value: election.name,
-    }))
+  const GE_OPTIONS: Array<OptionType> = selection
+    .find((e) => e.state === "Malaysia")!
+    .date.map((date) => {
+      const [election, year] = date.split(" ");
+      return {
+        label: t(election, { ns: "election" }) + " " + year,
+        value: election,
+      };
+    })
     .reverse();
 
   const SE_OPTIONS = useMemo<Array<OptionType>>(() => {
     let _options: Array<OptionType> = [];
     if (data.state !== null && NON_SE_STATE.includes(data.state) === false)
-      _options = selection[data.state]
-        .map((election: Record<string, any>) => ({
-          label: t(election.name, { ns: "election" }) + ` (${election.year})`,
-          value: election.name,
-        }))
+      _options = selection
+        .find((e) => e.state === CountryAndStates[data.state])!
+        .date.map((date) => {
+          const [election, year] = date.split(" ");
+
+          return {
+            label: t(election, { ns: "election" }) + " " + year,
+            value: election,
+          };
+        })
         .reverse();
     return _options;
   }, [data.state]);
-
-  const fetchResult = async (
-    _election: string,
-    state: string
-  ): Promise<{ seats: OverallSeat[]; table: Party[] }> => {
-    setData("loading", true);
-    setFilter("election", _election);
-    setFilter("state", state);
-    const identifier = `${state}_${_election}`;
-
-    const election =
-      _election.startsWith("S") &&
-      state &&
-      ["mys", "kul", "lbn", "pjy"].includes(state) === false
-        ? `${CountryAndStates[state]} ${_election}`
-        : _election;
-    setData("election_fullname", election);
-
-    return new Promise((resolve) => {
-      if (cache.has(identifier)) {
-        setData("loading", false);
-        return resolve(cache.get(identifier));
-      }
-
-      Promise.all([
-        get("/explorer", {
-          explorer: "ELECTIONS",
-          chart: "overall_seat",
-          election,
-          state,
-        }),
-        get("/explorer", {
-          explorer: "ELECTIONS",
-          chart: "full_result",
-          type: "party",
-          election,
-          state,
-        }),
-      ])
-        .then(
-          ([{ data: _seats }, { data: _table }]: [
-            { data: { data: OverallSeat[] } },
-            { data: { data: Party[] } },
-          ]) => {
-            const elections = {
-              seats: _seats.data,
-              table: _table.data.sort((a, b) => {
-                if (a.seats.won === b.seats.won) {
-                  return b.votes.perc - a.votes.perc;
-                } else {
-                  return b.seats.won - a.seats.won;
-                }
-              }),
-            };
-            cache.set(identifier, elections);
-            setData("loading", false);
-            return resolve(elections);
-          }
-        )
-        .catch((e) => {
-          toast.error(t("toast.request_failure"), t("toast.try_again"));
-          console.error(e);
-        });
-    });
-  };
 
   const handleElectionTab = (index: number) => {
     //  When toggling to DUN, if state is Malaysia / W.P, set as null, else set as current state
     if (index === ElectionEnum.Dun) {
       setData(
         "state",
-        NON_SE_STATE.includes(filter.state ?? "mys")
+        NON_SE_STATE.includes(data.state ?? "mys")
           ? null
           : data.state || CURRENT_STATE
       );
@@ -283,13 +226,9 @@ const ElectionExplorer: FunctionComponent<ElectionExplorerProps> = ({
                     <Button
                       className="btn-primary w-full justify-center"
                       onClick={() => {
-                        fetchResult(data.election_acronym, data.state).then(
-                          ({ seats, table }) => {
-                            setData("seats", seats);
-                            setData("table", table);
-                            close();
-                          }
-                        );
+                        setData("loading", true);
+                        setFilter("election", data.election_acronym);
+                        setFilter("state", data.state);
                       }}
                     >
                       {t("filter")}
@@ -322,14 +261,11 @@ const ElectionExplorer: FunctionComponent<ElectionExplorerProps> = ({
             <StateDropdown
               currentState={data.state}
               onChange={(selected) => {
-                TOGGLE_IS_PARLIMEN && data.election_acronym
-                  ? fetchResult(data.election_acronym, selected.value).then(
-                      ({ seats, table }) => {
-                        setData("seats", seats);
-                        setData("table", table);
-                      }
-                    )
-                  : setData("election_acronym", null);
+                if (TOGGLE_IS_PARLIMEN && data.election_acronym) {
+                  setData("loading", true);
+                  setFilter("election", data.election_acronym);
+                  setFilter("state", selected.value);
+                } else setData("election_acronym", null);
                 setData("state", selected.value);
               }}
               exclude={TOGGLE_IS_DUN ? NON_SE_STATE : []}
@@ -347,29 +283,22 @@ const ElectionExplorer: FunctionComponent<ElectionExplorerProps> = ({
               }
               onChange={(selected) => {
                 setData("election_acronym", selected.value);
-                fetchResult(selected.value, data.state).then(
-                  ({ seats, table }) => {
-                    setData("seats", seats);
-                    setData("table", table);
-                  }
-                );
+                setData("loading", true);
+                setFilter("election", selected.value);
+                setFilter("state", data.state);
               }}
               disabled={!data.state}
             />
           </div>
 
-          <Overview
-            choropleth={choropleth}
-            filter={filter}
-            table={data.table}
-          />
+          <Overview choropleth={choropleth} params={params} table={table} />
           <hr className="dark:border-zinc-800 border-slate-200 pt-8 h-px lg:pt-12"></hr>
 
           {/* View the full ballot for a specific seat */}
           <BallotSeat
             election={data.election_fullname}
             seats={data.seats}
-            state={filter.state ?? "mys"}
+            state={filter.state ?? "Malaysia"}
           />
           <hr className="dark:border-zinc-800 border-slate-200 h-px"></hr>
 
@@ -377,7 +306,7 @@ const ElectionExplorer: FunctionComponent<ElectionExplorerProps> = ({
           <ElectionAnalysis
             choropleth={choropleth}
             seats={data.seats}
-            state={filter.state ?? "mys"}
+            state={filter.state ?? "Malaysia"}
             toggle={data.toggle_index}
           />
         </Section>

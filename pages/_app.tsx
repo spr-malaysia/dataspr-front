@@ -2,7 +2,6 @@ import Nexti18NextConfig from "../next-i18next.config";
 import "../styles/globals.css";
 import Layout from "@components/Layout";
 import Progress from "@components/Progress";
-import { header, body } from "@lib/configs/font";
 import mixpanelConfig from "@lib/configs/mixpanel";
 import { clx } from "@lib/helpers";
 import { ga_track, track } from "@lib/mixpanel";
@@ -11,29 +10,35 @@ import { appWithTranslation } from "next-i18next";
 import { ThemeProvider } from "next-themes";
 import { useRouter } from "next/router";
 import { useEffect, ReactNode } from "react";
+import { Inter, Poppins } from "next/font/google";
+
+const inter = Inter({ subsets: ["latin"] });
+const poppins = Poppins({
+  subsets: ["latin"],
+  weight: ["600", "700"],
+  display: "swap",
+  variable: "--font-poppins",
+});
 
 // App instance
 function App({ Component, pageProps }: AppPropsLayout) {
   const layout =
-    Component.layout ||
-    ((page: ReactNode) => (
-      <Layout className={clx(body.variable, "font-sans")}>{page}</Layout>
-    ));
+    Component.layout || ((page: ReactNode) => <Layout>{page}</Layout>);
   // const router = useRouter();
 
   // Mixpanel initialisation
-  useEffect(() => {
-    const is_development = process.env.NEXT_PUBLIC_APP_ENV === "development";
-    window.mixpanel.init(
-      mixpanelConfig.token,
-      {
-        debug: is_development,
-        verbose: is_development,
-        api_host: mixpanelConfig.host,
-      },
-      mixpanelConfig.name
-    );
-  }, []);
+  // useEffect(() => {
+  //   const is_development = process.env.NEXT_PUBLIC_APP_ENV === "development";
+  //   window.mixpanel.init(
+  //     mixpanelConfig.token,
+  //     {
+  //       debug: is_development,
+  //       verbose: is_development,
+  //       api_host: mixpanelConfig.host,
+  //     },
+  //     mixpanelConfig.name
+  //   );
+  // }, []);
 
   // useEffect(() => {
   //   // trigger page view event for client-side navigation
@@ -48,22 +53,18 @@ function App({ Component, pageProps }: AppPropsLayout) {
   // }, [router.events, pageProps?.meta]);
 
   return (
-    <div
+    <main
       className={clx(
-        body.variable,
-        header.variable,
-        "font-sans dark:bg-zinc-900"
+        inter.className,
+        poppins.variable,
+        "bg-white dark:bg-zinc-900 dark:text-zinc-900 dark:text-white"
       )}
     >
-      <ThemeProvider
-        attribute="class"
-        enableSystem={false}
-        forcedTheme={Component.theme}
-      >
+      <ThemeProvider attribute="class" disableTransitionOnChange>
         {layout(<Component {...pageProps} />, pageProps)}
         <Progress />
       </ThemeProvider>
-    </div>
+    </main>
   );
 }
 

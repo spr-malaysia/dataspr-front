@@ -16,7 +16,6 @@ import {
   useRole,
 } from "@floating-ui/react";
 import { useVirtualizer } from "@tanstack/react-virtual";
-import { body } from "@lib/configs/font";
 import { matchSorter, MatchSorterOptions } from "match-sorter";
 import { useEffect, useMemo, useRef, useState } from "react";
 
@@ -179,8 +178,7 @@ const ComboBox = <T extends unknown>({
           <FloatingFocusManager context={context} initialFocus={-1} visuallyHiddenDismiss>
             <div
               className={clx(
-                body.variable,
-                "font-body border-slate-200 dark:border-zinc-800 shadow-floating absolute z-20 max-h-60 w-full overflow-auto rounded-md border bg-white text-sm focus:outline-none dark:bg-zinc-900"
+                "border-slate-200 dark:border-zinc-800 shadow-floating absolute z-20 max-h-60 w-full overflow-auto rounded-md border bg-white text-sm focus:outline-none dark:bg-zinc-900"
               )}
               ref={refs.setFloating}
               tabIndex={-1}

@@ -2,7 +2,6 @@ import Layout from "@components/Layout";
 import Metadata from "@components/Metadata";
 import StateDropdown from "@components/Dropdown/StateDropdown";
 import StateModal from "@components/Modal/StateModal";
-import { body } from "@lib/configs/font";
 import ElectionTriviaDashboard from "@dashboards/trivia";
 import { AnalyticsProvider } from "@lib/contexts/analytics";
 import { useTranslation } from "@hooks/useTranslation";
@@ -15,12 +14,12 @@ import { Page } from "@lib/types";
 import { GetStaticPaths, GetStaticProps, InferGetStaticPropsType } from "next";
 
 const ElectionTriviaState: Page = ({
-  dun_bar,
+  bar_dun,
   last_updated,
   meta,
   params,
-  parlimen_bar,
-  table_top,
+  bar_parlimen,
+  table,
 }: InferGetStaticPropsType<typeof getStaticProps>) => {
   const { t } = useTranslation("common");
 
@@ -32,11 +31,11 @@ const ElectionTriviaState: Page = ({
         keywords={""}
       />
       <ElectionTriviaDashboard
-        dun_bar={dun_bar}
+        bar_dun={bar_dun}
         last_updated={last_updated}
         params={params}
-        parlimen_bar={parlimen_bar}
-        table_top={table_top}
+        bar_parlimen={bar_parlimen}
+        table={table}
       />
     </AnalyticsProvider>
   );
@@ -45,7 +44,6 @@ const ElectionTriviaState: Page = ({
 ElectionTriviaState.layout = (page, props) => (
   <WindowProvider>
     <Layout
-      className={clx(body.variable, "font-sans")}
       stateSelector={
         <StateDropdown
           width="w-max xl:w-64"
@@ -76,24 +74,44 @@ export const getStaticPaths: GetStaticPaths = () => {
 export const getStaticProps: GetStaticProps = withi18n(
   ["trivia", "parties"],
   async ({ params }) => {
-    const state = params?.state ? params.state[0] : "mys";
-    const { data } = await get("/dashboard", {
-      dashboard: "election_trivia",
-      state,
+    const state_code = params?.state ? params.state[0] : "mys";
+    const state = CountryAndStates[state_code];
+
+    const results = await Promise.allSettled([
+      get("/trivia_slim_big.json", {
+        state,
+      }),
+      get("/trivia_veterans.json", {
+        state,
+        area_type: "parlimen",
+      }),
+      get("/trivia_veterans.json", {
+        state,
+        area_type: "dun",
+      }),
+    ]).catch((e) => {
+      throw new Error("Invalid party name. Message: " + e);
     });
+
+    const [{ data: table }, { data: parlimen }, { data: dun }] = results.map(
+      (e) => {
+        if (e.status === "rejected") return {};
+        else return e.value.data;
+      }
+    );
 
     return {
       notFound: false,
       props: {
-        last_updated: data.data_last_updated,
+        // last_updated: data.data_last_updated,
         meta: {
           id: "trivia",
           type: "dashboard",
         },
-        dun_bar: data.dun_bar ?? {},
-        params: { state },
-        parlimen_bar: data.parlimen_bar.data,
-        table_top: data.table_top.data,
+        bar_dun: dun ?? [],
+        params: { state: state_code },
+        bar_parlimen: parlimen,
+        table: table,
       },
     };
   }

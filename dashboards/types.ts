@@ -3,7 +3,11 @@ export enum ElectionEnum {
   Parlimen = 0,
   Dun = 1,
 }
-export type ElectionResult = "won" | "won_uncontested" | "lost" | "lost_deposit";
+export type ElectionResult =
+  | "won"
+  | "won_uncontested"
+  | "lost"
+  | "lost_deposit";
 
 export type Candidate = {
   type: ElectionType;
@@ -21,15 +25,11 @@ export type Party = {
   state: string;
   election_name: string;
   date: string;
-  seats: {
-    total: number;
-    perc: number;
-    won: number;
-  };
-  votes: {
-    abs: number;
-    perc: number;
-  };
+  seats_total: number;
+  seats_perc: number;
+  seats: number;
+  votes: number;
+  votes_perc: number;
 };
 
 export type Seat = {
@@ -38,30 +38,28 @@ export type Seat = {
   date: string;
   party: string;
   name: string;
-  majority: {
-    abs: number;
-    perc: number;
-  };
+  majority: number;
+  majority_perc: number;
   type: ElectionType;
 };
 
-export type OverallSeat = {
+export type PartySummary = {
+  voter_turnout: number;
+  voter_turnout_perc: number;
+  votes_rejected: number;
+  votes_rejected_perc: number;
+};
+
+export type Summary = PartySummary & {
+  majority: number;
+  majority_perc: number;
+};
+
+export type OverallSeat = Summary & {
   seat: string;
   date: string;
   party: string;
   name: string;
-  majority: {
-    abs: number;
-    perc: number;
-  };
-  voter_turnout: {
-    abs: number;
-    perc: number;
-  };
-  votes_rejected: {
-    abs: number;
-    perc: number;
-  };
 };
 
 export type BaseResult = {
@@ -71,22 +69,13 @@ export type BaseResult = {
   election_name: string;
   seat: string;
   party: string;
-  votes: {
-    abs: number;
-    perc: number;
-  };
+  votes: number;
+  votes_perc: number;
   result: string;
 };
 
 export type SeatResult = {
-  votes: {
-    majority: number;
-    majority_perc: number;
-    voter_turnout: number;
-    voter_turnout_perc: number;
-    votes_rejected: number;
-    votes_rejected_perc: number;
-  };
+  votes: Summary;
   data: Array<BaseResult>;
 };
 
@@ -98,15 +87,11 @@ export type PartyResult = Array<{
   state: string;
   election_name: string;
   date: string;
-  seats: {
-    total: number;
-    perc: number;
-    won: number;
-  };
-  votes: {
-    abs: number;
-    perc: number;
-  };
+  seats_total: number;
+  seats_perc: number;
+  seats: number;
+  votes: number;
+  votes_perc: number;
 }>;
 
 export type SeatOptions = {
@@ -118,7 +103,7 @@ type ElectionParams<T> = T extends Candidate
   ? { candidate_name: string }
   : T extends Party
   ? {
-      party_name: string;
+      party: string;
       state: string;
     }
   : T extends Seat

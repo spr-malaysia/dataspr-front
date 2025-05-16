@@ -1,5 +1,5 @@
-import { ElectionResource, Party, PartyResult } from "./types";
-import ElectionCard, { Result } from "@components/Election/ElectionCard";
+import { ElectionResource, Party, PartyResult, PartySummary } from "./types";
+import FullResults, { Result } from "@components/Election/FullResults";
 import { generateSchema } from "@lib/schema/election-explorer";
 import { get } from "@lib/api";
 import {
@@ -9,11 +9,12 @@ import {
   ImageWithFallback,
   Panel,
   Section,
+  Skeleton,
   StateDropdown,
   Tabs,
   toast,
 } from "@components/index";
-import { CountryAndStates } from "@lib/constants";
+import { CountryAndStates, MALAYSIA, STATES } from "@lib/constants";
 import { useCache } from "@hooks/useCache";
 import { useData } from "@hooks/useData";
 import { useFilter } from "@hooks/useFilter";
@@ -21,7 +22,8 @@ import { useTranslation } from "@hooks/useTranslation";
 import { OptionType } from "@lib/types";
 import { Trans } from "next-i18next";
 import dynamic from "next/dynamic";
-import { FunctionComponent } from "react";
+import { FunctionComponent, useEffect } from "react";
+import { useRouter } from "next/router";
 
 /**
  * Parties
@@ -37,7 +39,7 @@ const ElectionTable = dynamic(
 const Toast = dynamic(() => import("@components/Toast"), { ssr: false });
 
 interface ElectionPartiesProps extends ElectionResource<Party> {
-  selection: string[];
+  selection: { party: string }[];
 }
 
 const ElectionPartiesDashboard: FunctionComponent<ElectionPartiesProps> = ({
@@ -49,21 +51,28 @@ const ElectionPartiesDashboard: FunctionComponent<ElectionPartiesProps> = ({
   const { t } = useTranslation(["common", "parties"]);
   const { cache } = useCache();
 
+  const { filter, setFilter } = useFilter({
+    name: params.party,
+    state: params.state,
+  });
+
   const PARTY_OPTIONS: Array<OptionType> = selection.map((option) => ({
-    label: t(option, { ns: "party" }),
-    value: option,
+    label: t(option.party, { ns: "party" }),
+    value: option.party,
   }));
 
   const DEFAULT_PARTY = "PERIKATAN";
   const PARTY_OPTION = PARTY_OPTIONS.find(
-    (e) => e.value === (params.party_name ?? DEFAULT_PARTY)
+    (e) => e.value === (params.party ?? DEFAULT_PARTY)
   );
+  const CURRENT_STATE = filter.state ?? "mys";
 
   const { data, setData } = useData({
     tab_index: 0, // parlimen = 0; dun = 1
     party_option: PARTY_OPTION,
-    party_name: PARTY_OPTION?.label,
+    // party: PARTY_OPTION?.label,
     loading: false,
+    state: CURRENT_STATE,
     parlimen: elections.parlimen,
     dun: elections.dun,
   });
@@ -89,11 +98,14 @@ const ElectionPartiesDashboard: FunctionComponent<ElectionPartiesProps> = ({
       id: "full_result",
       header: "",
       cell: ({ row, getValue }) => {
-        const selection = data.tab_index === 0 ? data.parlimen : data.dun;
-        const item = getValue() as Party;
-        return (
-          <ElectionCard
-            defaultParams={item}
+        const selection =
+          data.tab_index === 0 ? elections.parlimen : elections.dun;
+        return data.loading ? (
+          <Skeleton />
+        ) : (
+          <FullResults
+            options={selection}
+            currentIndex={row.index}
             onChange={(option: Party) =>
               fetchFullResult(option.election_name, option.state)
             }
@@ -114,105 +126,80 @@ const ElectionPartiesDashboard: FunctionComponent<ElectionPartiesProps> = ({
                 header: t("votes_won"),
               },
             ])}
-            options={selection}
-            highlighted={data.party_name}
-            page={row.index}
+            highlighted={
+              data.parti_option ? data.parti_option.value : DEFAULT_PARTY
+            }
           />
         );
       },
     },
   ]);
 
-  const { filter, setFilter } = useFilter({
-    name: params.party_name,
-    state: params.state,
-  });
-
-  const fetchResult = async (
-    party_name: OptionType,
-    state: string
-  ): Promise<Record<"parlimen" | "dun", Party[]>> => {
-    setData("loading", true);
-    setData("party_name", party_name.label);
-    setFilter("name", party_name.value);
-    setFilter("state", state);
-
-    const identifier = `${party_name.value}_${state}`;
-    return new Promise((resolve) => {
-      if (cache.has(identifier)) {
-        setData("loading", false);
-        return resolve(cache.get(identifier));
-      }
-
-      get("/explorer", {
-        explorer: "ELECTIONS",
-        chart: "party",
-        party_name: party_name.value,
-        state,
-      })
-        .then(
-          ({
-            data,
-          }: {
-            data: { data: Record<"parlimen" | "dun", Party[]> };
-          }) => {
-            const party = {
-              parlimen:
-                data.data.parlimen.sort(
-                  (a, b) => Date.parse(b.date) - Date.parse(a.date)
-                ) ?? [],
-              dun:
-                data.data.dun.sort(
-                  (a, b) => Date.parse(b.date) - Date.parse(a.date)
-                ) ?? [],
-            };
-            cache.set(identifier, party);
-            resolve(party);
-            setData("loading", false);
-          }
-        )
-        .catch((e) => {
-          toast.error(t("toast.request_failure"), t("toast.try_again"));
-          console.error(e);
-        });
-    });
-  };
-
   const fetchFullResult = async (
     election: string,
     state: string
   ): Promise<Result<PartyResult>> => {
     const identifier = `${election}_${state}`;
-    return new Promise((resolve) => {
+    return new Promise(async (resolve) => {
       if (cache.has(identifier)) return resolve(cache.get(identifier));
-      get("/explorer", {
-        explorer: "ELECTIONS",
-        chart: "full_result",
-        type: "party",
-        election,
-        state,
-      })
-        .then(({ data }: { data: { data: PartyResult } }) => {
-          const result: Result<PartyResult> = {
-            data: data.data.sort(
-              (a: PartyResult[number], b: PartyResult[number]) => {
-                if (a.seats.won === b.seats.won) {
-                  return b.votes.abs - a.votes.abs;
-                } else {
-                  return b.seats.won - a.seats.won;
-                }
-              }
-            ),
-          };
-          cache.set(identifier, result);
-          resolve(result);
+      const queries = await Promise.allSettled([
+        get("/result_election.json", {
+          election_name: election ?? "GE-15",
+          state: state ?? "Malaysia",
+          election_type: data.tab_index ? "dun" : "parlimen",
+        }),
+        get("/result_election_summary.json", {
+          election_name: election ?? "GE-15",
+          state: state === "Malaysia" ? undefined : state,
+          election_type: data.tab_index ? "dun" : "parlimen",
+        }),
+      ]).catch((e) => {
+        toast.error(t("toast.request_failure"), t("toast.try_again"));
+        throw new Error("Invalid party. Message: " + e);
+      });
+
+      const [{ data: ballot }, { data: ballot_summary }] = queries.map((e) => {
+        if (e.status === "rejected") return {};
+        else return e.value.data;
+      });
+
+      const summary = (ballot_summary as PartySummary[]).reduce(
+        (prev, curr) => ({
+          voter_turnout: prev.voter_turnout + curr.voter_turnout,
+          voter_turnout_perc:
+            (prev.voter_turnout_perc + curr.voter_turnout_perc) / 2,
+          votes_rejected: prev.votes_rejected + curr.votes_rejected,
+          votes_rejected_perc:
+            (prev.votes_rejected_perc + curr.votes_rejected_perc) / 2,
         })
-        .catch((e) => {
-          toast.error(t("toast.request_failure"), t("toast.try_again"));
-          console.error(e);
-        });
+      );
+
+      const result: Result<PartyResult> = {
+        data: ballot,
+        votes: [
+          {
+            x: "voter_turnout",
+            abs: summary.voter_turnout,
+            perc: summary.voter_turnout_perc,
+          },
+          {
+            x: "rejected_votes",
+            abs: summary.votes_rejected,
+            perc: summary.votes_rejected_perc,
+          },
+        ],
+      };
+      cache.set(identifier, result);
+      resolve(result);
     });
   };
+
+  const { events } = useRouter();
+  useEffect(() => {
+    const finishLoading = () => setData("loading", false);
+    events.on("routeChangeComplete", finishLoading);
+    return () => events.off("routeChangeComplete", finishLoading);
+  }, []);
 
   return (
     <>
@@ -254,18 +241,16 @@ const ElectionPartiesDashboard: FunctionComponent<ElectionPartiesProps> = ({
                   selected={
                     data.party_option
                       ? PARTY_OPTIONS.find(
-                          (e) => e.value === data.party_option.value
+                          (e) => e.value === (params.party ?? DEFAULT_PARTY)
                         )
                       : null
                   }
                   onChange={(selected) => {
                     if (selected) {
-                      fetchResult(selected, filter.state ?? "mys").then(
-                        ({ parlimen, dun }) => {
-                          setData("parlimen", parlimen);
-                          setData("dun", dun);
-                        }
-                      );
+                      setData("loading", true);
+                      setData("party", selected.label);
+                      setFilter("name", selected.value);
+                      setFilter("state", data.state);
                     }
                     setData("party_option", selected);
                   }}
@@ -277,28 +262,26 @@ const ElectionPartiesDashboard: FunctionComponent<ElectionPartiesProps> = ({
                     <ImageWithFallback
                       className="border-slate-200 dark:border-zinc-800 mr-2 inline-block rounded border"
                       src={`/static/images/parties/${
-                        filter.name ?? DEFAULT_PARTY
+                        params.party ?? DEFAULT_PARTY
                       }.png`}
                       width={32}
                       height={18}
-                      alt={t(filter.name ?? DEFAULT_PARTY)}
+                      alt={t(params.party ?? DEFAULT_PARTY)}
                       inline
                     />
                     <Trans>
                       {t("title", {
                         ns: "parties",
-                        party: `$t(party:${filter.name ?? DEFAULT_PARTY})`,
+                        party: `$t(party:${params.party ?? DEFAULT_PARTY})`,
                       })}
                     </Trans>
                     <StateDropdown
-                      currentState={filter.state ?? "mys"}
+                      currentState={params.state ?? "mys"}
                       onChange={(selected) => {
-                        fetchResult(data.party_option, selected.value).then(
-                          ({ parlimen, dun }) => {
-                            setData("parlimen", parlimen);
-                            setData("dun", dun);
-                          }
-                        );
+                        setData("loading", true);
+                        setData("state", selected.value);
+                        setFilter("name", data.party_option.value);
+                        setFilter("state", selected.value);
                       }}
                       width="inline-flex ml-0.5"
                       anchor="left"
@@ -311,14 +294,14 @@ const ElectionPartiesDashboard: FunctionComponent<ElectionPartiesProps> = ({
               >
                 <Panel name={t("parlimen")}>
                   <ElectionTable
-                    data={data.parlimen}
+                    data={elections.parlimen}
                     columns={party_schema}
                     isLoading={data.loading}
                     empty={
                       <Trans>
                         {t("no_data", {
                           ns: "parties",
-                          party: `$t(party:${filter.name ?? DEFAULT_PARTY})`,
+                          party: `$t(party:${params.party ?? DEFAULT_PARTY})`,
                           state: CountryAndStates[filter.state],
                           context: "parlimen",
                         })}
@@ -328,7 +311,11 @@ const ElectionPartiesDashboard: FunctionComponent<ElectionPartiesProps> = ({
                 </Panel>
                 <Panel name={t("dun")}>
                   <ElectionTable
-                    data={["mys", null].includes(filter.state) ? [] : data.dun}
+                    data={
+                      ["mys", null].includes(filter.state)
+                        ? []
+                        : elections.dun
+                    }
                     columns={party_schema}
                     isLoading={data.loading}
                     empty={

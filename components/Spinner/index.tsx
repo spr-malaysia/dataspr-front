@@ -19,4 +19,31 @@ const Spinner: FunctionComponent<SpinnerProps> = ({ loading, className }) => {
   );
 };
 
+interface SpinnerBoxProps {
+  className?: string;
+  height?: string;
+  width?: string;
+}
+
+const SpinnerBox: FunctionComponent<SpinnerBoxProps> = ({
+  className,
+  height = "h-full",
+  width = "w-full",
+}) => {
+  return (
+    <div
+      className={clx(
+        "flex items-center justify-center",
+        height,
+        width,
+        className
+      )}
+    >
+      <Spinner loading={true} />
+    </div>
+  );
+};
+
+export { SpinnerBox };
+
 export default Spinner;

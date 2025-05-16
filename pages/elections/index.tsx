@@ -1,6 +1,5 @@
 import Metadata from "@components/Metadata";
 import ElectionExplorerDashboard from "@dashboards/elections";
-import { Party } from "@dashboards/types";
 import { useTranslation } from "@hooks/useTranslation";
 import { get } from "@lib/api";
 import { CountryAndStates } from "@lib/constants";
@@ -43,60 +42,53 @@ export const getServerSideProps: GetServerSideProps = withi18n(
   ["election", "elections", "home", "party"],
   async ({ query }) => {
     try {
-      let [election, state] =
+      const [election, state] =
         Object.keys(query).length === 0
           ? [null, null]
           : [query.election?.toString(), query.state?.toString()];
 
-      election =
-        typeof election === "string" &&
-        typeof state === "string" &&
-        election.startsWith("S") &&
+      const election_type = election?.startsWith("S") ? "dun" : "parlimen";
+
+      const election_name =
+        election?.startsWith("S") &&
         state &&
         ["mys", "kul", "lbn", "pjy"].includes(state) === false
           ? `${CountryAndStates[state]} ${election}`
           : election;
 
-      const [{ data: dropdown }, { data: seats }, { data: table }] =
-        await Promise.all([
-          get("/explorer", {
-            explorer: "ELECTIONS",
-            dropdown: "election_list",
-          }),
-          get("/explorer", {
-            explorer: "ELECTIONS",
-            chart: "overall_seat",
-            election: election ?? "GE-15",
-            state: state ?? "mys",
-          }),
-          get("/explorer", {
-            explorer: "ELECTIONS",
-            chart: "full_result",
-            type: "party",
-            election: election ?? "GE-15",
-            state: state ?? "mys",
-          }),
-        ]).catch((e) => {
-          throw new Error("Invalid election name/state. Message: " + e);
+      const results = await Promise.allSettled([
+        get("/dates.json"),
+        get("/result_election.json", {
+          election_name: election_name ?? "GE-15",
+          state: state ? CountryAndStates[state] : "Malaysia",
+          election_type,
+        }),
+        get("/result_election_summary.json", {
+          election_name: election_name ?? "GE-15",
+          state: state ? CountryAndStates[state] : undefined,
+          election_type,
+        }),
+      ]).catch((e) => {
+        throw new Error("Invalid election name/state. Message: " + e);
+      });
+
+      const [{ data: dropdown }, { data: table }, { data: seats }] =
+        results.map((e) => {
+          if (e.status === "rejected") return {};
+          else return e.value.data;
         });
 
       return {
         props: {
-          last_updated: seats.data_last_updated,
+          // last_updated: seats.data_last_updated,
           meta: {
             id: "elections",
             type: "dashboard",
           },
           params: { election, state },
-          seats: seats.data,
+          seats: seats,
           selection: dropdown ?? [],
-          table: table.data.sort((a: Party, b: Party) => {
-            if (a.seats.won === b.seats.won) {
-              return b.votes.perc - a.votes.perc;
-            } else {
-              return b.seats.won - a.seats.won;
-            }
-          }),
+          table: table,
           choropleth: {},
         },
       };

@@ -12,7 +12,7 @@ import {
   List,
   Panel,
   Section,
-  Skeleton,
+  SpinnerBox,
   Tabs,
 } from "@components/index";
 import { CountryAndStates, PoliticalPartyColours } from "@lib/constants";
@@ -33,20 +33,23 @@ const ElectionTable = dynamic(
   }
 );
 const Choropleth = dynamic(() => import("@charts/choropleth"), {
-  loading: () => <Skeleton height="h-[400px] lg:h-[500px]" width="w-auto"/>,
+  loading: () => <SpinnerBox height="h-[400px] lg:h-[500px]" width="w-auto"/>,
   ssr: false,
 });
 const Waffle = dynamic(() => import("@charts/waffle"), { ssr: false });
 
 interface OverviewProps {
   choropleth: any;
-  filter: any;
+  params: {
+    state: string;
+    election: string;
+  };
   table: PartyResult;
 }
 
 const Overview: FunctionComponent<OverviewProps> = ({
   choropleth,
-  filter,
+  params,
   table,
 }) => {
   const { t } = useTranslation(["common", "elections", "election"]);
@@ -93,8 +96,8 @@ const Overview: FunctionComponent<OverviewProps> = ({
 
   const { data, setData } = useData({
     tab_index: 0,
-    showFullTable: false,
-    table: table,
+    showMore: table.length > 6,
+    isLoading: false,
   });
 
   return (
@@ -112,16 +115,16 @@ const Overview: FunctionComponent<OverviewProps> = ({
                   <h5 className="w-fit">
                     {t("election_of", {
                       ns: "elections",
-                      context: (filter.election ?? "GE-15").startsWith("G")
+                      context: (params.election ?? "GE-15").startsWith("G")
                         ? "parlimen"
                         : "dun",
                     })}
                     <span className="text-primary">
-                      {CountryAndStates[filter.state ?? "mys"]}
+                      {CountryAndStates[params.state ?? "mys"]}
                     </span>
                     <span>: </span>
                     <span className="text-primary">
-                      {t(filter.election ?? "GE-15", { ns: "election" })}
+                      {t(params.election ?? "GE-15", { ns: "election" })}
                     </span>
                   </h5>
                   <div className="flex w-full justify-start sm:w-auto">
@@ -150,8 +153,8 @@ const Overview: FunctionComponent<OverviewProps> = ({
                   >
                     <>
                       <ElectionTable
-                        isLoading={false}
-                        data={data.showFullTable ? table : table.slice(0, 10)}
+                        isLoading={data.isLoading}
+                        data={data.showMore ? table.slice(0, 6) : table}
                         columns={generateSchema<Party>([
                           {
                             key: "party",
@@ -170,10 +173,10 @@ const Overview: FunctionComponent<OverviewProps> = ({
                           },
                         ])}
                       />
-                      {data.showFullTable !== true && (
+                      {data.showMore && (
                         <Button
                           className="btn-default mx-auto mt-6"
-                          onClick={() => setData("showFullTable", true)}
+                          onClick={() => setData("showMore", false)}
                         >
                           {t("show_more", { ns: "elections" })}
                         </Button>
@@ -188,7 +191,7 @@ const Overview: FunctionComponent<OverviewProps> = ({
                       <Choropleth
                         className="h-[400px] w-auto lg:h-[500px]"
                         type={
-                          (filter.election ?? "GE-15").startsWith("S")
+                          (params.election ?? "GE-15").startsWith("S")
                             ? "dun"
                             : "parlimen"
                         }

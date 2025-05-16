@@ -1,4 +1,4 @@
-import { BaseResult, OverallSeat, SeatResult } from "../types";
+import { BaseResult, OverallSeat } from "../types";
 import { Won } from "@components/Election/ResultBadge";
 import ElectionTable from "@components/Election/ElectionTable";
 import { Dialog, Transition } from "@headlessui/react";
@@ -14,30 +14,22 @@ import {
   Section,
   toast,
 } from "@components/index";
-import { body } from "@lib/configs/font";
 import { clx, numFormat, toDate } from "@lib/helpers";
 import { useCache } from "@hooks/useCache";
 import { useData } from "@hooks/useData";
 import { useTranslation } from "@hooks/useTranslation";
 import {
-  CSSProperties,
   Fragment,
   FunctionComponent,
   useEffect,
-  useMemo,
   useRef,
   useState,
 } from "react";
-import AutoSizer from "react-virtualized-auto-sizer";
-import { FixedSizeList as List, FixedSizeGrid as Grid } from "react-window";
-import dynamic from "next/dynamic";
 
 /**
  * Election Explorer - Ballot Seat
  * @overview Status: In-development
  */
-
-const Toast = dynamic(() => import("@components/Toast"), { ssr: false });
 
 interface BallotSeatProps {
   seats: OverallSeat[];
@@ -52,12 +44,12 @@ const BallotSeat: FunctionComponent<BallotSeatProps> = ({
 }) => {
   const { t, i18n } = useTranslation(["common", "elections", "home"]);
   const { cache } = useCache();
-  const listRef = useRef<List>(null);
-  const gridRef = useRef<Grid>(null);
+  const scrollRef = useRef<Record<string, HTMLDivElement | null>>({});
 
   const [show, setShow] = useState<boolean>(false);
   const { data, setData } = useData({
-    seat: undefined,
+    seat: seats[0],
+    search_seat: seats[0],
     seat_loading: false,
     seat_result: {
       data: [],
@@ -65,50 +57,67 @@ const BallotSeat: FunctionComponent<BallotSeatProps> = ({
     },
   });
 
-  const fetchSeatResult = (seat: string) => {
+  const fetchSeatResult = async (seat: string) => {
     if (!election) return;
-    const identifier = `${election}-${state}-${seat}`;
+    const identifier = `${state}-${election}-${seat}`;
     if (cache.has(identifier))
       return setData("seat_result", cache.get(identifier));
     else {
       setData("seat_loading", true);
-      get("/explorer", {
-        explorer: "ELECTIONS",
-        chart: "full_result",
-        type: "candidates",
-        election,
-        seat,
-      })
-        .then(({ data }: { data: { data: SeatResult } }) => {
-          const data2 = data.data;
-          const result = {
-            data: data2.data.sort((a, b) => b.votes.abs - a.votes.abs),
-            votes: [
-              {
-                x: "majority",
-                abs: data2.votes.majority,
-                perc: data2.votes.majority_perc,
-              },
-              {
-                x: "voter_turnout",
-                abs: data2.votes.voter_turnout,
-                perc: data2.votes.voter_turnout_perc,
-              },
-              {
-                x: "rejected_votes",
-                abs: data2.votes.votes_rejected,
-                perc: data2.votes.votes_rejected_perc,
-              },
-            ],
-          };
-          cache.set(identifier, result);
-          setData("seat_result", result);
-          setData("seat_loading", false);
-        })
-        .catch((e) => {
-          toast.error(t("toast.request_failure"), t("toast.try_again"));
-          console.error(e);
-        });
+      const election_name =
+        election.startsWith("S") &&
+        state &&
+        [
+          "Malaysia",
+          "W.P. Kuala Lumpur",
+          "W.P. Labuan",
+          "W.P. Putrajaya",
+        ].includes(state) === false
+          ? `${state} ${election}`
+          : election;
+      const results = await Promise.allSettled([
+        get("/result_ballot.json", {
+          election: election_name,
+          seat,
+        }),
+        get("/result_ballot_summary.json", {
+          election: election_name,
+          seat,
+        }),
+      ]).catch((e) => {
+        toast.error(t("toast.request_failure"), t("toast.try_again"));
+        throw new Error("Invalid election or seat. Message: " + e);
+      });
+
+      const [{ data: ballot }, { data: ballot_summary }] = results.map((e) => {
+        if (e.status === "rejected") return {};
+        else return e.value.data;
+      });
+      const summary = ballot_summary[0];
+
+      const result = {
+        data: ballot,
+        votes: [
+          {
+            x: "majority",
+            abs: summary.majority,
+            perc: summary.majority_perc,
+          },
+          {
+            x: "voter_turnout",
+            abs: summary.voter_turnout,
+            perc: summary.voter_turnout_perc,
+          },
+          {
+            x: "rejected_votes",
+            abs: summary.votes_rejected,
+            perc: summary.votes_rejected_perc,
+          },
+        ],
+      };
+      cache.set(identifier, result);
+      setData("seat_result", result);
+      setData("seat_loading", false);
     }
   };
 
@@ -116,117 +125,26 @@ const BallotSeat: FunctionComponent<BallotSeatProps> = ({
     if (seats.length > 0) fetchSeatResult(seats[0].seat);
   }, [seats]);
 
-  const seat_info = useMemo<{
-    name: string;
-    area: string;
-    state: string;
-    date: string;
-  }>(() => {
-    if (data.seat_result.data.length <= 0)
-      return {
-        name: "",
-        area: "",
-        state: "",
-        date: "",
-      };
-
-    const [area, state] = data.seat_result.data[0].seat.split(",");
-
-    return {
-      name: data.seat_result.data[0].election_name,
-      area,
-      state,
-      date: toDate(data.seat_result.data[0].date, "dd MMM yyyy", i18n.language),
-    };
-  }, [data.seat_result, seats]);
-
   const SEAT_OPTIONS = seats.map((seat) => ({
     label: seat.seat,
     value: seat.seat,
   }));
 
-  const OverallResultCard = ({ seat }: { seat: OverallSeat }) => {
-    return (
-      <div
-        className={clx(
-          `border-slate-200 dark:border-zinc-800 lg:hover:border-slate-400 lg:dark:hover:border-zinc-700 lg:active:bg-slate-100 flex h-full w-full flex-col gap-2
-        rounded-xl border bg-white p-3 text-sm focus:outline-none dark:bg-zinc-900 lg:hover:dark:bg-zinc-900/50 lg:active:dark:bg-zinc-900`,
-          data.seat &&
-            seat.seat === data.seat &&
-            "lg:ring-primary lg:dark:ring-primary-dark lg:ring-1 lg:hover:border-transparent"
-        )}
-        onClick={() => {
-          setData("seat", seat.seat);
-          fetchSeatResult(seat.seat);
-        }}
-      >
-        <div className="flex justify-between">
-          <div className="flex w-[224px] gap-2">
-            <span className="text-zinc-500 text-sm font-medium">
-              {seat.seat.slice(0, 5)}
-            </span>
-            <span className="truncate">{seat.seat.slice(5)}</span>
-          </div>
-
-          <button
-            className="text-zinc-500 flex flex-row items-center text-sm font-medium hover:text-zinc-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 dark:hover:text-white lg:hidden"
-            onClick={() => {
-              setShow(true);
-            }}
-          >
-            <ArrowsPointingOutIcon className="h-4 w-4" />
-          </button>
-        </div>
-        <div className="flex h-8 items-center gap-1.5">
-          <ImageWithFallback
-            className="border-slate-200 dark:border-zinc-800 rounded border"
-            src={`/static/images/parties/${seat.party}.png`}
-            width={32}
-            height={18}
-            alt={t(`${seat.party}`)}
-            style={{
-              width: "auto",
-              maxWidth: "32px",
-              height: "auto",
-              maxHeight: "32px",
-            }}
-          />
-          <span className="truncate font-medium">{`${seat.name} `}</span>
-          <span>{`(${seat.party})`}</span>
-          <Won />
-        </div>
-        <div className="flex items-center gap-1.5">
-          <p className="text-zinc-500 text-sm">{t("majority")}</p>
-          <BarPerc
-            hidden
-            value={seat.majority.perc}
-            size="h-[5px] w-[30px] xl:w-[50px]"
-          />
-          <span>
-            {seat.majority.abs === null
-              ? `—`
-              : numFormat(seat.majority.abs, "standard")}
-            {seat.majority.perc === null
-              ? ` (—)`
-              : ` (${numFormat(seat.majority.perc, "compact", 1)}%)`}
-          </span>
-        </div>
-      </div>
-    );
-  };
-
   const BallotCard = () => {
+    const [area, state] = data.seat.seat.split(",");
+    const date = toDate(data.seat.date, "dd MMM yyyy", i18n.language);
+
     return (
       <div className="space-y-8 overflow-y-auto">
         <div className="flex items-start gap-4 lg:items-center">
           <div className="space-y-2">
             <div className="mr-6 flex flex-wrap gap-x-3 uppercase">
-              <h5>{seat_info.area}</h5>
-              <p className="text-zinc-500 text-lg">{seat_info.state}</p>
+              <h5>{area}</h5>
+              <p className="text-zinc-500 text-lg">{state}</p>
             </div>
             <div className="flex flex-wrap items-center gap-x-3">
-              <p>{t(`${seat_info.name.slice(-5)}`)}</p>
-              <p className="text-zinc-500">{seat_info.date}</p>
+              <p>{t(`${election?.slice(-5)}`)}</p>
+              <p className="text-zinc-500">{date}</p>
             </div>
           </div>
         </div>
@@ -290,7 +208,6 @@ const BallotSeat: FunctionComponent<BallotSeatProps> = ({
 
   return (
     <Section>
-      <Toast />
       <div className="grid grid-cols-12">
         <div className="col-span-full col-start-1 space-y-12 xl:col-span-10 xl:col-start-2">
           <div className="space-y-6">
@@ -308,105 +225,121 @@ const BallotSeat: FunctionComponent<BallotSeatProps> = ({
                       placeholder={t("home:search_seat")}
                       options={SEAT_OPTIONS}
                       selected={
-                        data.seat
-                          ? SEAT_OPTIONS.find((e) => e.value === data.seat)
+                        data.search_seat
+                          ? SEAT_OPTIONS.find(
+                              (e) => e.value === data.search_seat
+                            )
                           : null
                       }
                       onChange={(selected) => {
                         if (selected) {
                           fetchSeatResult(selected.value);
-                          setData("seat", selected.value);
-                        } else {
-                          setData("seat", null);
-                        }
-
-                        const index = SEAT_OPTIONS.findIndex(
-                          (e) => e === selected
-                        );
-                        if (listRef && listRef.current)
-                          listRef.current.scrollToItem(index, "smart");
-                        if (gridRef && gridRef.current)
-                          gridRef.current.scrollToItem({
-                            align: "start",
-                            columnIndex: Math.floor(index / 2),
+                          setData(
+                            "seat",
+                            seats.find((e) => e.seat === selected.value)
+                          );
+                          setData("search_seat", selected.value);
+                          scrollRef.current[selected.value]?.scrollIntoView({
+                            behavior: "smooth",
+                            block: "center",
+                            inline: "end",
                           });
+                        }
+                        setData("search_seat", selected);
                       }}
                     />
                   </div>
                   {election && (
-                    <>
-                      <List
-                        ref={listRef}
-                        height={489}
-                        width={"100%"}
-                        itemCount={seats.length}
-                        itemSize={126}
-                        layout="vertical"
-                        className="hidden lg:flex"
-                      >
-                        {({
-                          index,
-                          style,
-                        }: {
-                          index: number;
-                          style: CSSProperties;
-                        }) => {
-                          return (
-                            <div
-                              style={style}
-                              key={index}
-                              className="px-1.5 pt-3"
-                            >
-                              <OverallResultCard seat={seats[index]} />
+                    <div className="grid lg:flex lg:flex-col grid-flow-col grid-rows-3 h-[394px] lg:h-full overflow-x-auto lg:overflow-y-auto">
+                      {seats.map((seat) => (
+                        <div
+                          ref={(ref) => {
+                            scrollRef && (scrollRef.current[seat.seat] = ref);
+                          }}
+                          key={seat.seat}
+                          className="pl-px pr-3 pt-3"
+                        >
+                          <div
+                            className={clx(
+                              "flex flex-col h-full w-full gap-2 p-3 text-sm",
+                              "bg-white dark:bg-zinc-900 lg:hover:dark:bg-zinc-900/50 lg:active:bg-slate-100 lg:active:dark:bg-zinc-900",
+                              "border border-slate-200 dark:border-zinc-800 lg:hover:border-slate-400 lg:dark:hover:border-zinc-700",
+                              "rounded-xl focus:outline-none",
+                              data.seat &&
+                                seat.seat === data.seat.seat &&
+                                "lg:ring-primary lg:dark:ring-primary-dark lg:ring-1 lg:hover:border-transparent"
+                            )}
+                            onClick={() => {
+                              setData("seat", seat);
+                              setData("search_seat", seat.seat);
+                              fetchSeatResult(seat.seat);
+                            }}
+                          >
+                            <div className="flex justify-between">
+                              <div className="flex w-[224px] gap-2">
+                                <span className="text-zinc-500 text-sm font-medium">
+                                  {seat.seat.slice(0, 5)}
+                                </span>
+                                <span className="truncate">
+                                  {seat.seat.slice(5)}
+                                </span>
+                              </div>
+
+                              <button
+                                className="text-zinc-500 flex flex-row items-center text-sm font-medium hover:text-zinc-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 dark:hover:text-white lg:hidden"
+                                onClick={() => {
+                                  setShow(true);
+                                }}
+                              >
+                                <ArrowsPointingOutIcon className="h-4 w-4" />
+                              </button>
                             </div>
-                          );
-                        }}
-                      </List>
-                      <div className="flex h-[394px] lg:hidden">
-                        <AutoSizer>
-                          {({
-                            height,
-                            width,
-                          }: {
-                            height: number;
-                            width: number;
-                          }) => (
-                            <Grid
-                              ref={gridRef}
-                              rowCount={3}
-                              columnCount={Math.ceil(seats.length / 3)}
-                              height={height}
-                              rowHeight={126}
-                              width={width}
-                              columnWidth={288}
-                            >
-                              {({
-                                rowIndex,
-                                columnIndex,
-                                style,
-                              }: {
-                                rowIndex: number;
-                                columnIndex: number;
-                                style: CSSProperties;
-                              }) => {
-                                const seat = seats[columnIndex * 3 + rowIndex];
-                                return seat ? (
-                                  <div
-                                    style={style}
-                                    key={seat.seat}
-                                    className="px-1.5 pt-3"
-                                  >
-                                    <OverallResultCard seat={seat} />
-                                  </div>
-                                ) : (
-                                  <></>
-                                );
-                              }}
-                            </Grid>
-                          )}
-                        </AutoSizer>
-                      </div>
-                    </>
+
+                            <div className="flex h-8 items-center gap-1.5">
+                              <ImageWithFallback
+                                className="border-slate-200 dark:border-zinc-800 rounded border"
+                                src={`/static/images/parties/${seat.party}.png`}
+                                width={32}
+                                height={18}
+                                alt={t(`${seat.party}`)}
+                                style={{
+                                  width: "auto",
+                                  maxWidth: "32px",
+                                  height: "auto",
+                                  maxHeight: "32px",
+                                }}
+                              />
+                              <span className="truncate font-medium">{`${seat.name} `}</span>
+                              <span>{`(${seat.party})`}</span>
+                              <Won />
+                            </div>
+
+                            <div className="flex items-center gap-1.5">
+                              <p className="text-zinc-500 text-sm">
+                                {t("majority")}
+                              </p>
+                              <BarPerc
+                                hidden
+                                value={seat.majority_perc}
+                                size="h-[5px] w-[30px] xl:w-[50px]"
+                              />
+                              <span>
+                                {seat.majority === null
+                                  ? `—`
+                                  : numFormat(seat.majority, "standard")}
+                                {seat.majority_perc === null
+                                  ? ` (—)`
+                                  : ` (${numFormat(
+                                      seat.majority_perc,
+                                      "compact",
+                                      1
+                                    )}%)`}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
                   )}
                 </div>
               }
@@ -455,8 +388,7 @@ const BallotSeat: FunctionComponent<BallotSeatProps> = ({
               >
                 <Dialog.Panel
                   className={clx(
-                    body.variable,
-                    "border-slate-200 dark:border-zinc-700 w-full max-w-4xl transform rounded-xl border bg-white p-6 text-left align-middle font-sans shadow-xl transition-all dark:bg-zinc-900"
+                    "border-slate-200 dark:border-zinc-700 w-full max-w-4xl transform rounded-xl border bg-white p-6 text-left align-middle shadow-xl transition-all dark:bg-zinc-900"
                   )}
                 >
                   <BallotCard />

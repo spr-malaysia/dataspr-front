@@ -1,30 +1,19 @@
 import { clx } from "@lib/helpers";
-import { FunctionComponent } from "react";
-import { Spinner } from "..";
 
-interface SkeletonProps {
-  className?: string;
-  height?: string;
-  width?: string;
-}
-
-const Skeleton: FunctionComponent<SkeletonProps> = ({
+function Skeleton({
   className,
-  height = "h-full",
-  width = "w-full",
-}) => {
+  ...props
+}: React.HTMLAttributes<HTMLDivElement>) {
   return (
     <div
       className={clx(
-        "flex items-center justify-center",
-        height,
-        width,
+        "h-4 w-full animate-bg-gradient-flow rounded-full bg-gradient-to-r",
+        "from-0% to-100% from-slate-100 to-slate-200 dark:from-zinc-800 dark:to-zinc-700",
         className
       )}
-    >
-      <Spinner loading={true} />
-    </div>
+      {...props}
+    />
   );
-};
+}
 
 export default Skeleton;
