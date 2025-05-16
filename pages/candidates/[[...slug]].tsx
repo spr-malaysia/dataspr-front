@@ -50,7 +50,7 @@ export const getStaticProps: GetStaticProps = withi18n(
       const results = await Promise.allSettled([
         get("/dropdown_candidates.json"),
         get("/query_candidate.json", {
-          slug: slug ?? "tunku-abdul-rahman-putra-alhaj",
+          slug: slug ?? "01426",
         }),
       ]);
 

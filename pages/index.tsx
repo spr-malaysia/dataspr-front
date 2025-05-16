@@ -33,7 +33,7 @@ export const getStaticProps: GetStaticProps = withi18n(
   ["home", "election"],
   async () => {
     try {
-      const slug = "padang-besar-perlis";
+      const slug = "kuala-selangor-selangor";
       const type = "parlimen";
       const results = await Promise.allSettled([
         get("/dropdown_seats.json"),
