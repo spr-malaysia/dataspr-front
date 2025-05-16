@@ -77,7 +77,7 @@ const Sidebar: FunctionComponent<SidebarProps> = ({ children, categories, onSele
         {/* Mobile */}
         <div className="relative w-full">
           <>
-            <div className="absolute top-20 block lg:hidden">
+            <div className="absolute top-[72px] block lg:hidden">
               <Button
                 className="btn-default sticky top-36 z-10"
                 icon={<Bars3BottomLeftIcon className="h-4 w-4" />}
