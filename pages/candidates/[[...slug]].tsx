@@ -42,7 +42,7 @@ export const getStaticPaths: GetStaticPaths = () => {
 };
 
 export const getStaticProps: GetStaticProps = withi18n(
-  "candidates",
+  ["candidates", "election"],
   async ({ params }) => {
     try {
       const slug = params && params.slug ? params.slug.toString() : null;

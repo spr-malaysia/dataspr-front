@@ -96,9 +96,7 @@ const ElectionTable: FunctionComponent<ElectionTableProps> = ({
                   tabIndex={0}
                   onClick={open}
                 >
-                  {value === "By-Election"
-                    ? t(`election:${value}`)
-                    : value.slice(0, -5) + t(`election:${value.slice(-5)}`)}
+                  {t(`election:${value}`)}
                 </div>
               )}
             </Tooltip>
@@ -224,9 +222,7 @@ const ElectionTable: FunctionComponent<ElectionTableProps> = ({
         return (
           <div className="flex flex-wrap gap-x-3 text-sm">
             <p className="font-medium">
-              {value === "By-Election"
-                ? t(`election:${value}`)
-                : value.slice(0, -5) + t(`election:${value.slice(-5)}`)}
+              {t(`election:${value}`)}
             </p>
             {cell.row.original.date && (
               <p className="text-zinc-500">

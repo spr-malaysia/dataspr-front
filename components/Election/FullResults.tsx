@@ -79,7 +79,7 @@ const FullResults = <T extends Candidate | Party | Seat>({
 
   const getData = (obj: Candidate | Party | Seat) => {
     setData("date", toDate(obj.date, "dd MMM yyyy", i18n.language));
-    setData("election_name", obj.election_name.slice(-5));
+    setData("election_name", obj.election_name);
     if ("seat" in obj) {
       const matches = obj.seat.split(",");
       setData("area", matches[0]);
@@ -209,7 +209,7 @@ const FullResults = <T extends Candidate | Party | Seat>({
               <div className="flex flex-wrap gap-x-2 text-lg">
                 <h5>
                   {isParty
-                    ? t(data.election_name, { ns: "elections" })
+                    ? t(data.election_name, { ns: "election" })
                     : data.area}
                 </h5>
                 <span className="text-zinc-500">
