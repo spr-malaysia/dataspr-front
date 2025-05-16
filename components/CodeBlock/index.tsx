@@ -83,7 +83,7 @@ const CodeBlock: FunctionComponent<CodeBlockProps> = ({ children, hidden, event,
   });
 
   const [language, setLanguage] = useState<(typeof LANGUAGE_OPTIONS)[number]>(languageOptions[0]);
-  const [copyText, setCopyText] = useState<string>(t("common.copy"));
+  const [copyText, setCopyText] = useState<string>(t("copy"));
 
   useEffect(() => {
     const head = document.head;
@@ -105,9 +105,9 @@ const CodeBlock: FunctionComponent<CodeBlockProps> = ({ children, hidden, event,
   const handleCopy = () => {
     track("code_copy", { language: language.value, ...event });
     copyClipboard(children[language.value] ?? "");
-    setCopyText(t("common.copied"));
+    setCopyText(t("copied"));
     setTimeout(() => {
-      setCopyText(t("common.copy"));
+      setCopyText(t("copy"));
     }, 1000);
   };
   return (

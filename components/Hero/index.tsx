@@ -1,7 +1,7 @@
 import { FunctionComponent, ReactNode, useContext, useMemo } from "react";
 import Container from "@components/Container";
 import { clx, numFormat, toDate } from "@lib/helpers";
-import { Trans, useTranslation } from "next-i18next";
+import { useTranslation } from "next-i18next";
 import { AnalyticsContext } from "@lib/contexts/analytics";
 import { EyeIcon } from "@heroicons/react/20/solid";
 
@@ -79,7 +79,7 @@ const Hero: FunctionComponent<HeroProps> = ({
                     className={clx("text-base font-semibold uppercase", category[1])}
                     data-testid="hero-category"
                   >
-                    {t(category[0])}
+                    {category[0]}
                   </span>
                 )}
               </div>
@@ -98,7 +98,7 @@ const Hero: FunctionComponent<HeroProps> = ({
                     className={clx("text-zinc-500 max-xl:max-w-prose xl:w-2/3", description[1])}
                     data-testid="hero-description"
                   >
-                    <Trans>{description[0]}</Trans>
+                    {description[0]}
                   </p>
                 ) : (
                   description

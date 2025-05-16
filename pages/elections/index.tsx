@@ -38,7 +38,7 @@ const ElectionExplorerIndex: Page = ({
 };
 
 export const getServerSideProps: GetServerSideProps = withi18n(
-  ["elections", "home"],
+  ["election", "elections", "home"],
   async ({ query }) => {
     try {
       let [election, state] =
