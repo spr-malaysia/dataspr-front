@@ -20,7 +20,7 @@ import { XMarkIcon } from "@heroicons/react/24/solid";
 import { useCache } from "@hooks/useCache";
 import { useData } from "@hooks/useData";
 import { useTranslation } from "@hooks/useTranslation";
-import { get } from "@lib/api";
+import { getNew } from "@lib/api";
 import { CountryAndStates } from "@lib/constants";
 import { clx, numFormat, toDate } from "@lib/helpers";
 import { generateSchema } from "@lib/schema/election-explorer";
@@ -87,14 +87,8 @@ const BallotSeat: FunctionComponent<BallotSeatProps> = ({
     else {
       setData("loading", true);
       const responses = await Promise.allSettled([
-        get("/result_ballot.json", {
-          election,
-          seat,
-        }),
-        get("/result_ballot_summary.json", {
-          election,
-          seat,
-        }),
+        getNew(`/results/${encodeURIComponent(seat)}/${election}.json`),
+        getNew(`/results/${encodeURIComponent(seat)}/${election}-summary.json`),
       ]).catch((e) => {
         toast.error(t("toast.request_failure"), t("toast.try_again"));
         throw new Error("Invalid election or seat. Message: " + e);
