@@ -3,7 +3,7 @@ import { useEffect, useRef } from "react";
  * Language switcher hook.
  * @returns Page with current language
  */
-export const useScrollIntersect = (target: Element | null, className: string) => {
+export const useScrollIntersect = (target: Element | null, className: string[]) => {
   const observer = useRef<IntersectionObserver | null>(null);
 
   useEffect(() => {
@@ -14,9 +14,9 @@ export const useScrollIntersect = (target: Element | null, className: string) =>
 
     observer.current = new IntersectionObserver(([entry]) => {
       if (!entry.isIntersecting) {
-        target?.classList.add(className);
+        target?.classList.add(...className);
       } else {
-        target?.classList.remove(className);
+        target?.classList.remove(...className);
       }
     });
     const { current: currentObserver } = observer;
