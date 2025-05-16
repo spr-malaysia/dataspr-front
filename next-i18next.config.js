@@ -25,7 +25,7 @@ const defineConfig = (namespace, autoloadNs) => {
         allowMultiLoading: true,
       },
     },
-    debug: process.env.NEXT_PUBLIC_APP_ENV === "staging",
+    debug: false,
     ns: namespace,
     autoloadNs: autoloadNs,
     load: "currentOnly",
