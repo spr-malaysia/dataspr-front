@@ -1,9 +1,27 @@
-import { MapControl, MapControlRef, blueMarker, redMarker } from "@hooks/useMap";
+import {
+  MapControl,
+  MapControlRef,
+  blueMarker,
+  redMarker,
+} from "@hooks/useMap";
 import type { GeoJsonObject } from "geojson";
 import { LatLng, LatLngBounds, LatLngTuple } from "leaflet";
 import { useTheme } from "next-themes";
-import { ForwardedRef, FunctionComponent, useEffect, useImperativeHandle, useRef } from "react";
-import { MapContainer, Marker, Popup, TileLayer, useMap, GeoJSON } from "react-leaflet";
+import {
+  ForwardedRef,
+  FunctionComponent,
+  useEffect,
+  useImperativeHandle,
+  useRef,
+} from "react";
+import {
+  MapContainer,
+  Marker,
+  Popup,
+  TileLayer,
+  useMap,
+  GeoJSON,
+} from "react-leaflet";
 import Markercluster from "./markercluster";
 import bbox from "geojson-bbox";
 import L from "leaflet";
@@ -42,7 +60,7 @@ const MapPlot: FunctionComponent<MapPlotProps> = ({
   tileTheme,
   enableZoom = true,
   zoom = 5,
-  markers,
+  markers = dummy,
   geojson,
   _ref,
 }) => {
@@ -111,18 +129,25 @@ const MapPlot: FunctionComponent<MapPlotProps> = ({
       />
 
       {markers && (
-        <Markercluster chunkedLoading removeOutsideVisibleBounds chunkDelay={0} chunkInterval={50}>
+        <Markercluster
+          chunkedLoading
+          removeOutsideVisibleBounds
+          chunkDelay={0}
+          chunkInterval={50}
+        >
           {markers.map((item: MarkerDatum, index) => {
             return (
               <Marker
                 key={index}
                 position={item.position}
-                eventHandlers={{
-                  click: item.onMarkerClick,
-                }}
+                eventHandlers={
+                  item.onMarkerClick && {
+                    click: item.onMarkerClick,
+                  }
+                }
                 icon={item.icon === "red" ? redMarker : blueMarker}
               >
-                <Popup>{printMarker(item)}</Popup>
+                <Popup>{printMarker(item.tooltip)}</Popup>
               </Marker>
             );
           })}
