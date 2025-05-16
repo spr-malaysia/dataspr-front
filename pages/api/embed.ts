@@ -18,7 +18,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
       ...query,
     });
 
-    return res.json({
+    return res
+    .setHeader("Cache-Control", "public, s-maxage=21600, stale-while-revalidate=21600") // 30 min
+    .json({
       params: {
         id: id ?? null,
       },

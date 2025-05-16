@@ -90,7 +90,7 @@ const CatalogueLine = dynamic(() => import("@charts/partials/line"), {
 });
 
 interface CatalogueShowProps {
-  options: OptionType[];
+  options: string[];
   params: {
     id: string;
   };
@@ -142,7 +142,11 @@ const CatalogueShow: FunctionComponent<CatalogueShowProps> = ({
   catalogueId,
 }) => {
   const { t, i18n } = useTranslation(["catalogue", "common"]);
-  const [show, setShow] = useState<OptionType>(options[0]);
+  const availableOptions: OptionType[] = options.map(value => ({
+    label: t(value),
+    value: value,
+  }));
+  const [show, setShow] = useState<OptionType>(availableOptions[0]);
   const [downloads, setDownloads] = useState<DownloadOptions>({
     chart: [],
     data: [],
@@ -394,8 +398,8 @@ const CatalogueShow: FunctionComponent<CatalogueShowProps> = ({
               <Dropdown
                 className="w-fit"
                 sublabel={<EyeIcon className="h-4 w-4" />}
-                selected={show}
-                options={options}
+                selected={availableOptions.find(e => e.value === show.value)}
+                options={availableOptions}
                 onChange={(e) => setShow(e)}
               />
               <Dropdown

@@ -52,7 +52,6 @@ const CatalogueLine = dynamic(() => import("@charts/partials/line"), {
 });
 
 interface CatalogueWidgetProps {
-  options: OptionType[];
   params: {
     id: string;
     theme: string;
