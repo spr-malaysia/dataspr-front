@@ -14,7 +14,7 @@ const Footer = () => {
           <div>
             <div className="mb-2 font-bold">ElectionData.MY</div>
             <p className="text-zinc-500 text-sm">
-              © {new Date().getFullYear()} {t("footer.copyright")}
+              {t("footer.copyright")}
             </p>
           </div>
         </div>
