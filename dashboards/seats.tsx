@@ -291,7 +291,7 @@ const ElectionSeatsDashboard: FunctionComponent<ElectionSeatsProps> = ({
                     <span className="text-primary">{data.seat_name}</span>
                   </h5>
                 }
-                // data={data.elections}
+                data={data.elections}
                 columns={seat_schema}
                 isLoading={data.loading}
               />
