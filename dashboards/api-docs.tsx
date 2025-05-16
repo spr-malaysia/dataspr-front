@@ -9,14 +9,14 @@ import { FunctionComponent } from "react";
  */
 
 const APIDocsDashboard: FunctionComponent = () => {
-  const { t } = useTranslation(["dashboard-election-explorer", "common"]);
+  const { t } = useTranslation(["common"]);
   const { data, setData } = useData({});
 
   return (
     <>
       <Hero
         background="red"
-        category={[t("common:categories.democracy"), "text-danger"]}
+        category={[t("category"), "text-danger"]}
         header={[t("header")]}
         description={[t("description")]}
       />

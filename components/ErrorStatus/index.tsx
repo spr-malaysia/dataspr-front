@@ -1,4 +1,4 @@
-import { useTranslation } from "next-i18next";
+import { useTranslation } from "@hooks/useTranslation";
 import { FunctionComponent } from "react";
 import useConfig from "next/config";
 
@@ -10,7 +10,7 @@ interface ErrorStatusProps {
 }
 
 const ErrorStatus: FunctionComponent<ErrorStatusProps> = ({ title, description, code, reason }) => {
-  const { t } = useTranslation();
+  const { t } = useTranslation("error");
   const {
     publicRuntimeConfig: { APP_NAME },
   } = useConfig();
@@ -27,7 +27,7 @@ const ErrorStatus: FunctionComponent<ErrorStatusProps> = ({ title, description, 
         </div>
         <div>
           <p className="text-zinc-500 pb-2 text-sm font-bold uppercase dark:text-white">
-            {t("common:error.output")}
+            {t("output")}
           </p>
           <div className="bg-slate-100 dark:bg-[#121212] rounded-xl">
             <div className="p-4.5 font-mono text-sm text-zinc-900 dark:text-white">
@@ -40,8 +40,8 @@ const ErrorStatus: FunctionComponent<ErrorStatusProps> = ({ title, description, 
             </div>
           </div>
 
-          <small className="text-xs">
-            <i>{t("common:error.disclaimer")}</i>
+          <small className="text-xs text-zinc-500 dark:text-white">
+            <i>{t("disclaimer")}</i>
           </small>
         </div>
       </div>

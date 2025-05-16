@@ -4,13 +4,15 @@ declare namespace NodeJS {
     APP_ENV: string;
     NEXT_PUBLIC_APP_URL: string;
     NEXT_PUBLIC_APP_ENV: string;
+    NEXT_PUBLIC_API_URL: string;
     NEXT_PUBLIC_AI_URL: string;
+    NEXT_PUBLIC_I18N_URL: string;
+    NEXT_PUBLIC_AUTHORIZATION_TOKEN: string;
+
     REVALIDATE_TOKEN: string;
     AUTH_TOKEN: string;
     ANALYZE: boolean;
 
-    NEXT_PUBLIC_AUTHORIZATION_TOKEN: string;
-    NEXT_PUBLIC_API_URL: string;
     NEXT_PUBLIC_TILESERVER_URL: string;
     NEXT_PUBLIC_GA_TAG: string;
 

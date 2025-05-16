@@ -10,7 +10,7 @@ interface HeaderProps {
 }
 
 const Header: FunctionComponent<HeaderProps> = ({ stateSelector }) => {
-  const { t } = useTranslation("common");
+  const { t } = useTranslation();
 
   return (
     <div className="dark:border-zinc-800 fixed left-0 top-0 z-30 w-full border-b">
@@ -38,24 +38,24 @@ const Header: FunctionComponent<HeaderProps> = ({ stateSelector }) => {
               <>
                 <Nav.Item
                   key={"/"}
-                  title={t("common:nav.home")}
+                  title={t("nav.home")}
                   link="/"
                   onClick={close}
                 />
                 <Nav.Item
-                  title={t("dashboard-election-explorer:elections")}
+                  title={t("nav.elections")}
                   link="/elections"
                   key="/elections"
                   onClick={close}
                 />
                 <Nav.Item
-                  title={t("dashboard-election-explorer:candidates")}
+                  title={t("nav.candidates")}
                   link="/candidates"
                   key="/candidates"
                   onClick={close}
                 />
                 <Nav.Item
-                  title={t("dashboard-election-explorer:parties")}
+                  title={t("nav.parties")}
                   link="/parties"
                   key="/parties"
                   onClick={close}
@@ -67,13 +67,13 @@ const Header: FunctionComponent<HeaderProps> = ({ stateSelector }) => {
                   onClick={close}
                 />
                 <Nav.Item
-                  title={t("common:nav.catalogue")}
+                  title={t("nav.catalogue")}
                   key="/data-catalogue"
                   link="/data-catalogue"
                   onClick={close}
                 />
                 <Nav.Item
-                  title={t("common:nav.api_docs")}
+                  title={t("nav.api_docs")}
                   key="api_docs"
                   link="/api-docs"
                   onClick={close}

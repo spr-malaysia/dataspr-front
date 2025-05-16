@@ -262,7 +262,7 @@ const CatalogueShow: FunctionComponent<CatalogueWidgetProps> = ({
 
           <div>
             <Tooltip
-              tip={t("common:common.data_of", {
+              tip={t("common:data_of", {
                 date: toDate(metadata.data_as_of, "dd MMM yyyy", i18n.language),
               })}
             >
@@ -276,7 +276,7 @@ const CatalogueShow: FunctionComponent<CatalogueWidgetProps> = ({
               )}
             </Tooltip>
             <span className="text-zinc-500 hidden text-right text-sm md:block">
-              {t("common:common.data_of", {
+              {t("common:data_of", {
                 date: toDate(metadata.data_as_of, "dd MMM yyyy, HH:mm", i18n.language),
               })}
             </span>

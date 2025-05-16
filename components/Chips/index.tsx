@@ -44,7 +44,7 @@ const Chips: FunctionComponent<ChipsProps> = ({
           className="text-zinc-500 px-3 py-1.5 hover:text-zinc-900 dark:hover:text-white"
           onClick={onClearAll}
         >
-          {t("common:common.clear_all")}
+          {t("common:clear_all")}
         </Button>
       )}
     </ul>

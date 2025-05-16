@@ -189,7 +189,7 @@ const YearRange: FunctionComponent<DaterangeProps> = ({
                   disabled={!selectedStart || !selectedEnd}
                 >
                   <XMarkIcon className="h-4 w-4" />
-                  {t("common:common.reset_default")}
+                  {t("common:reset_default")}
                 </Button>
               </Popover.Panel>
             </Transition>

@@ -7,16 +7,16 @@ import { GetStaticProps } from "next";
 import { useTranslation } from "next-i18next";
 
 const Error500: Page = () => {
-  const { t } = useTranslation("common");
+  const { t } = useTranslation("error");
   return (
     <>
-      <Metadata title={t("common:error.500.title")} keywords={""} />
+      <Metadata title={t("500.title")} keywords={""} />
       <Container className="min-h-[76vh] pt-7 text-zinc-900">
         <ErrorStatus
-          title={t("common:error.500.title")}
-          description={t("common:error.500.description")}
+          title={t("500.title")}
+          description={t("500.description")}
           code={500}
-          reason={t("common:error.500.reason")}
+          reason={t("500.reason")}
         />
       </Container>
     </>
@@ -25,7 +25,7 @@ const Error500: Page = () => {
 
 export default Error500;
 
-export const getStaticProps: GetStaticProps = withi18n(null, async () => {
+export const getStaticProps: GetStaticProps = withi18n("error", async () => {
   return {
     props: {
       meta: {

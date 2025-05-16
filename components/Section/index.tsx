@@ -39,7 +39,7 @@ const Section: FunctionComponent<SectionProps> = forwardRef(
                 {title && typeof title === "string" ? <h4>{title}</h4> : title}
                 {date && date !== null && (
                   <span className="text-zinc-500 text-right text-sm">
-                    {t("common:common.data_of", { date: displayDate })}
+                    {t("common:data_of", { date: displayDate })}
                   </span>
                 )}
               </div>

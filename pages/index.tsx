@@ -48,7 +48,7 @@ const Home: Page = ({
   selection,
   elections,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) => {
-  const { t } = useTranslation(["dashboard-election-explorer", "common"]);
+  const { t } = useTranslation(["common", "home"]);
   const { cache } = useCache();
 
   const SEAT_OPTIONS: Array<OptionType & SeatOptions & { seat_area: string }> =
@@ -109,8 +109,8 @@ const Home: Page = ({
         })
         .catch((e) => {
           toast.error(
-            t("common:error.toast.request_failure"),
-            t("common:error.toast.try_again")
+            t("toast.request_failure"),
+            t("toast.try_again")
           );
           console.error(e);
         });
@@ -158,8 +158,8 @@ const Home: Page = ({
         })
         .catch((e) => {
           toast.error(
-            t("common:error.toast.request_failure"),
-            t("common:error.toast.try_again")
+            t("toast.request_failure"),
+            t("toast.try_again")
           );
           console.error(e);
         });
@@ -218,7 +218,7 @@ const Home: Page = ({
       <Metadata keywords={"data.spr.gov.my data malaysia election"} />
       <Hero
         background="red"
-        category={[t("common:categories.democracy"), "text-danger"]}
+        category={[t("category"), "text-danger"]}
         header={[t("header")]}
         description={[t("description")]}
         action={
@@ -228,14 +228,14 @@ const Home: Page = ({
               href="/data-catalogue"
               enableIcon
             >
-              {t("common:nav.catalogue")}
+              {t("nav.catalogue")}
             </At>
             <At
               className="btn px-3 py-1.5 text-sm"
               href="/api-docs"
               enableIcon
             >
-              {t("common:nav.api_docs")}
+              {t("nav.api_docs")}
             </At>
           </div>
         }
@@ -245,10 +245,10 @@ const Home: Page = ({
         <Section>
           <div className="xl:grid xl:grid-cols-12">
             <div className="xl:col-span-10 xl:col-start-2">
-              <h4 className="text-center">{t("seat.header")}</h4>
+              <h4 className="text-center">{t("home:header")}</h4>
               <div className="mx-auto w-full py-6 sm:w-[500px]">
                 <ComboBox<SeatOption>
-                  placeholder={t("seat.search_seat")}
+                  placeholder={t("home:search_seat")}
                   options={SEAT_OPTIONS}
                   config={{
                     baseSort: (a, b) => {
@@ -267,7 +267,7 @@ const Home: Page = ({
                       <span>{`${option.seat_name}, ${option.seat_area} `}</span>
                       <span className="text-zinc-500">
                         {"(" +
-                          t(`dashboard-election-explorer:${option.type}`) +
+                          t(`election:${option.type}`) +
                           ")"}
                       </span>
                     </>
@@ -292,11 +292,11 @@ const Home: Page = ({
               <ElectionTable
                 title={
                   <h5 className="py-6">
-                    {t("seat.title")}
+                    {t("home:title")}
                     <span className="text-primary">{data.seat_name}</span>
                   </h5>
                 }
-                data={data.elections}
+                // data={data.elections}
                 columns={seat_schema}
                 isLoading={data.loading}
               />
@@ -309,7 +309,7 @@ const Home: Page = ({
 };
 
 export const getServerSideProps: GetServerSideProps = withi18n(
-  "dashboard-election-explorer",
+  "home",
   async ({ query }) => {
     try {
       const [name, type] =
@@ -317,35 +317,35 @@ export const getServerSideProps: GetServerSideProps = withi18n(
           ? [null, null]
           : [query.name, query.type];
 
-      const [{ data: dropdown }, { data: seat }] = await Promise.all([
-        get("/explorer", {
-          explorer: "ELECTIONS",
-          dropdown: "seats_list",
-        }),
-        get("/explorer", {
-          explorer: "ELECTIONS",
-          chart: "seats",
-          seat_name: name ?? "padang-besar-perlis",
-          type: type ?? "parlimen",
-        }),
-      ]).catch((e) => {
-        throw new Error("Invalid seat name. Message: " + e);
-      });
+      // const [{ data: dropdown }, { data: seat }] = await Promise.all([
+      //   get("/explorer", {
+      //     explorer: "ELECTIONS",
+      //     dropdown: "seats_list",
+      //   }),
+      //   get("/explorer", {
+      //     explorer: "ELECTIONS",
+      //     chart: "seats",
+      //     seat_name: name ?? "padang-besar-perlis",
+      //     type: type ?? "parlimen",
+      //   }),
+      // ]).catch((e) => {
+      //   throw new Error("Invalid seat name. Message: " + e);
+      // });
 
       return {
         notFound: false,
         props: {
           meta: {
-            id: "dashboard-election-explorer",
-            type: "dashboard",
+            id: "home",
+            type: "misc",
           },
           params: { seat_name: name, type: type },
-          selection: dropdown,
-          elections:
-            seat.data.sort(
-              (a: Seat, b: Seat) =>
-                Number(new Date(b.date)) - Number(new Date(a.date))
-            ) ?? [],
+          selection: [],//dropdown,
+          elections: [],//
+            // seat.data.sort(
+            //   (a: Seat, b: Seat) =>
+            //     Number(new Date(b.date)) - Number(new Date(a.date))
+            // ) ?? [],
         },
       };
     } catch (error: any) {

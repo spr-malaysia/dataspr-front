@@ -106,7 +106,7 @@ const Hero: FunctionComponent<HeroProps> = ({
                 {result?.all_time_view && (
                   <p className="text-zinc-500 flex gap-2 text-sm" data-testid="hero-views">
                     <EyeIcon className="w-4.5 h-4.5 self-center" />
-                    {`${numFormat(result.all_time_view, "standard")} ${t("common:common.views", {
+                    {`${numFormat(result.all_time_view, "standard")} ${t("common:views", {
                       count: result.all_time_view,
                     })}`}
                   </p>
@@ -119,7 +119,7 @@ const Hero: FunctionComponent<HeroProps> = ({
                 {action}
                 {last_updated && (
                   <p className="text-zinc-500 text-sm" data-testid="hero-last-updated">
-                    {t("common:common.last_updated", {
+                    {t("common:last_updated", {
                       date: toDate(last_updated, "dd MMM yyyy, HH:mm", i18n.language),
                     })}
                   </p>
