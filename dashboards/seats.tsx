@@ -173,7 +173,6 @@ const ElectionSeatsDashboard: FunctionComponent<ElectionSeatsProps> = ({
     const finishLoading = () => {
       setData("loading", false);
       setData("seat_value", `${params.type}_${params.seat_name}`);
-      console.log(`${params.type}_${params.seat_name}`)
     };
     events.on("routeChangeComplete", finishLoading);
     return () => events.off("routeChangeComplete", finishLoading);
@@ -211,7 +210,7 @@ const ElectionSeatsDashboard: FunctionComponent<ElectionSeatsProps> = ({
               <div className="mx-auto w-full py-6 sm:w-[500px]">
                 <ComboBox<SeatOption>
                   placeholder={t("search_seat", { ns: "home" })}
-                  options={SEAT_OPTIONS} // TODO: reduce search options length
+                  options={SEAT_OPTIONS}
                   config={{
                     baseSort: (a, b) => {
                       if (a.item.seat === b.item.seat) {
@@ -222,7 +221,7 @@ const ElectionSeatsDashboard: FunctionComponent<ElectionSeatsProps> = ({
                         );
                       }
                     },
-                    keys: ["seat", "state", "type"],
+                    keys: ["label", "seat", "state", "type"],
                   }}
                   format={(option) => (
                     <>
@@ -242,7 +241,12 @@ const ElectionSeatsDashboard: FunctionComponent<ElectionSeatsProps> = ({
                       setData("loading", true);
                       setData("seat_value", selected.value);
                       const [type, seat] = selected.value.split("_");
-                      push(`/${type}/${seat}`);
+                      push(`/${type}/${seat}`)
+                        .catch((e) => {
+                          t("toast.request_failure"),
+                            toast.error("toast.try_again");
+                        })
+                        .finally(() => setData("loading", false));
                     } else setData("seat_value", selected);
                   }}
                 />
