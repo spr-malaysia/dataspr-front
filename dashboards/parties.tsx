@@ -219,9 +219,9 @@ const ElectionPartiesDashboard: FunctionComponent<ElectionPartiesProps> = ({
       <Toast />
       <Hero
         background="red"
-        category={[t("category"), "text-danger"]}
-        header={[t("header")]}
-        description={[t("description")]}
+        category={[t("hero.category", { ns: "parties" }), "text-danger"]}
+        header={[t("hero.header", { ns: "parties" })]}
+        description={[t("hero.description", { ns: "parties" })]}
         last_updated={last_updated}
       />
       <Container>

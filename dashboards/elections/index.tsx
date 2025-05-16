@@ -203,9 +203,9 @@ const ElectionExplorer: FunctionComponent<ElectionExplorerProps> = ({
       <Toast />
       <Hero
         background="red"
-        category={[t("category"), "text-danger"]}
-        header={[t("header")]}
-        description={[t("description")]}
+        category={[t("hero.category", { ns: "elections" }), "text-danger"]}
+        header={[t("hero.header", { ns: "elections" })]}
+        description={[t("hero.description", { ns: "elections" })]}
         last_updated={last_updated}
       />
       <Container>
