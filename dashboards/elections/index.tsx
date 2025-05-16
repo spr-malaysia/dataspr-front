@@ -49,6 +49,7 @@ const ElectionTable = dynamic(
   }
 );
 const Choropleth = dynamic(() => import("@charts/choropleth"), { ssr: false });
+const Toast = dynamic(() => import("@components/Toast"), { ssr: false });
 const Waffle = dynamic(() => import("@charts/waffle"), { ssr: false });
 
 interface ElectionExplorerProps {
@@ -85,35 +86,6 @@ const ElectionExplorer: FunctionComponent<ElectionExplorerProps> = ({
       icon: <FlagIcon className="mr-1 h-5 w-5" />,
     },
   ];
-
-  const waffleDummy = [
-    {
-      id: "PH",
-      label: "PH",
-      value: 82,
-    },
-    {
-      id: "BN",
-      label: "BN",
-      value: 30,
-    },
-    {
-      id: "PN",
-      label: "PN",
-      value: 74,
-    },
-    {
-      id: "GPS",
-      label: "GPS",
-      value: 23,
-    },
-    {
-      id: "Others",
-      label: "Others",
-      value: 13,
-    },
-  ];
-  const waffleColours = ["#e2462f", "#000080", "#003152", "#FF9B0E", "#E2E8F0"];
 
   const { filter, setFilter } = useFilter({
     election: params.election,
@@ -184,14 +156,12 @@ const ElectionExplorer: FunctionComponent<ElectionExplorerProps> = ({
       }
 
       Promise.all([
-        get("/explorer", {
-          explorer: "ELECTIONS",
+        get("/spr-dashboard", {
           chart: "overall_seat",
           election,
           state,
         }),
-        get("/explorer", {
-          explorer: "ELECTIONS",
+        get("/spr-dashboard", {
           chart: "full_result",
           type: "party",
           election,
@@ -242,6 +212,7 @@ const ElectionExplorer: FunctionComponent<ElectionExplorerProps> = ({
 
   return (
     <>
+      <Toast />
       <Hero
         background="red"
         category={[t("category"), "text-danger"]}
@@ -262,7 +233,7 @@ const ElectionExplorer: FunctionComponent<ElectionExplorerProps> = ({
               </WindowProvider>
             )}
             title={
-              <Label label={t("filter") + ":"} className="text-sm font-bold" />
+              <Label label={t("filters") + ":"} className="text-sm font-bold" />
             }
           >
             {(close) => (
@@ -398,7 +369,7 @@ const ElectionExplorer: FunctionComponent<ElectionExplorerProps> = ({
           </div>
 
           <Overview filter={filter} seats={seats} table={table} />
-          <hr className="dark:border-zinc-800 border-slate-200 mt-8 h-px lg:mt-12"></hr>
+          <hr className="dark:border-zinc-800 border-slate-200 pt-8 h-px lg:pt-12"></hr>
 
           {/* View the full ballot for a specific seat */}
           <BallotSeat
@@ -407,7 +378,7 @@ const ElectionExplorer: FunctionComponent<ElectionExplorerProps> = ({
             election={data.election_fullname}
           />
           <hr className="dark:border-zinc-800 border-slate-200 h-px"></hr>
-          
+
           {/* Election analysis */}
           <ElectionAnalysis
             state={filter.state ?? "mys"}
